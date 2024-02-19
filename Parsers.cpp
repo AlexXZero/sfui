@@ -202,9 +202,44 @@ static std::function<void()> GetComponentHideHandler(ComponentHandlers& componen
     }
 }
 
+// Using std::unique_ptr ensures constexpr constructor, preventing insertion into std::unordered_map before creation.
+static std::unique_ptr<std::unordered_map<std::string, CallHandler>> g_callHandlers;
+
+RegisterCallHandler_::RegisterCallHandler_(CallHandler&& handler, const std::string& handler_name)
+{
+    // Create the g_callHandlers map if not initialized.
+    if (!g_callHandlers) g_callHandlers = std::make_unique<std::unordered_map<std::string, CallHandler>>();
+
+    // Register the handler.
+    (*g_callHandlers)[handler_name] = std::move(handler);
+}
+
+static const CallHandler* FindHandler(const std::string& handlerName)
+{
+    if (!g_callHandlers) return nullptr;
+    auto it = g_callHandlers->find(handlerName);
+    return it != g_callHandlers->end() ? &it->second : nullptr;
+}
+
+static std::function<void()> GetComponentCallHandler(ComponentHandlers& component, const nlohmann::json& json)
+{
+    if (const auto* handler = FindHandler(json["call"])) { // fast option, handler should be setup at program startup
+        return [&component, handler] { (*handler)(dynamic_cast<Component&>(component)); };
+    } else {
+        return [&component, handlerName = json["call"]] { // slow option, handler is searching in runtime
+            if (const auto* handler = FindHandler(handlerName)) {
+                (*handler)(dynamic_cast<Component&>(component));
+            } else {
+                throw std::runtime_error(std::string("CallHandler \"") + std::string(handlerName) + std::string("\" not found for call"));
+            }
+        };
+    }
+}
+
 static std::map<std::string, ComponentHandlersParser> g_componentHandlerParsers = {
     {"show", GetComponentShowHandler},
     {"hide", GetComponentHideHandler},
+    {"call", GetComponentCallHandler},
 };
 
 std::function<void()> sfui::ParseComponentHandler(ComponentHandlers& component, const nlohmann::json& json)
