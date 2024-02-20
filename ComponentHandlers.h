@@ -15,6 +15,7 @@ class ComponentHandlers : public ComponentGeometry {
     using MoveHandler = std::function<void(std::int16_t /*new_x*/, std::uint16_t /*new_y*/)>;
     using ShowHandler = std::function<void(bool /*state*/)>;
     using EnableHandler = std::function<void(bool /*state*/)>;
+    using RenderHandler = std::function<void()>;
     using KeyPressHandler = std::function<void()>;
     using KeyReleaseHandler = std::function<void()>;
     using TextEnterHandler = std::function<void(std::uint32_t /*unicode*/)>;
@@ -36,6 +37,7 @@ public:
     ObserverToken OnEnable(EnableHandler&& handler) { return m_enable_handlers.Set(std::forward<EnableHandler>(handler)); }
     ObserverToken OnEnable(std::function<void()>&& handler) { return OnEnable([handler](bool state){ if (state) { handler(); } }); }
     ObserverToken OnDisable(std::function<void()>&& handler) { return OnEnable([handler](bool state){ if (!state) { handler(); } }); }
+    ObserverToken OnRender(RenderHandler&& handler) { return m_render_handlers.Set(std::forward<RenderHandler>(handler)); }
     ObserverToken OnKeyPress(sf::Keyboard::Key key, KeyPressHandler&& handler) {
         if (m_key_pressed_handlers.count(key) == 0) {
             m_key_pressed_handlers.insert({key, Observers<KeyPressHandler>()});
@@ -65,6 +67,7 @@ public:
 
 protected:
     void LinkEvent(ObserverToken observer_token) { m_observers.push_back(observer_token); }
+    void HandleRender() { m_render_handlers.Invoke(); }
 
 private:
     friend class ComponentContainer;
@@ -78,6 +81,7 @@ private:
     Observers<MoveHandler> m_move_handlers;
     Observers<ShowHandler> m_show_handlers;
     Observers<EnableHandler> m_enable_handlers;
+    Observers<RenderHandler> m_render_handlers;
     Observers<MouseMoveHandler> m_mouse_move_handlers;
     Observers<MouseEnterHandler> m_mouse_enter_handlers;
     Observers<MouseLeaveHandler> m_mouse_leave_handlers;

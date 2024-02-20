@@ -18,7 +18,7 @@ protected:
 
 private:
     friend class ComponentContainer;
-    virtual void Render_(sf::RenderWindow& window) { Render(window); }
+    virtual void Render_(sf::RenderWindow& window) { Render(window); HandleRender(); }
 };
 
 }

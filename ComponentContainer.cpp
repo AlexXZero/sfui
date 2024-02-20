@@ -43,7 +43,7 @@ void ComponentContainer::BringToBack(const Component& component)
 
 void ComponentContainer::Render_(sf::RenderWindow& window)
 {
-    Render(window);
+    Component::Render_(window);
 
     for (auto& component_up: m_components) {
         if (component_up->IsVisible()) {

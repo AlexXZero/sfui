@@ -12,19 +12,49 @@ ComponentHandlers::ComponentHandlers(ComponentContainer& parent, const nlohmann:
     if (json.contains("enabled"))   m_enabled   = json["enabled"]   .get<bool>();
     if (json.contains("visible"))   m_visible   = json["visible"]   .get<bool>();
     if (json.contains("onKeyPress")) {
-        for (const auto& key_press_json: json["onKeyPress"]) {
-            if (key_press_json.contains("key")) {
-                sf::Keyboard::Key key = ParseKey(key_press_json["key"]);
-                auto handler = ParseComponentHandler(*this, key_press_json);
+        for (const auto& handler_json: json["onKeyPress"]) {
+            if (handler_json.contains("key")) {
+                sf::Keyboard::Key key = ParseKey(handler_json["key"]);
+                auto handler = ParseComponentHandler(*this, handler_json);
                 LinkEvent(OnKeyPress(key, std::move(handler)));
             }
         }
     }
     if (json.contains("onClick")) {
-        for (const auto& click_json: json["onClick"]) {
-            // TODO: if (click_json.contains("button"))
-            auto handler = ParseComponentHandler(*this, click_json);
+        for (const auto& handler_json: json["onClick"]) {
+            // TODO: if (handler_json.contains("button"))
+            auto handler = ParseComponentHandler(*this, handler_json);
             LinkEvent(OnMouseLeftClick(std::move(handler)));
+        }
+    }
+    if (json.contains("onRender")) {
+        for (const auto& handler_json: json["onRender"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnRender(std::move(handler)));
+        }
+    }
+    if (json.contains("onShow")) {
+        for (const auto& handler_json: json["onShow"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnShow(std::move(handler)));
+        }
+    }
+    if (json.contains("onHide")) {
+        for (const auto& handler_json: json["onHide"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnHide(std::move(handler)));
+        }
+    }
+    if (json.contains("onEnable")) {
+        for (const auto& handler_json: json["onEnable"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnEnable(std::move(handler)));
+        }
+    }
+    if (json.contains("onDisable")) {
+        for (const auto& handler_json: json["onDisable"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnDisable(std::move(handler)));
         }
     }
 }
