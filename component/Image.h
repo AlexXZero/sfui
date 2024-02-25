@@ -1,13 +1,13 @@
 #ifndef SFUI_IMAGE_H_INCLUDED
 #define SFUI_IMAGE_H_INCLUDED
 
-#include "Component.h"
+#include "details/Base.h"
 
 namespace sfui {
 
-class Image: public Component {
+class Image: public ComponentBase {
 public:
-    Image(ComponentContainer& parent, const nlohmann::json& json) : Component(parent, json) {
+    Image(ComponentContainer& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
         // parse optional properties
         if (json.contains("image")) {
             m_texture.loadFromFile(json["image"].get<std::string>());

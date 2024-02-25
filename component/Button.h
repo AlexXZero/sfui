@@ -1,16 +1,16 @@
 #ifndef SFUI_BUTTON_H_INCLUDED
 #define SFUI_BUTTON_H_INCLUDED
 
-#include "Component.h"
+#include "details/Base.h"
 #include <iostream>
 
 namespace sfui {
 
-class Button: public Component {
+class Button: public ComponentBase {
     enum State { Neutral, Active, Down, Count };
 
 public:
-    Button(ComponentContainer& parent, const nlohmann::json& json) : Component(parent, json) {
+    Button(ComponentContainer& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
         // parse optional properties
         if (json.contains("image")) {
 #if 0

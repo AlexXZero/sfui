@@ -1,4 +1,4 @@
-#include "ComponentContainer.h"
+#include "Container.h"
 #include "Parsers.h"
 
 using namespace sfui;
@@ -20,7 +20,7 @@ private:
 #endif
 
 ComponentContainer::ComponentContainer(ComponentContainer& parent, const nlohmann::json& json)
-        : Component(parent, json)
+        : ComponentBase(parent, json)
 {
     ParseComponents(*this, json);
 }
@@ -43,7 +43,7 @@ void ComponentContainer::BringToBack(const Component& component)
 
 void ComponentContainer::Render_(sf::RenderWindow& window)
 {
-    Component::Render_(window);
+    ComponentBase::Render_(window);
 
     for (auto& component_up: m_components) {
         if (component_up->IsVisible()) {
@@ -60,7 +60,7 @@ bool ComponentContainer::HandleEvent_(const sf::Event& event)
         }
     }
 
-    return Component::HandleEvent_(event);
+    return ComponentBase::HandleEvent_(event);
 }
 
 Component& ComponentContainer::operator[](std::string_view name)

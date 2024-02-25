@@ -1,7 +1,7 @@
 #ifndef SFUI_COMPONENT_CONTAINER_H_INCLUDED
 #define SFUI_COMPONENT_CONTAINER_H_INCLUDED
 
-#include "Component.h"
+#include "Base.h"
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <memory>
@@ -9,7 +9,7 @@
 
 namespace sfui {
 
-class ComponentContainer: public Component {
+class ComponentContainer: public ComponentBase {
 public:
     ComponentContainer(ComponentContainer& parent, const nlohmann::json& json);
     virtual ~ComponentContainer() = default;

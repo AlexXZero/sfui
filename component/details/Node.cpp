@@ -1,5 +1,5 @@
-#include "ComponentNode.h"
-#include "ComponentContainer.h"
+#include "Node.h"
+#include "Container.h"
 
 using namespace sfui;
 

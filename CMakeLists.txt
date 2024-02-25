@@ -6,11 +6,12 @@ find_package(nlohmann_json REQUIRED)
 
 add_library(sfui STATIC
     UserInterface.cpp
-    ComponentNode.cpp
-    ComponentGeometry.cpp
-    ComponentHandlers.cpp
-    ComponentContainer.cpp
-    Parsers.cpp
+    component/Window.cpp
+    component/details/Node.cpp
+    component/details/Geometry.cpp
+    component/details/Handlers.cpp
+    component/details/Container.cpp
+    component/details/Parsers.cpp
 )
 
 # Link dependent libraries

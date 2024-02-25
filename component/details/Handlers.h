@@ -1,8 +1,8 @@
 #ifndef SFUI_COMPONENT_HANDLERS_H_INCLUDED
 #define SFUI_COMPONENT_HANDLERS_H_INCLUDED
 
-#include "ComponentGeometry.h"
-#include "Observer.h"
+#include "Geometry.h"
+#include "../../utils/Observer.h"
 #include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 #include <functional>

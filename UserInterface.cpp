@@ -1,5 +1,5 @@
 #include "UserInterface.h"
-#include "Window.h"
+#include "component/Window.h"
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include <exception>

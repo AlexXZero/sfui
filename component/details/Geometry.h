@@ -1,7 +1,7 @@
 #ifndef SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 #define SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 
-#include "ComponentNode.h"
+#include "Node.h"
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <variant>

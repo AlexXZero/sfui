@@ -6,9 +6,9 @@
 #include <functional>
 #include <cstdint>
 #include <string>
-#include "utils/function_traits.h"
-#include "Component.h"
-#include "ComponentContainer.h"
+#include "../../utils/function_traits.h"
+#include "Base.h"
+#include "Container.h"
 
 namespace sfui {
 

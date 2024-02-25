@@ -1,5 +1,5 @@
-#include "ComponentHandlers.h"
-#include "ComponentContainer.h"
+#include "Handlers.h"
+#include "Container.h"
 #include "Parsers.h"
 
 using namespace sfui;

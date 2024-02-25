@@ -1,7 +1,7 @@
-#ifndef SFUI_COMPONENT_H_INCLUDED
-#define SFUI_COMPONENT_H_INCLUDED
+#ifndef SFUI_COMPONENT_BASE_H_INCLUDED
+#define SFUI_COMPONENT_BASE_H_INCLUDED
 
-#include "ComponentHandlers.h"
+#include "Handlers.h"
 #include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -21,6 +21,8 @@ private:
     virtual void Render_(sf::RenderWindow& window) { Render(window); HandleRender(); }
 };
 
+using ComponentBase = Component;
+
 }
 
-#endif // SFUI_COMPONENT_H_INCLUDED
+#endif // SFUI_COMPONENT_BASE_H_INCLUDED

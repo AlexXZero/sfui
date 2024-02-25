@@ -1,8 +1,8 @@
 #ifndef SFUI_FORM_H_INCLUDED
 #define SFUI_FORM_H_INCLUDED
 
-#include "ComponentContainer.h"
-#include "Parsers.h"
+#include "details/Container.h"
+#include "details/Parsers.h"
 
 namespace sfui {
 
