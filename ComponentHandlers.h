@@ -12,7 +12,7 @@ namespace sfui {
 
 class ComponentHandlers : public ComponentGeometry {
     using ResizeHandler = std::function<void(std::uint16_t /*new_width*/, std::uint16_t /*new_width*/)>;
-    using MoveHandler = std::function<void(std::int16_t /*new_x*/, std::uint16_t /*new_y*/)>;
+    using MoveHandler = std::function<void(std::int16_t /*new_x*/, std::int16_t /*new_y*/)>;
     using ShowHandler = std::function<void(bool /*state*/)>;
     using EnableHandler = std::function<void(bool /*state*/)>;
     using RenderHandler = std::function<void()>;

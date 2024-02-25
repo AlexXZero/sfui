@@ -6,6 +6,7 @@
 #include <functional>
 #include <cstdint>
 #include <string>
+#include "utils/function_traits.h"
 #include "Component.h"
 #include "ComponentContainer.h"
 
@@ -23,7 +24,25 @@ using ComponentHandlersParser = std::function<std::function<void()>(ComponentHan
 std::function<void()> ParseComponentHandler(ComponentHandlers& component, const nlohmann::json& json);
 
 using CallHandler = std::function<void(Component&)>;
-struct RegisterCallHandler_ { RegisterCallHandler_(CallHandler&& handler, const std::string& handler_name); };
+struct RegisterCallHandler_ {
+    template<typename F> RegisterCallHandler_(F&& handler, const std::string& handler_name) {
+        if constexpr (utils::arguments_count<F> == 0) {
+            Impl([handler = std::forward<F>(handler)](Component&){ handler(); }, handler_name);
+        } else {
+            using T = std::remove_reference_t<utils::first_argument_t<F>>;
+            static_assert(std::is_base_of_v<Component, T>, "CallHandler must accept a Component or derived type argument!");
+
+            if constexpr (std::is_same_v<T, Component>) {
+                Impl(std::forward<F>(handler), handler_name);
+            } else {
+                Impl([handler = std::forward<F>(handler)](Component& component){ handler(dynamic_cast<T&>(component)); }, handler_name);
+            }
+        }
+    }
+
+private:
+    void Impl(CallHandler&& handler, const std::string& handler_name);
+};
 #define SFUI_GET_COUNT(_1, _2, COUNT, ...) COUNT
 #define SFUI_COUNT_ARGS(...) SFUI_GET_COUNT(__VA_ARGS__, 2, 1, 0)
 #define RegisterCallHandler(...) SFUI_REGISTER_CALL_HANDLER_IMPL_(SFUI_COUNT_ARGS(__VA_ARGS__), __VA_ARGS__)

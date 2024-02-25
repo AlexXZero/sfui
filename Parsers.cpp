@@ -205,7 +205,7 @@ static std::function<void()> GetComponentHideHandler(ComponentHandlers& componen
 // Using std::unique_ptr ensures constexpr constructor, preventing insertion into std::unordered_map before creation.
 static std::unique_ptr<std::unordered_map<std::string, CallHandler>> g_callHandlers;
 
-RegisterCallHandler_::RegisterCallHandler_(CallHandler&& handler, const std::string& handler_name)
+void RegisterCallHandler_::Impl(CallHandler&& handler, const std::string& handler_name)
 {
     // Create the g_callHandlers map if not initialized.
     if (!g_callHandlers) g_callHandlers = std::make_unique<std::unordered_map<std::string, CallHandler>>();
