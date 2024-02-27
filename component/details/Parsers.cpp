@@ -185,7 +185,7 @@ static std::function<void()> GetComponentShowHandler(ComponentHandlers& componen
     std::string component_name = json["show"];
     if (component_name == "this") {
         return [&component] { component.Show(); };
-    } else if (auto& root = component.Root(); component_name.find(root.Name()) == 0) {
+    } else if (auto& root = static_cast<ComponentContainer&>(component.Root()); component_name.find(root.Name()) == 0) {
         return [&root, component_name] { root[component_name].Show(); };
     } else {
         return [&component, component_name] { dynamic_cast<ComponentContainer&>(component)[component_name].Show(); };
@@ -197,7 +197,7 @@ static std::function<void()> GetComponentHideHandler(ComponentHandlers& componen
     std::string component_name = json["hide"];
     if (component_name == "this") {
         return [&component] { component.Hide(); };
-    } else if (auto& root = component.Root(); component_name.find(root.Name()) == 0) {
+    } else if (auto& root = static_cast<ComponentContainer&>(component.Root()); component_name.find(root.Name()) == 0) {
         return [&root, component_name] { root[component_name].Hide(); };
     } else {
         return [&component, component_name] { dynamic_cast<ComponentContainer&>(component)[component_name].Hide(); };

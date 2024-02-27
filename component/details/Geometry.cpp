@@ -4,7 +4,7 @@
 
 using namespace sfui;
 
-ComponentGeometry::ComponentGeometry(ComponentContainer& parent, const nlohmann::json& json)
+ComponentGeometry::ComponentGeometry(Component& parent, const nlohmann::json& json)
         : ComponentNode(parent, json)
 {
     if (IsRoot())                   m_position  = Position::Absolute;

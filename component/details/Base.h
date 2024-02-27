@@ -9,7 +9,7 @@ namespace sfui {
 
 class Component : public ComponentHandlers {
 public:
-    Component(class ComponentContainer& parent, const nlohmann::json& json)
+    Component(Component& parent, const nlohmann::json& json)
             : ComponentHandlers(parent, json) {}
     virtual ~Component() = default;
     virtual void Render(sf::RenderWindow& window) = 0;

@@ -25,7 +25,7 @@ class ComponentHandlers : public ComponentGeometry {
     using MouseLeaveHandler = std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>;
     using MouseClickHandler = std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)>;
 public:
-    ComponentHandlers(ComponentContainer& parent, const nlohmann::json& json);
+    ComponentHandlers(Component& parent, const nlohmann::json& json);
     virtual ~ComponentHandlers() = default;
 
     // Handlers

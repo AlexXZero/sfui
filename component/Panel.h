@@ -10,7 +10,7 @@ namespace sfui {
 
 class Panel: public ComponentContainer {
 public:
-    Panel(ComponentContainer& parent, const nlohmann::json& json) : ComponentContainer(parent, json), m_background(*this, GetBackgroundProperties(json)) {
+    Panel(Component& parent, const nlohmann::json& json) : ComponentContainer(parent, json), m_background(*this, GetBackgroundProperties(json)) {
         // parse optional properties
         if (json.contains("background-image") && (!json.contains("width") || !json.contains("height"))) {
             auto [width, height] = m_background.GetNativeSize();

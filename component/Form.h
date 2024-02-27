@@ -8,7 +8,7 @@ namespace sfui {
 
 class Form: public ComponentContainer {
 public:
-    Form(ComponentContainer& parent, const nlohmann::json& json) : ComponentContainer(parent, json) {
+    Form(Component& parent, const nlohmann::json& json) : ComponentContainer(parent, json) {
         // parse optional properties
         if (json.contains("background")) SetBackground(ParseColor(json["background"]));
         if (json.contains("background-image")) {

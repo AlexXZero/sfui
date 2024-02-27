@@ -11,7 +11,7 @@ namespace sfui {
 
 class ComponentContainer: public ComponentBase {
 public:
-    ComponentContainer(ComponentContainer& parent, const nlohmann::json& json);
+    ComponentContainer(Component& parent, const nlohmann::json& json);
     virtual ~ComponentContainer() = default;
 
     template<typename Component, typename... Args>

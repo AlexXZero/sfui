@@ -2,7 +2,7 @@
 #define SFUI_BUTTON_H_INCLUDED
 
 #include "details/Base.h"
-#include <iostream>
+#include "Image.h"
 
 namespace sfui {
 
@@ -10,91 +10,57 @@ class Button: public ComponentBase {
     enum State { Neutral, Active, Down, Count };
 
 public:
-    Button(ComponentContainer& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
+    Button(Component& parent, const nlohmann::json& json) :
+            ComponentBase(parent, json), m_images{
+                Image(*this, GetImageProperties(json, "neutral")),
+                Image(*this, GetImageProperties(json, "active")),
+                Image(*this, GetImageProperties(json, "down"))} {
         // parse optional properties
-        if (json.contains("image")) {
+        if (json.contains("image") && (!json.contains("width") || !json.contains("height"))) {
 #if 0
             if (json["image"].is_string()) {
-                m_texture.loadFromFile(json["image"].get<std::string>());
-                m_rectangle.setTexture(&m_texture);
-                auto [width, height] = m_texture.getSize();
+                auto [width, height] = m_images[State::Neutral].GetNativeSize();
                 if (!json.contains("width")) SetWidth(width);
                 if (!json.contains("height")) SetHeight(height);
-                m_rectangle.setSize({Width(), Height()});
-                m_rectangle.setPosition(AbsoluteX(), AbsoluteY());
-                //OnResize([this](std::uint16_t width, std::uint16_t height){ m_rectangle.setSize(sf::Vector2f(width, height)); });
-                //OnMove([this](std::int16_t x, std::int16_t y){ m_rectangle.setPosition(x, y); });
+                //OnResize([this](std::uint16_t width, std::uint16_t height){ m_image[State::Neutral].setSize(sf::Vector2f(width, height)); });
+                //OnMove([this](std::int16_t x, std::int16_t y){ m_image[State::Neutral].setPosition(x, y); });
             } else {
             }
 #endif
             if (json["image"].contains("down")) {
-                sf::Texture texture;
-                texture.loadFromFile(json["image"]["down"].get<std::string>());
-                auto [width, height] = texture.getSize();
+                auto [width, height] = m_images[State::Down].GetNativeSize();
                 if (!json.contains("width")) SetWidth(width);
                 if (!json.contains("height")) SetHeight(height);
-                m_rectangle.setSize({Width(), Height()});
-                m_rectangle.setPosition(AbsoluteX(), AbsoluteY());
-                m_textures[State::Down] = texture;
-                m_rectangle.setTexture(&m_textures[State::Down].value());
             }
             if (json["image"].contains("active")) {
-                sf::Texture texture;
-                texture.loadFromFile(json["image"]["active"].get<std::string>());
-                auto [width, height] = texture.getSize();
+                auto [width, height] = m_images[State::Active].GetNativeSize();
                 if (!json.contains("width")) SetWidth(width);
                 if (!json.contains("height")) SetHeight(height);
-                m_rectangle.setSize({Width(), Height()});
-                m_rectangle.setPosition(AbsoluteX(), AbsoluteY());
-                m_textures[State::Active] = texture;
-                m_rectangle.setTexture(&m_textures[State::Active].value());
             }
             if (json["image"].contains("neutral")) {
-                sf::Texture texture;
-                texture.loadFromFile(json["image"]["neutral"].get<std::string>());
-                auto [width, height] = texture.getSize();
+                auto [width, height] = m_images[State::Neutral].GetNativeSize();
                 if (!json.contains("width")) SetWidth(width);
                 if (!json.contains("height")) SetHeight(height);
-                m_rectangle.setSize({Width(), Height()});
-                m_rectangle.setPosition(AbsoluteX(), AbsoluteY());
-                m_textures[State::Neutral] = texture;
-                m_rectangle.setTexture(&m_textures[State::Neutral].value());
             }
         }
-        LinkEvent(OnMouseEnter([this]{ m_state = Active; m_rectangle.setTexture(&m_textures[m_state].value()); }));
-        LinkEvent(OnMouseLeave([this]{ m_state = Neutral; m_rectangle.setTexture(&m_textures[m_state].value()); }));
+        LinkEvent(OnMouseEnter([this]{ m_state = Active; }));
+        LinkEvent(OnMouseLeave([this]{ m_state = Neutral; }));
     }
     ~Button() = default;
 
     void Render(sf::RenderWindow& window) override {
-        if (m_textures[m_state].has_value()) {
-            const sf::Vector2f old_position = m_rectangle.getPosition();
-            const sf::Vector2f new_position(AbsoluteX(), AbsoluteY());
-            if (old_position != new_position) {
-                m_rectangle.setPosition(new_position);
-            }
-
-            const sf::Vector2f old_size = m_rectangle.getSize();
-            const sf::Vector2f new_size(Width(), Height());
-            if (old_size != new_size) {
-                m_rectangle.setSize(new_size);
-            }
-
-    #if 0 // TODO (there is a wrong version, more complex path should be done here and for position as well)
-            const sf::IntRect old_texture_rect = m_rectangle.getTextureRect();
-            const sf::IntRect new_texture_rect(Left() < 0 Left() : 0, Parent().AbsoluteY(), Parent().Width(), Parent().Height());
-            if (old_texture_rect != new_texture_rect) {
-                m_rectangle.setTextureRect(new_texture_rect);
-            }
-    #endif
-
-            window.draw(m_rectangle);
-        }
+        m_images[m_state].Render(window);
     }
 
 private:
-    std::array<std::optional<sf::Texture>, State::Count> m_textures;
-    sf::RectangleShape m_rectangle;
+    static nlohmann::json GetImageProperties(nlohmann::json json, const std::string& state) {
+        nlohmann::json properties {{"name", std::string("_") + state}};
+        if (json.contains("image") && json["image"].contains(state)) properties += {"image", json["image"][state]};
+        return properties;
+    }
+
+private:
+    std::array<Image, State::Count> m_images;
     State m_state = State::Neutral;
 };
 

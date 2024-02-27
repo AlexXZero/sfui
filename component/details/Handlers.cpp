@@ -5,7 +5,7 @@
 using namespace sfui;
 
 // ComponentHandlers
-ComponentHandlers::ComponentHandlers(ComponentContainer& parent, const nlohmann::json& json)
+ComponentHandlers::ComponentHandlers(Component& parent, const nlohmann::json& json)
         : ComponentGeometry(parent, json), m_enabled(true), m_visible(true)
 {
     // parse optional properties
@@ -94,9 +94,7 @@ bool ComponentHandlers::HandleEvent_(const sf::Event& event)
         }
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
             std::cerr << Name() << ": Press: " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
-            Parent().BringToFront(dynamic_cast<Component&>(*this));
-            //Parent().BringToFront(m_parent["Government"]);
-            //Parent().BringToBack(m_parent["Government"]);
+            dynamic_cast<ComponentContainer&>(Parent()).BringToFront(dynamic_cast<Component&>(*this));
             return true;
         }
         break;

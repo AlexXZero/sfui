@@ -19,7 +19,7 @@ private:
 }
 #endif
 
-ComponentContainer::ComponentContainer(ComponentContainer& parent, const nlohmann::json& json)
+ComponentContainer::ComponentContainer(Component& parent, const nlohmann::json& json)
         : ComponentBase(parent, json)
 {
     ParseComponents(*this, json);

@@ -6,16 +6,16 @@
 
 namespace sfui {
 
-class ComponentContainer;
+class Component;
 
 class ComponentNode {
 public:
-    ComponentNode(ComponentContainer& parent, const nlohmann::json& json);
+    ComponentNode(Component& parent, const nlohmann::json& json);
     virtual ~ComponentNode() = default;
 
     const std::string& Name() const;
-    ComponentContainer& Parent() const;
-    ComponentContainer& Root() const;
+    Component& Parent() const;
+    Component& Root() const;
     bool IsRoot() const;
 
 private:
@@ -25,7 +25,7 @@ private:
     ComponentNode& operator=(ComponentNode&&) = delete;
 
 private:
-    ComponentContainer& m_parent;
+    Component& m_parent;
     std::string m_name;
 };
 

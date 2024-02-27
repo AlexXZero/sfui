@@ -16,7 +16,7 @@ public:
     using SizePixels = std::uint16_t;
     using SizePercentage = float;
 
-    ComponentGeometry(ComponentContainer& parent, const nlohmann::json& json);
+    ComponentGeometry(Component& parent, const nlohmann::json& json);
     virtual ~ComponentGeometry() = default;
 
     // Getters

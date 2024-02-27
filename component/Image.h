@@ -7,7 +7,7 @@ namespace sfui {
 
 class Image: public ComponentBase {
 public:
-    Image(ComponentContainer& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
+    Image(Component& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
         // parse optional properties
         if (json.contains("image")) {
             SetImage(json["image"].get<std::string>());
