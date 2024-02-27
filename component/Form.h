@@ -35,7 +35,6 @@ public:
         m_background->setTexture(&m_texture);
     }
 
-protected:
     void Render(sf::RenderWindow& window) override {
         if (m_background.has_value()) {
             const sf::Vector2f old_position = m_background->getPosition();

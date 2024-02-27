@@ -66,7 +66,6 @@ public:
     }
     ~Button() = default;
 
-protected:
     void Render(sf::RenderWindow& window) override {
         if (m_textures[m_state].has_value()) {
             const sf::Vector2f old_position = m_rectangle.getPosition();

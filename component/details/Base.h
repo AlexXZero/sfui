@@ -12,8 +12,6 @@ public:
     Component(class ComponentContainer& parent, const nlohmann::json& json)
             : ComponentHandlers(parent, json) {}
     virtual ~Component() = default;
-
-protected:
     virtual void Render(sf::RenderWindow& window) = 0;
 
 private:

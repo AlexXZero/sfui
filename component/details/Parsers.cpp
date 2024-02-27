@@ -151,12 +151,14 @@ sf::Keyboard::Key sfui::ParseKey(const nlohmann::json& json)
 
 //=== Components parser ===//
 #include "../Form.h"
+#include "../Panel.h"
 #include "../Image.h"
 #include "../Button.h"
 
 static std::unordered_map<std::string, ComponentParser> g_componentParsers = {
     {"buttons", MakeComponentParser<Button> },
     {"images",  MakeComponentParser<Image>  },
+    {"panels",  MakeComponentParser<Panel>  },
     {"forms",   MakeComponentParser<Form>   },
 };
 

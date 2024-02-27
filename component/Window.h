@@ -19,7 +19,6 @@ public:
     // Handlers
     ObserverToken OnClose(CloseHandler&& handler) { return m_close_handlers.Set(std::forward<CloseHandler>(handler)); }
 
-protected:
     void Render(sf::RenderWindow& window) override;
 
 private:
