@@ -27,6 +27,7 @@ ComponentContainer::ComponentContainer(Component& parent, const nlohmann::json& 
 
 void ComponentContainer::BringToFront(const Component& component)
 {
+    if (&component == this) return;
     auto predicate = [&component](const auto& c){ return c.get() == &component; };
     auto it = std::find_if(m_components.rbegin(), m_components.rend(), predicate);
     assert(it != m_components.rend());
@@ -35,6 +36,7 @@ void ComponentContainer::BringToFront(const Component& component)
 
 void ComponentContainer::BringToBack(const Component& component)
 {
+    if (&component == this) return;
     auto predicate = [&component](const auto& c){ return c.get() == &component; };
     auto it = std::find_if(m_components.begin(), m_components.end(), predicate);
     assert(it != m_components.end());
