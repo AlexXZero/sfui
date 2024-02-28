@@ -1,4 +1,5 @@
 #include "UserInterface.h"
+#include "FontLibrary.h"
 #include "component/Window.h"
 #include <nlohmann/json.hpp>
 #include <filesystem>
@@ -49,6 +50,15 @@ UserInterface::UserInterface(const std::string& configDir, const std::string& co
 {
     auto configJSON = import(configDir, configFile);
     resolve_imports(configDir, configJSON);
+
+    if (configJSON.contains("fonts")) {
+        for (const auto& fontConfig: configJSON["fonts"]) {
+            FontLibrary::Load(fontConfig["name"], fontConfig["file"]);
+            if (fontConfig.contains("default") && fontConfig["default"].get<bool>()) {
+                FontLibrary::SetDefaultFont(FontLibrary::Get(fontConfig["name"]));
+            }
+        }
+    }
 
     if (configJSON.contains("windows")) {
         for (const auto& windowConfig: configJSON["windows"]) {

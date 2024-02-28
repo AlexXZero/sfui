@@ -5,6 +5,7 @@ find_package(SFML COMPONENTS graphics REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 add_library(sfui STATIC
+    FontLibrary.cpp
     UserInterface.cpp
     component/Window.cpp
     component/details/Node.cpp

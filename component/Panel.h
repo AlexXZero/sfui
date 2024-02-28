@@ -40,7 +40,7 @@ public:
 
 private:
     static nlohmann::json GetBackgroundProperties(nlohmann::json json) {
-        nlohmann::json background {{"name", "_background"}, {"ignored", true}, {"visible", true}};
+        nlohmann::json background {{"name", "_background"}, {"width", "100%"}, {"height", "100%"}};
         if (json.contains("background-image")) background += {"image", json["background-image"]};
         if (json.contains("background-color")) background += {"background-color", json["background-color"]};
         return background;
