@@ -4,6 +4,8 @@
 
 using namespace sfui;
 
+static ComponentHandlers* g_focusedComponent = nullptr; // TODO: use weak_ptr?
+
 // ComponentHandlers
 ComponentHandlers::ComponentHandlers(Component& parent, const nlohmann::json& json)
         : ComponentGeometry(parent, json), m_enabled(true), m_visible(true)
@@ -59,6 +61,13 @@ ComponentHandlers::ComponentHandlers(Component& parent, const nlohmann::json& js
     }
 }
 
+ComponentHandlers::~ComponentHandlers()
+{
+    if (g_focusedComponent == this) {
+        g_focusedComponent = nullptr;
+    }
+}
+
 #include <iostream>
 bool ComponentHandlers::HandleEvent_(const sf::Event& event)
 {
@@ -88,6 +97,14 @@ bool ComponentHandlers::HandleEvent_(const sf::Event& event)
         break;
 
     case sf::Event::MouseButtonPressed:
+        if (g_focusedComponent != this && g_focusedComponent && g_focusedComponent->m_focus_lost_handlers.Count() > 0) {
+            g_focusedComponent->m_focus_lost_handlers.Invoke();
+            g_focusedComponent = nullptr;
+        }
+        if (g_focusedComponent != this && Contains(event.mouseButton.x, event.mouseButton.y) && m_focus_gain_handlers.Count() > 0) {
+            g_focusedComponent = this;
+            m_focus_gain_handlers.Invoke();
+        }
         if (Contains(event.mouseButton.x, event.mouseButton.y) && m_mouse_click_handlers.Count() > 0) {
             m_mouse_click_handlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             return true;

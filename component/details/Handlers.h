@@ -26,9 +26,11 @@ class ComponentHandlers : public ComponentGeometry {
     using MouseClickHandler = std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)>;
 public:
     ComponentHandlers(Component& parent, const nlohmann::json& json);
-    virtual ~ComponentHandlers() = default;
+    virtual ~ComponentHandlers();
 
     // Handlers
+    ObserverToken OnFocusGain(std::function<void()>&& handler) { return m_focus_gain_handlers.Set(std::forward<std::function<void()>>(handler)); }
+    ObserverToken OnFocusLost(std::function<void()>&& handler) { return m_focus_lost_handlers.Set(std::forward<std::function<void()>>(handler)); }
     ObserverToken OnResize(ResizeHandler&& handler) { return m_resize_handlers.Set(std::forward<ResizeHandler>(handler)); }
     ObserverToken OnMove(MoveHandler&& handler) { return m_move_handlers.Set(std::forward<MoveHandler>(handler)); }
     ObserverToken OnShow(ShowHandler&& handler) { return m_show_handlers.Set(std::forward<ShowHandler>(handler)); }
@@ -89,6 +91,8 @@ private:
     std::map<sf::Keyboard::Key, Observers<KeyPressHandler>> m_key_pressed_handlers;
     std::map<sf::Keyboard::Key, Observers<KeyReleaseHandler>> m_key_released_handlers;
     Observers<TextEnterHandler> m_text_enter_handlers;
+    Observers<std::function<void()>> m_focus_gain_handlers;
+    Observers<std::function<void()>> m_focus_lost_handlers;
     std::pair<std::int16_t, std::int16_t> m_mouse_old_position;
 };
 
