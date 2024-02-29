@@ -157,11 +157,11 @@ sf::Keyboard::Key sfui::ParseKey(const nlohmann::json& json)
 #include "../Button.h"
 
 static std::unordered_map<std::string, ComponentParser> g_componentParsers = {
-    {"buttons", MakeComponentParser<Button> },
-    {"images",  MakeComponentParser<Image>  },
-    {"labels",  MakeComponentParser<Label>  },
-    {"panels",  MakeComponentParser<Panel>  },
-    {"forms",   MakeComponentParser<Form>   },
+    {"button",  MakeComponentParser<Button> },
+    {"image",   MakeComponentParser<Image>  },
+    {"label",   MakeComponentParser<Label>  },
+    {"panel",   MakeComponentParser<Panel>  },
+    {"form",    MakeComponentParser<Form>   },
 };
 
 void sfui::SetComponentParser(std::string key, ComponentParser parser)
@@ -171,10 +171,17 @@ void sfui::SetComponentParser(std::string key, ComponentParser parser)
 
 void sfui::ParseComponents(ComponentContainer& parent, const nlohmann::json& json)
 {
-    for (const auto& [key, componentParser]: g_componentParsers) {
-        if (json.contains(key)) {
-            for (const auto& componentJson: json[key]) {
+    if (json.contains("elements")) {
+        for (const auto& componentJson: json["elements"]) {
+            if (!componentJson.contains("type") || !componentJson["type"].is_string()) {
+                throw std::runtime_error("Invalid element type: \"" + componentJson.dump() + "\"");
+            }
+
+            if (g_componentParsers.count(componentJson["type"]) > 0) {
+                const auto& componentParser = g_componentParsers[componentJson["type"]];
                 componentParser(parent, componentJson);
+            } else {
+                //throw std::runtime_error("\"" + componentJson["type"].dump() + "\" type component not found");
             }
         }
     }
