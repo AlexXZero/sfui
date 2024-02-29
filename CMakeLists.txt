@@ -7,6 +7,7 @@ find_package(nlohmann_json REQUIRED)
 add_library(sfui STATIC
     FontLibrary.cpp
     UserInterface.cpp
+    component/Label.cpp
     component/Window.cpp
     component/details/Node.cpp
     component/details/Geometry.cpp
