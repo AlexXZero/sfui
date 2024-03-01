@@ -1,22 +1,22 @@
 #ifndef SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 #define SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 
-#include "Node.h"
+#include "Component.h"
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <variant>
 
 namespace sfui {
 
-class ComponentGeometry : public ComponentNode {
-public:
-    enum class Position { Relative, Absolute };
-    using OffsetPixels = std::int16_t;
-    using OffsetPercentage = float;
-    using SizePixels = std::uint16_t;
-    using SizePercentage = float;
+enum class Position { Relative, Absolute };
+using OffsetPixels      = std::int16_t;
+using OffsetPercentage  = float;
+using SizePixels        = std::uint16_t;
+using SizePercentage    = float;
 
-    ComponentGeometry(Component& parent, const nlohmann::json& json);
+class ComponentGeometry : public Component {
+public:
+    ComponentGeometry(ComponentBase& parent, const nlohmann::json& json);
     virtual ~ComponentGeometry() = default;
 
     // Getters
@@ -36,12 +36,12 @@ public:
     bool Contains(std::pair<OffsetPixels, OffsetPixels> point) const;
 
     // Setters
-    void SetLeft(OffsetPixels left_offset)      { m_left = left_offset; }
-    void SetRight(OffsetPixels right_offset)    { m_right = right_offset; }
-    void SetTop(OffsetPixels top_offset)        { m_top = top_offset; }
-    void SetBottom(OffsetPixels bottom_offset)  { m_bottom = bottom_offset; }
-    void SetWidth(SizePixels width)             { m_width = width; }
-    void SetHeight(SizePixels height)           { m_height = height; }
+    void SetLeft(OffsetPixels leftOffset);
+    void SetRight(OffsetPixels rightOffset);
+    void SetTop(OffsetPixels topOffset);
+    void SetBottom(OffsetPixels bottomOffset);
+    void SetWidth(SizePixels width);
+    void SetHeight(SizePixels height);
 
 private:
     // Getters for the parent's dimensions
@@ -52,6 +52,9 @@ private:
     static Position ParsePosition(const nlohmann::json& json);
     static std::variant<OffsetPixels, OffsetPercentage> ParseOffset(const nlohmann::json& json);
     static std::variant<SizePixels, SizePercentage> ParseSize(const nlohmann::json& json);
+
+    virtual void OnResize() = 0;
+    virtual void OnMove() = 0;
 
 private:
     Position m_position = Position::Relative;

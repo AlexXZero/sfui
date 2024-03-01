@@ -3,7 +3,7 @@
 
 namespace sfui {
 
-Window::Window(const nlohmann::json& json) : ComponentContainer(*this, json), m_title(json["name"])
+Window::Window(const nlohmann::json& json) : ComponentBase(*this, json), m_title(json["name"])
 {
     // parse optional properties
     if (json.contains("title")) SetTitle(json["title"].get<std::string>());

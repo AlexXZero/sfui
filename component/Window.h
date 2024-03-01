@@ -1,11 +1,11 @@
 #ifndef SFUI_WINDOW_H_INCLUDED
 #define SFUI_WINDOW_H_INCLUDED
 
-#include "details/Container.h"
+#include "details/ComponentBase.h"
 
 namespace sfui {
 
-class Window: public ComponentContainer {
+class Window: public ComponentBase {
     using CloseHandler = std::function<void()>;
 public:
     Window(const nlohmann::json& json);

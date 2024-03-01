@@ -5,7 +5,7 @@
 
 namespace sfui {
 
-Label::Label(Component& parent, const nlohmann::json& json) : ComponentBase(parent, json)
+Label::Label(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json)
 {
     // parse optional properties
     if (json.contains("background-color")) {

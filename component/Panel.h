@@ -1,16 +1,16 @@
 #ifndef SFUI_PANEL_H_INCLUDED
 #define SFUI_PANEL_H_INCLUDED
 
-#include "details/Container.h"
+#include "details/ComponentBase.h"
 #include "details/Parsers.h"
 #include "Image.h"
 
 namespace sfui {
 
 
-class Panel: public ComponentContainer {
+class Panel: public ComponentBase {
 public:
-    Panel(Component& parent, const nlohmann::json& json) : ComponentContainer(parent, json), m_background(*this, GetBackgroundProperties(json)) {
+    Panel(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json), m_background(*this, GetBackgroundProperties(json)) {
         // parse optional properties
         if (json.contains("background-image") && (!json.contains("width") || !json.contains("height"))) {
             auto [width, height] = m_background.GetNativeSize();

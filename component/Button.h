@@ -1,7 +1,7 @@
 #ifndef SFUI_BUTTON_H_INCLUDED
 #define SFUI_BUTTON_H_INCLUDED
 
-#include "details/Base.h"
+#include "details/ComponentBase.h"
 #include "Image.h"
 
 namespace sfui {
@@ -10,7 +10,7 @@ class Button: public ComponentBase {
     enum State { Neutral, Active, Down, Count };
 
 public:
-    Button(Component& parent, const nlohmann::json& json) :
+    Button(ComponentBase& parent, const nlohmann::json& json) :
             ComponentBase(parent, json), m_images{
                 Image(*this, GetImageProperties(json, "neutral")),
                 Image(*this, GetImageProperties(json, "active")),

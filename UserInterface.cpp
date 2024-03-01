@@ -10,7 +10,7 @@
 namespace sfui {
 
 struct UserInterface::Impl {
-    std::map<std::string, Window> windows;
+    std::map<std::string, Window> windows; // FIXME UB: all components should be created as shared_ptr to let shared_from_this working!
     // TODO: std::list<Font> m_fonts;
 };
 
@@ -96,7 +96,7 @@ Component& UserInterface::operator[](const std::string& name)
         return m_pImpl->windows.at(name);
     }
 
-    return dynamic_cast<ComponentContainer&>(operator[](name.substr(0u, nameEnd))).operator[](name.substr(nameEnd + 1));
+    return operator[](name.substr(0u, nameEnd)).operator[](name.substr(nameEnd + 1));
 }
 
 } // end of namespace sfui

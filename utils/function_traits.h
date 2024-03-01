@@ -44,6 +44,10 @@ using function_argument_t = typename function_traits<Func>::arg<N>::type;
 template<typename Func, typename = std::enable_if_t<(arguments_count<Func> > 0)>>
 using first_argument_t = function_argument_t<Func, 0>;
 
+// See https://stackoverflow.com/questions/57787666/is-it-possible-to-implement-always-false-in-the-c-standard-library
+template<typename...>
+inline constexpr bool always_false_v = false;
+
 }
 
 #endif // UTILS_FUNCTION_TRAITS_H

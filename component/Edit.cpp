@@ -5,7 +5,7 @@
 
 namespace sfui {
 
-Edit::Edit(Component& parent, const nlohmann::json& json) : ComponentBase(parent, json)
+Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json)
 {
     // parse optional properties
     if (json.contains("background-color")) {
@@ -32,8 +32,8 @@ Edit::Edit(Component& parent, const nlohmann::json& json) : ComponentBase(parent
     m_text.setPosition(AbsoluteX(), AbsoluteY());
 
     m_focused = false;
-    LinkEvent(OnFocusGain([this](){ m_focused = true; m_showCursor = true; m_cursorBlinkTimer.restart(); }));
-    LinkEvent(OnFocusLost([this](){ m_focused = false; }));
+    LinkEvent(OnGainedFocus([this](){ m_focused = true; m_showCursor = true; m_cursorBlinkTimer.restart(); }));
+    LinkEvent(OnLostFocus([this](){ m_focused = false; }));
     // TODO: LinkEvent(OnTextEnter([this](std::uint32_t unicode){ m_text += unicode; }));
 }
 

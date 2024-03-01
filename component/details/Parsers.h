@@ -7,18 +7,17 @@
 #include <cstdint>
 #include <string>
 #include "../../utils/function_traits.h"
-#include "Base.h"
-#include "Container.h"
+#include "ComponentBase.h"
 
 namespace sfui {
 
 sf::Color ParseColor(const nlohmann::json& json);
 sf::Keyboard::Key ParseKey(const nlohmann::json& json);
 
-using ComponentParser = std::function<void(ComponentContainer&, const nlohmann::json&)>;
+using ComponentParser = std::function<void(ComponentBase&, const nlohmann::json&)>;
 void SetComponentParser(std::string key, ComponentParser parser);
-void ParseComponents(ComponentContainer& parent, const nlohmann::json& json);
-template <typename Component> constexpr auto MakeComponentParser = [](ComponentContainer& parent, const nlohmann::json& json){ parent.Emplace<Component>(json); };
+void ParseComponents(ComponentBase& parent, const nlohmann::json& json);
+template <typename Component> constexpr auto MakeComponentParser = [](ComponentBase& parent, const nlohmann::json& json){ parent.Emplace<Component>(json); };
 
 using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, const nlohmann::json&)>;
 std::function<void()> ParseComponentHandler(ComponentHandlers& component, const nlohmann::json& json);

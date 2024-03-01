@@ -3,6 +3,7 @@
 
 #include "Geometry.h"
 #include "../../utils/Observer.h"
+#include "../../utils/function_traits.h"
 #include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 #include <functional>
@@ -11,90 +12,166 @@
 namespace sfui {
 
 class ComponentHandlers : public ComponentGeometry {
-    using ResizeHandler = std::function<void(std::uint16_t /*new_width*/, std::uint16_t /*new_width*/)>;
-    using MoveHandler = std::function<void(std::int16_t /*new_x*/, std::int16_t /*new_y*/)>;
-    using ShowHandler = std::function<void(bool /*state*/)>;
-    using EnableHandler = std::function<void(bool /*state*/)>;
-    using RenderHandler = std::function<void()>;
-    using KeyPressHandler = std::function<void()>;
-    using KeyReleaseHandler = std::function<void()>;
-    using TextEnterHandler = std::function<void(std::uint32_t /*unicode*/)>;
-    using MouseMove = std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>;
-    using MouseMoveHandler = std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>;
-    using MouseEnterHandler = std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>;
-    using MouseLeaveHandler = std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>;
-    using MouseClickHandler = std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)>;
+    template<typename F> std::function<void()> CastToDefaultHandler(F&& handler);
+    template<typename F> std::function<void(sf::RenderWindow& /*window*/)> CastToRenderHandler(F&& handler);
+    template<typename F> std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseMoveHandler(F&& handler);
+    template<typename F> std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseClickHandler(F&& handler);
+
 public:
-    ComponentHandlers(Component& parent, const nlohmann::json& json);
-    virtual ~ComponentHandlers();
+    ComponentHandlers(ComponentBase& parent, const nlohmann::json& json);
+    virtual ~ComponentHandlers() = default;
 
     // Handlers
-    ObserverToken OnFocusGain(std::function<void()>&& handler) { return m_focus_gain_handlers.Set(std::forward<std::function<void()>>(handler)); }
-    ObserverToken OnFocusLost(std::function<void()>&& handler) { return m_focus_lost_handlers.Set(std::forward<std::function<void()>>(handler)); }
-    ObserverToken OnResize(ResizeHandler&& handler) { return m_resize_handlers.Set(std::forward<ResizeHandler>(handler)); }
-    ObserverToken OnMove(MoveHandler&& handler) { return m_move_handlers.Set(std::forward<MoveHandler>(handler)); }
-    ObserverToken OnShow(ShowHandler&& handler) { return m_show_handlers.Set(std::forward<ShowHandler>(handler)); }
-    ObserverToken OnShow(std::function<void()>&& handler) { return OnShow([handler](bool state){ if (state) { handler(); } }); }
-    ObserverToken OnHide(std::function<void()>&& handler) { return OnShow([handler](bool state){ if (!state) { handler(); } }); }
-    ObserverToken OnEnable(EnableHandler&& handler) { return m_enable_handlers.Set(std::forward<EnableHandler>(handler)); }
-    ObserverToken OnEnable(std::function<void()>&& handler) { return OnEnable([handler](bool state){ if (state) { handler(); } }); }
-    ObserverToken OnDisable(std::function<void()>&& handler) { return OnEnable([handler](bool state){ if (!state) { handler(); } }); }
-    ObserverToken OnRender(RenderHandler&& handler) { return m_render_handlers.Set(std::forward<RenderHandler>(handler)); }
-    ObserverToken OnKeyPress(sf::Keyboard::Key key, KeyPressHandler&& handler) {
-        if (m_key_pressed_handlers.count(key) == 0) {
-            m_key_pressed_handlers.insert({key, Observers<KeyPressHandler>()});
-        }
-        return m_key_pressed_handlers.at(key).Set(std::forward<KeyPressHandler>(handler));
-    }
-    ObserverToken OnMouseMove(MouseMoveHandler&& handler) { return m_mouse_move_handlers.Set(std::forward<MouseMoveHandler>(handler)); }
-    ObserverToken OnMouseMove(std::function<void()>&& handler) { return OnMouseMove([handler](std::int16_t, std::int16_t){ handler(); }); }
-    ObserverToken OnMouseEnter(MouseEnterHandler&& handler) { return m_mouse_enter_handlers.Set(std::forward<MouseEnterHandler>(handler)); }
-    ObserverToken OnMouseEnter(std::function<void()>&& handler) { return OnMouseEnter([handler](std::int16_t, std::int16_t){ handler(); }); }
-    ObserverToken OnMouseLeave(MouseLeaveHandler&& handler) { return m_mouse_leave_handlers.Set(std::forward<MouseLeaveHandler>(handler)); }
-    ObserverToken OnMouseLeave(std::function<void()>&& handler) { return OnMouseLeave([handler](std::int16_t, std::int16_t){ handler(); }); }
-    ObserverToken OnMouseClick(MouseClickHandler&& handler) { return m_mouse_click_handlers.Set(std::forward<MouseClickHandler>(handler)); }
-    ObserverToken OnMouseClick(std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>&& handler) { return OnMouseClick([handler](sf::Mouse::Button, std::int16_t x, std::int16_t y){ handler(x, y); }); }
-    ObserverToken OnMouseClick(std::function<void()>&& handler) { return OnMouseClick([handler](sf::Mouse::Button, std::int16_t, std::int16_t){ handler(); }); }
-    ObserverToken OnMouseLeftClick(MouseClickHandler&& handler) { return OnMouseClick([handler](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) handler(button, x, y); }); }
-    ObserverToken OnMouseLeftClick(std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>&& handler) { return OnMouseLeftClick([handler](sf::Mouse::Button, std::int16_t x, std::int16_t y){ handler(x, y); }); }
-    ObserverToken OnMouseLeftClick(std::function<void()>&& handler) { return OnMouseLeftClick([handler](sf::Mouse::Button, std::int16_t, std::int16_t){ handler(); }); }
-
-    bool IsEnabled() const { return m_enabled; }
-    void Enable(bool state = true) { m_enabled = state; m_enable_handlers.Invoke(state); }
-    void Disable() { Enable(false); }
-
-    bool IsVisible() const { return m_visible; }
-    void Show(bool state = true) { m_visible = state; m_show_handlers.Invoke(state); }
-    void Hide() { Show(false); }
+    template<typename Handler> ObserverToken OnGainedFocus(Handler&& handler) { return m_gainedFocusHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnLostFocus(Handler&& handler) { return m_lostFocusHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnResize(Handler&& handler) { return m_resizeHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMove(Handler&& handler) { return m_moveHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnShow(Handler&& handler) { return m_showHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnHide(Handler&& handler) { return m_hideHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnEnable(Handler&& handler) { return m_enableHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnDisable(Handler&& handler) { return m_disableHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnUpdate(Handler&& handler) { return m_updateHandlers.Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnRender(Handler&& handler) { return m_renderHandlers.Set(CastToRenderHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMouseMove(Handler&& handler) { return m_mouseMoveHandlers.Set(CastToMouseMoveHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMouseEnter(Handler&& handler) { return m_mouseEnterHandlers.Set(CastToMouseMoveHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMouseLeave(Handler&& handler) { return m_mouseLeaveHandlers.Set(CastToMouseMoveHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMouseClick(Handler&& handler) { return m_mouseClickHandlers.Set(CastToMouseClickHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseClickHandlers.Set([&handler, this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) std::invoke(CastToMouseClickHandler(std::forward<Handler>(handler)), button, x, y); }); } // TODO: `&handler` -> `handler = std::forward<Handler>(handler)`
+    template<typename Handler> ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressedHandlers[key].Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
 
 protected:
-    void LinkEvent(ObserverToken observer_token) { m_observers.push_back(observer_token); }
-    void HandleRender() { m_render_handlers.Invoke(); }
+    void LinkEvent(ObserverToken observerToken) { m_observers.push_back(observerToken); }
 
 private:
-    friend class ComponentContainer;
-    virtual bool HandleEvent_(const sf::Event& event);
+    virtual bool HandleEvent(const sf::Event& event) final;
+    virtual void OnRender(sf::RenderWindow& window) final;
+    virtual void OnUpdate() final;
+    virtual void OnShow() final;
+    virtual void OnHide() final;
+    virtual void OnEnable() final;
+    virtual void OnDisable() final;
+    virtual void OnGainFocus() final;
+    virtual void OnLoseFocus() final;
+    virtual void OnResize() final;
+    virtual void OnMove() final;
 
 private:
-    bool m_enabled;
-    bool m_visible;
     std::vector<ObserverToken> m_observers;
-    Observers<ResizeHandler> m_resize_handlers;
-    Observers<MoveHandler> m_move_handlers;
-    Observers<ShowHandler> m_show_handlers;
-    Observers<EnableHandler> m_enable_handlers;
-    Observers<RenderHandler> m_render_handlers;
-    Observers<MouseMoveHandler> m_mouse_move_handlers;
-    Observers<MouseEnterHandler> m_mouse_enter_handlers;
-    Observers<MouseLeaveHandler> m_mouse_leave_handlers;
-    Observers<MouseClickHandler> m_mouse_click_handlers;
-    std::map<sf::Keyboard::Key, Observers<KeyPressHandler>> m_key_pressed_handlers;
-    std::map<sf::Keyboard::Key, Observers<KeyReleaseHandler>> m_key_released_handlers;
-    Observers<TextEnterHandler> m_text_enter_handlers;
-    Observers<std::function<void()>> m_focus_gain_handlers;
-    Observers<std::function<void()>> m_focus_lost_handlers;
-    std::pair<std::int16_t, std::int16_t> m_mouse_old_position;
+    Observers<std::function<void()>> m_resizeHandlers;
+    Observers<std::function<void()>> m_moveHandlers;
+    Observers<std::function<void()>> m_showHandlers;
+    Observers<std::function<void()>> m_hideHandlers;
+    Observers<std::function<void()>> m_enableHandlers;
+    Observers<std::function<void()>> m_disableHandlers;
+    Observers<std::function<void()>> m_updateHandlers;
+    Observers<std::function<void(sf::RenderWindow&)>> m_renderHandlers;
+    Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseMoveHandlers;
+    Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseEnterHandlers;
+    Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseLeaveHandlers;
+    Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseClickHandlers;
+    std::unordered_map<sf::Keyboard::Key, Observers<std::function<void()>>> m_keyPressedHandlers;
+    std::unordered_map<sf::Keyboard::Key, Observers<std::function<void()>>> m_keyReleasedHandlers;
+    Observers<std::function<void(std::uint32_t)>> m_textEnterHandlers;
+    Observers<std::function<void()>> m_gainedFocusHandlers;
+    Observers<std::function<void()>> m_lostFocusHandlers;
+    std::pair<std::int16_t, std::int16_t> m_mouseOldPosition;
 };
+
+template<typename F> std::function<void()> ComponentHandlers::CastToDefaultHandler(F&& handler) {
+    if constexpr (utils::function_traits<F>::arity == 0) {
+        return handler;
+    } else if constexpr (utils::arguments_count<F> >= 1 && std::is_base_of_v<std::remove_reference_t<utils::function_argument_t<F, 0>>, ComponentHandlers>) {
+        using Component = std::remove_reference_t<utils::function_argument_t<F, 0>>;
+        return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](){ handler(component); };
+    } else {
+        static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+    }
+}
+
+template<typename F> std::function<void(sf::RenderWindow& /*window*/)> ComponentHandlers::CastToRenderHandler(F&& handler) {
+    if constexpr (utils::function_traits<F>::arity == 0) {
+        return [handler = std::forward<F>(handler)](sf::RenderWindow&){ handler(); };
+    } else if constexpr (/*utils::arguments_count<F> >= 1 &&*/ std::is_base_of_v<std::remove_reference_t<utils::function_argument_t<F, 0>>, ComponentHandlers>) {
+        using Component = std::remove_reference_t<utils::function_argument_t<F, 0>>;
+        if constexpr (utils::arguments_count<F> == 1) {
+            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](sf::RenderWindow& window){ handler(component); };
+        } else if constexpr (utils::arguments_count<F> == 2 && std::is_same_v<utils::function_argument_t<F, 1>, sf::RenderWindow&>) {
+            return [handler = std::forward<F>(handler), this](sf::RenderWindow& window){ handler(dynamic_cast<Component&>(*this), window); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    } else {
+        if constexpr (utils::arguments_count<F> == 1 && std::is_same_v<F, std::function<void(sf::RenderWindow& window)>>) {
+            return handler;
+        } else if constexpr (utils::arguments_count<F> == 1 && std::is_same_v<utils::function_argument_t<F, 0>, sf::RenderWindow&>) {
+            return [handler = std::forward<F>(handler)](sf::RenderWindow& window){ handler(window); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    }
+}
+
+template<typename F> std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)> ComponentHandlers::CastToMouseMoveHandler(F&& handler) {
+    if constexpr (utils::function_traits<F>::arity == 0) {
+        return [handler = std::forward<F>(handler)](std::int16_t x, std::int16_t y){ handler(); };
+    } else if constexpr (/*utils::arguments_count<F> >= 1 &&*/ std::is_base_of_v<std::remove_reference_t<utils::function_argument_t<F, 0>>, ComponentHandlers>) {
+        using Component = std::remove_reference_t<utils::function_argument_t<F, 0>>;
+        if constexpr (utils::arguments_count<F> == 1) {
+            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](std::int16_t x, std::int16_t y){ handler(component); };
+        } else if constexpr (utils::arguments_count<F> == 3 && std::is_arithmetic_v<utils::function_argument_t<F, 1>> && std::is_arithmetic_v<utils::function_argument_t<F, 2>>) {
+            return [handler = std::forward<F>(handler), this](std::int16_t x, std::int16_t y){ handler(dynamic_cast<Component&>(*this), x, y); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    } else {
+        if constexpr (utils::arguments_count<F> == 2 && std::is_same_v<F, std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)>>) {
+            return handler;
+        } else if constexpr (utils::arguments_count<F> == 2 && std::is_arithmetic_v<utils::function_argument_t<F, 0>> && std::is_arithmetic_v<utils::function_argument_t<F, 1>>) {
+            return [handler = std::forward<F>(handler)](std::int16_t x, std::int16_t y){ handler(x, y); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    }
+}
+
+template<typename F> std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)> ComponentHandlers::CastToMouseClickHandler(F&& handler) {
+    if constexpr (utils::function_traits<F>::arity == 0) {
+        return [handler = std::forward<F>(handler)](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(); };
+    } else if constexpr (/*utils::arguments_count<F> >= 1 &&*/ std::is_base_of_v<std::remove_reference_t<utils::function_argument_t<F, 0>>, ComponentHandlers>) {
+        using Component = std::remove_reference_t<utils::function_argument_t<F, 0>>;
+#if 0
+        return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](utils::function_arguments_t<F>&& args){ handler(component, std::forward<utils::function_arguments_t<F>>(args)...); };
+#elif 0
+        using Args = utils::tuple_without_first_t<typename utils::function_traits<F>::args_tuple>;
+        static_assert(std::is_same_v<Args, std::tuple<int16_t, int16_t>>);
+        return CastToMouseClickHandler([handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](Args args){ apply(handler, std::tuple_cat(std::tie(component), args)); });
+#else
+        if constexpr (utils::arguments_count<F> == 1) {
+            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(component); };
+        } else if constexpr (utils::arguments_count<F> == 2 && std::is_same_v<utils::function_argument_t<F, 1>, sf::Mouse::Button>) {
+            return [handler = std::forward<F>(handler), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(dynamic_cast<Component&>(*this), button); };
+        } else if constexpr (utils::arguments_count<F> == 3 && std::is_arithmetic_v<utils::function_argument_t<F, 1>> && std::is_arithmetic_v<utils::function_argument_t<F, 2>>) {
+            return [handler = std::forward<F>(handler), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(dynamic_cast<Component&>(*this), x, y); };
+        } else if constexpr (utils::arguments_count<F> == 4 && std::is_same_v<utils::function_argument_t<F, 1>, sf::Mouse::Button> && std::is_arithmetic_v<utils::function_argument_t<F, 2>> && std::is_arithmetic_v<utils::function_argument_t<F, 3>>) {
+            return [handler = std::forward<F>(handler), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(dynamic_cast<Component&>(*this), button, x, y); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+#endif
+    } else {
+        if constexpr (utils::arguments_count<F> == 1 && std::is_same_v<utils::function_argument_t<F, 0>, sf::Mouse::Button>) {
+            return [handler = std::forward<F>(handler)](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(button); };
+        } else if constexpr (utils::arguments_count<F> == 2 && std::is_arithmetic_v<utils::function_argument_t<F, 0>> && std::is_arithmetic_v<utils::function_argument_t<F, 1>>) {
+            return [handler = std::forward<F>(handler)](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(x, y); };
+        } else if constexpr (utils::arguments_count<F> == 3 && std::is_same_v<F, std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)>>) {
+            return handler;
+        } else if constexpr (utils::arguments_count<F> == 3 && std::is_same_v<utils::function_argument_t<F, 0>, sf::Mouse::Button> && std::is_arithmetic_v<utils::function_argument_t<F, 1>> && std::is_arithmetic_v<utils::function_argument_t<F, 2>>) {
+            return [handler = std::forward<F>(handler)](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ handler(button, x, y); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    }
+}
 
 }
 

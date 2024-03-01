@@ -1,13 +1,13 @@
 #ifndef SFUI_EDIT_H_INCLUDED
 #define SFUI_EDIT_H_INCLUDED
 
-#include "details/Base.h"
+#include "details/ComponentBase.h"
 
 namespace sfui {
 
 class Edit: public ComponentBase {
 public:
-    Edit(Component& parent, const nlohmann::json& json);
+    Edit(ComponentBase& parent, const nlohmann::json& json);
     ~Edit() = default;
 
     void SetBackgroundColor(sf::Color color);

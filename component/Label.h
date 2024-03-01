@@ -1,13 +1,13 @@
 #ifndef SFUI_LABEL_H_INCLUDED
 #define SFUI_LABEL_H_INCLUDED
 
-#include "details/Base.h"
+#include "details/ComponentBase.h"
 
 namespace sfui {
 
 class Label: public ComponentBase {
 public:
-    Label(Component& parent, const nlohmann::json& json);
+    Label(ComponentBase& parent, const nlohmann::json& json);
     ~Label() = default;
 
     void SetBackgroundColor(sf::Color color);

@@ -10,10 +10,10 @@ add_library(sfui STATIC
     component/Edit.cpp
     component/Label.cpp
     component/Window.cpp
-    component/details/Node.cpp
+    component/details/ComponentBase.cpp
+    component/details/Component.cpp
     component/details/Geometry.cpp
     component/details/Handlers.cpp
-    component/details/Container.cpp
     component/details/Parsers.cpp
 )
 

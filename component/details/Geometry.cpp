@@ -1,11 +1,11 @@
 #include "Geometry.h"
-#include "Container.h"
+#include "ComponentBase.h"
 #include <cassert>
 
 using namespace sfui;
 
-ComponentGeometry::ComponentGeometry(Component& parent, const nlohmann::json& json)
-        : ComponentNode(parent, json)
+ComponentGeometry::ComponentGeometry(ComponentBase& parent, const nlohmann::json& json)
+        : Component(parent, json)
 {
     if (IsRoot())                   m_position  = Position::Absolute;
     if (json.contains("position"))  m_position  = ParsePosition(json["position"]);
@@ -19,7 +19,7 @@ ComponentGeometry::ComponentGeometry(Component& parent, const nlohmann::json& js
     assert(!IsRoot() || (m_position == Position::Absolute && m_width.has_value() && m_height.has_value()));
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::Left() const
+OffsetPixels ComponentGeometry::Left() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -49,7 +49,7 @@ ComponentGeometry::OffsetPixels ComponentGeometry::Left() const
     return 0;
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::Right() const
+OffsetPixels ComponentGeometry::Right() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -79,7 +79,7 @@ ComponentGeometry::OffsetPixels ComponentGeometry::Right() const
     return 0;
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::Top() const
+OffsetPixels ComponentGeometry::Top() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -109,7 +109,7 @@ ComponentGeometry::OffsetPixels ComponentGeometry::Top() const
     return 0;
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::Bottom() const
+OffsetPixels ComponentGeometry::Bottom() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -139,7 +139,7 @@ ComponentGeometry::OffsetPixels ComponentGeometry::Bottom() const
     return 0;
 }
 
-ComponentGeometry::SizePixels ComponentGeometry::Width() const
+SizePixels ComponentGeometry::Width() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -163,7 +163,7 @@ ComponentGeometry::SizePixels ComponentGeometry::Width() const
     return ParentWidth();
 }
 
-ComponentGeometry::SizePixels ComponentGeometry::Height() const
+SizePixels ComponentGeometry::Height() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -187,12 +187,12 @@ ComponentGeometry::SizePixels ComponentGeometry::Height() const
     return ParentHeight();
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::AbsoluteX() const
+OffsetPixels ComponentGeometry::AbsoluteX() const
 {
     return m_position == Position::Absolute ? Left() : Parent().AbsoluteX() + Left();
 }
 
-ComponentGeometry::OffsetPixels ComponentGeometry::AbsoluteY() const
+OffsetPixels ComponentGeometry::AbsoluteY() const
 {
     return m_position == Position::Absolute ? Top() : Parent().AbsoluteY() + Top();
 }
@@ -207,20 +207,60 @@ bool ComponentGeometry::Contains(std::pair<OffsetPixels, OffsetPixels> point) co
     return Contains(point.first, point.second);
 }
 
-ComponentGeometry::SizePixels ComponentGeometry::ParentWidth() const
+void ComponentGeometry::SetLeft(OffsetPixels leftOffset)
+{
+    m_left = leftOffset;
+    if (m_width.has_value()) OnMove();
+    else OnResize();
+}
+
+void ComponentGeometry::SetRight(OffsetPixels rightOffset)
+{
+    m_right = rightOffset;
+    if (m_width.has_value()) OnMove();
+    else OnResize();
+}
+
+void ComponentGeometry::SetTop(OffsetPixels topOffset)
+{
+    m_top = topOffset;
+    if (m_height.has_value()) OnMove();
+    else OnResize();
+}
+
+void ComponentGeometry::SetBottom(OffsetPixels bottomOffset)
+{
+    m_bottom = bottomOffset;
+    if (m_height.has_value()) OnMove();
+    else OnResize();
+}
+
+void ComponentGeometry::SetWidth(SizePixels width)
+{
+    m_width = width;
+    OnResize();
+}
+
+void ComponentGeometry::SetHeight(SizePixels height)
+{
+    m_height = height;
+    OnResize();
+}
+
+SizePixels ComponentGeometry::ParentWidth() const
 {
     assert(!IsRoot());
     return m_position == Position::Absolute ? Root().Width() : Parent().Width();
 }
 
-ComponentGeometry::SizePixels ComponentGeometry::ParentHeight() const
+SizePixels ComponentGeometry::ParentHeight() const
 {
     assert(!IsRoot());
     return m_position == Position::Absolute ? Root().Height() : Parent().Height();
 }
 
 
-ComponentGeometry::Position ComponentGeometry::ParsePosition(const nlohmann::json& json)
+Position ComponentGeometry::ParsePosition(const nlohmann::json& json)
 {
     std::string position_string = json.get<std::string>();
     return position_string == "absolute" ? Position::Absolute
@@ -228,10 +268,10 @@ ComponentGeometry::Position ComponentGeometry::ParsePosition(const nlohmann::jso
         : throw std::runtime_error("Error parsing component position");
 }
 
-std::variant<ComponentGeometry::OffsetPixels, ComponentGeometry::OffsetPercentage> ComponentGeometry::ParseOffset(const nlohmann::json& json)
+std::variant<OffsetPixels, OffsetPercentage> ComponentGeometry::ParseOffset(const nlohmann::json& json)
 {
     if (json.is_number()) {
-        return json.get<ComponentGeometry::OffsetPixels>();
+        return json.get<OffsetPixels>();
     } else {
         std::string string = json.get<std::string>();
         if (auto n = string.find("%"); n != std::string::npos) {
@@ -242,10 +282,10 @@ std::variant<ComponentGeometry::OffsetPixels, ComponentGeometry::OffsetPercentag
     }
 }
 
-std::variant<ComponentGeometry::SizePixels, ComponentGeometry::SizePercentage> ComponentGeometry::ParseSize(const nlohmann::json& json)
+std::variant<SizePixels, SizePercentage> ComponentGeometry::ParseSize(const nlohmann::json& json)
 {
     if (json.is_number()) {
-        return json.get<ComponentGeometry::SizePixels>();
+        return json.get<SizePixels>();
     } else {
         std::string string = json.get<std::string>();
         if (auto n = string.find("%"); n != std::string::npos) {

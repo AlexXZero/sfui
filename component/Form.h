@@ -1,14 +1,14 @@
 #ifndef SFUI_FORM_H_INCLUDED
 #define SFUI_FORM_H_INCLUDED
 
-#include "details/Container.h"
+#include "details/ComponentBase.h"
 #include "details/Parsers.h"
 
 namespace sfui {
 
-class Form: public ComponentContainer {
+class Form: public ComponentBase {
 public:
-    Form(Component& parent, const nlohmann::json& json) : ComponentContainer(parent, json) {
+    Form(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
         // parse optional properties
         if (json.contains("background")) SetBackground(ParseColor(json["background"]));
         if (json.contains("background-image")) {

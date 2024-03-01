@@ -1,18 +1,13 @@
 #include "Handlers.h"
-#include "Container.h"
 #include "Parsers.h"
 
 using namespace sfui;
 
-static ComponentHandlers* g_focusedComponent = nullptr; // TODO: use weak_ptr?
-
 // ComponentHandlers
-ComponentHandlers::ComponentHandlers(Component& parent, const nlohmann::json& json)
-        : ComponentGeometry(parent, json), m_enabled(true), m_visible(true)
+ComponentHandlers::ComponentHandlers(ComponentBase& parent, const nlohmann::json& json)
+        : ComponentGeometry(parent, json)
 {
     // parse optional properties
-    if (json.contains("enabled"))   m_enabled   = json["enabled"]   .get<bool>();
-    if (json.contains("visible"))   m_visible   = json["visible"]   .get<bool>();
     if (json.contains("onKeyPress")) {
         for (const auto& handler_json: json["onKeyPress"]) {
             if (handler_json.contains("key")) {
@@ -61,35 +56,32 @@ ComponentHandlers::ComponentHandlers(Component& parent, const nlohmann::json& js
     }
 }
 
-ComponentHandlers::~ComponentHandlers()
-{
-    if (g_focusedComponent == this) {
-        g_focusedComponent = nullptr;
-    }
-}
-
 #include <iostream>
-bool ComponentHandlers::HandleEvent_(const sf::Event& event)
+bool ComponentHandlers::HandleEvent(const sf::Event& event)
 {
     switch (event.type) {
     case sf::Event::TextEntered:
-        if (m_text_enter_handlers.Count() > 0) {
-            m_text_enter_handlers.Invoke(event.text.unicode);
+        if (m_textEnterHandlers.Count() > 0 && IsFocused()) {
+            m_textEnterHandlers.Invoke(event.text.unicode);
             return true;
         }
         break;
 
     case sf::Event::KeyPressed:
-        if (m_key_pressed_handlers.count(event.key.code) > 0 && m_key_pressed_handlers.at(event.key.code).Count() > 0) {
-            m_key_pressed_handlers.at(event.key.code).Invoke();
-            return true;
+        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
+            if (m_keyPressedHandlers.count(event.key.code) > 0 && m_keyPressedHandlers.at(event.key.code).Count() > 0) {
+                m_keyPressedHandlers.at(event.key.code).Invoke();
+                return true;
+            }
         }
         break;
 
     case sf::Event::KeyReleased:
-        if (m_key_released_handlers.count(event.key.code) > 0 && m_key_released_handlers.at(event.key.code).Count() > 0) {
-            m_key_released_handlers.at(event.key.code).Invoke();
-            return true;
+        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
+            if (m_keyReleasedHandlers.count(event.key.code) > 0 && m_keyReleasedHandlers.at(event.key.code).Count() > 0) {
+                m_keyReleasedHandlers.at(event.key.code).Invoke();
+                return true;
+            }
         }
         break;
 
@@ -97,21 +89,12 @@ bool ComponentHandlers::HandleEvent_(const sf::Event& event)
         break;
 
     case sf::Event::MouseButtonPressed:
-        if (g_focusedComponent != this && g_focusedComponent && g_focusedComponent->m_focus_lost_handlers.Count() > 0) {
-            g_focusedComponent->m_focus_lost_handlers.Invoke();
-            g_focusedComponent = nullptr;
-        }
-        if (g_focusedComponent != this && Contains(event.mouseButton.x, event.mouseButton.y) && m_focus_gain_handlers.Count() > 0) {
-            g_focusedComponent = this;
-            m_focus_gain_handlers.Invoke();
-        }
-        if (Contains(event.mouseButton.x, event.mouseButton.y) && m_mouse_click_handlers.Count() > 0) {
-            m_mouse_click_handlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
-            return true;
-        }
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
+            GainFocus();
+
+            m_mouseClickHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             std::cerr << Name() << ": Press: " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
-            dynamic_cast<ComponentContainer&>(Parent()).BringToFront(dynamic_cast<Component&>(*this));
+            BringToFront();
             return true;
         }
         break;
@@ -125,18 +108,18 @@ bool ComponentHandlers::HandleEvent_(const sf::Event& event)
 
     case sf::Event::MouseMoved:
         // Check mouse left and enter events, then remember mouse position for next check
-        if (!Contains(m_mouse_old_position) && Contains(event.mouseMove.x, event.mouseMove.y)) {
+        if (!Contains(m_mouseOldPosition) && Contains(event.mouseMove.x, event.mouseMove.y)) {
             std::cerr << Name() << ": Enter: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
-            m_mouse_enter_handlers.Invoke(event.mouseMove.x, event.mouseMove.y);
+            m_mouseEnterHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseEntered});
         }
-        else if (Contains(m_mouse_old_position) && !Contains(event.mouseMove.x, event.mouseMove.y)) {
+        else if (Contains(m_mouseOldPosition) && !Contains(event.mouseMove.x, event.mouseMove.y)) {
             std::cerr << Name() << ": Leave: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
-            m_mouse_leave_handlers.Invoke(event.mouseMove.x, event.mouseMove.y);
+            m_mouseLeaveHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseLeft});
         }
-        m_mouse_old_position.first = event.mouseMove.x;
-        m_mouse_old_position.second = event.mouseMove.y;
+        m_mouseOldPosition.first = event.mouseMove.x;
+        m_mouseOldPosition.second = event.mouseMove.y;
 
         if (Contains(event.mouseMove.x, event.mouseMove.y)) {
             std::cerr << Name() << ": Move: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
@@ -150,4 +133,54 @@ bool ComponentHandlers::HandleEvent_(const sf::Event& event)
     }
 
     return false;
+}
+
+void ComponentHandlers::OnRender(sf::RenderWindow& window)
+{
+    m_renderHandlers.Invoke(std::ref(window));
+}
+
+void ComponentHandlers::OnUpdate()
+{
+    m_updateHandlers.Invoke();
+}
+
+void ComponentHandlers::OnShow()
+{
+    m_showHandlers.Invoke();
+}
+
+void ComponentHandlers::OnHide()
+{
+    m_hideHandlers.Invoke();
+}
+
+void ComponentHandlers::OnEnable()
+{
+    m_enableHandlers.Invoke();
+}
+
+void ComponentHandlers::OnDisable()
+{
+    m_disableHandlers.Invoke();
+}
+
+void ComponentHandlers::OnGainFocus()
+{
+    m_gainedFocusHandlers.Invoke();
+}
+
+void ComponentHandlers::OnLoseFocus()
+{
+    m_lostFocusHandlers.Invoke();
+}
+
+void ComponentHandlers::OnResize()
+{
+    m_resizeHandlers.Invoke();
+}
+
+void ComponentHandlers::OnMove()
+{
+    m_moveHandlers.Invoke();
 }
