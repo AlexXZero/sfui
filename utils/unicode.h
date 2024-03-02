@@ -8,7 +8,7 @@
 namespace utils {
 
 // from https://stackoverflow.com/questions/4804298/how-to-convert-wstring-into-string
-static std::wstring s2ws(const std::string& str)
+static inline std::wstring s2ws(const std::string& str)
 {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
     static std::wstring_convert<convert_typeX, wchar_t> converterX;
@@ -16,7 +16,7 @@ static std::wstring s2ws(const std::string& str)
     return converterX.from_bytes(str);
 }
 
-static std::string ws2s(const std::wstring& wstr)
+static inline std::string ws2s(const std::wstring& wstr)
 {
     using convert_typeX = std::codecvt_utf8<wchar_t>;
     static std::wstring_convert<convert_typeX, wchar_t> converterX;
