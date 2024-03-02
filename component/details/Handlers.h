@@ -14,6 +14,7 @@ namespace sfui {
 class ComponentHandlers : public ComponentGeometry {
     template<typename F> std::function<void()> CastToDefaultHandler(F&& handler);
     template<typename F> std::function<void(sf::RenderWindow& /*window*/)> CastToRenderHandler(F&& handler);
+    template<typename F> std::function<void(std::uint32_t /*unicode*/)> CastToTextEnterHandler(F&& handler);
     template<typename F> std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseMoveHandler(F&& handler);
     template<typename F> std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseClickHandler(F&& handler);
 
@@ -38,6 +39,7 @@ public:
     template<typename Handler> ObserverToken OnMouseClick(Handler&& handler) { return m_mouseClickHandlers.Set(CastToMouseClickHandler(std::forward<Handler>(handler))); }
     template<typename Handler> ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseClickHandlers.Set([&handler, this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) std::invoke(CastToMouseClickHandler(std::forward<Handler>(handler)), button, x, y); }); } // TODO: `&handler` -> `handler = std::forward<Handler>(handler)`
     template<typename Handler> ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressedHandlers[key].Set(CastToDefaultHandler(std::forward<Handler>(handler))); }
+    template<typename Handler> ObserverToken OnTextEntered(Handler&& handler) { return m_textEnterHandlers.Set(CastToTextEnterHandler(std::forward<Handler>(handler))); }
 
 protected:
     void LinkEvent(ObserverToken observerToken) { m_observers.push_back(observerToken); }
@@ -105,6 +107,30 @@ template<typename F> std::function<void(sf::RenderWindow& /*window*/)> Component
             return handler;
         } else if constexpr (utils::arguments_count<F> == 1 && std::is_same_v<utils::function_argument_t<F, 0>, sf::RenderWindow&>) {
             return [handler = std::forward<F>(handler)](sf::RenderWindow& window){ handler(window); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    }
+}
+
+template<typename F> std::function<void(std::uint32_t /*unicode*/)> ComponentHandlers::CastToTextEnterHandler(F&& handler)
+{
+    if constexpr (utils::function_traits<F>::arity == 0) {
+        return [handler = std::forward<F>(handler)](std::uint32_t unicode){ handler(); };
+    } else if constexpr (/*utils::arguments_count<F> >= 1 &&*/ std::is_base_of_v<std::remove_reference_t<utils::function_argument_t<F, 0>>, ComponentHandlers>) {
+        using Component = std::remove_reference_t<utils::function_argument_t<F, 0>>;
+        if constexpr (utils::arguments_count<F> == 1) {
+            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](std::uint32_t unicode){ handler(component); };
+        } else if constexpr (utils::arguments_count<F> == 2 && std::is_integral_v<utils::function_argument_t<F, 1>>) {
+            return [handler = std::forward<F>(handler), this](std::uint32_t unicode){ handler(dynamic_cast<Component&>(*this), unicode); };
+        } else {
+            static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
+        }
+    } else {
+        if constexpr (utils::arguments_count<F> == 1 && std::is_same_v<F, std::function<void(std::uint32_t unicode)>>) {
+            return handler;
+        } else if constexpr (utils::arguments_count<F> == 1 && std::is_integral_v<utils::function_argument_t<F, 0>>) {
+            return [handler = std::forward<F>(handler)](std::uint32_t unicode){ handler(unicode); };
         } else {
             static_assert(utils::always_false_v<F>, "Unsupported handler type conversion");
         }

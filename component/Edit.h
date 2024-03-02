@@ -20,6 +20,7 @@ public:
 private:
     void Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle);
     void Render_(sf::RenderWindow& window, sf::Text& text);
+    void TextEnteredHandler(uint32_t unicode);
 
 private:
     std::optional<sf::RectangleShape> m_background;

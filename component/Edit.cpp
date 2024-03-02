@@ -34,7 +34,7 @@ Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(pa
     m_focused = false;
     LinkEvent(OnGainedFocus([this](){ m_focused = true; m_showCursor = true; m_cursorBlinkTimer.restart(); }));
     LinkEvent(OnLostFocus([this](){ m_focused = false; }));
-    // TODO: LinkEvent(OnTextEnter([this](std::uint32_t unicode){ m_text += unicode; }));
+    LinkEvent(OnTextEntered([this](uint32_t unicode){ TextEnteredHandler(unicode); }));
 }
 
 void Edit::SetBackgroundColor(sf::Color color)
@@ -108,6 +108,26 @@ void Edit::Render_(sf::RenderWindow& window, sf::Text& text)
     }
 
     window.draw(text);
+}
+
+void Edit::TextEnteredHandler(uint32_t unicode)
+{
+    switch (unicode) {
+    case L'\b': // Backspace
+        if (std::wstring text = m_text.getString(); !text.empty()) {
+            text.pop_back(); // Remove the last character
+            m_text.setString(text);
+        }
+        break;
+    case L'\n': // Enter
+        // TODO
+        break;
+    default:
+        if (std::iswprint(unicode) || (unicode > 128) || std::iswblank(unicode)) {
+            m_text.setString(m_text.getString() + unicode);
+        }
+        break;
+    }
 }
 
 }
