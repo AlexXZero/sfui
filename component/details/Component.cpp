@@ -129,6 +129,7 @@ void Component::BringToFront()
     auto it = std::find_if(component_list.rbegin(), component_list.rend(), predicate);
     assert(it != component_list.rend());
     std::rotate(component_list.rbegin(), it, std::next(it));
+    Parent().BringToFront();
 }
 
 void Component::BringToBack()
@@ -139,6 +140,7 @@ void Component::BringToBack()
     auto it = std::find_if(component_list.begin(), component_list.end(), predicate);
     assert(it != component_list.end());
     std::rotate(component_list.begin(), it, std::next(it));
+    Parent().BringToBack();
 }
 
 ComponentBase& Component::operator[](std::string_view name)
@@ -163,11 +165,24 @@ void Component::Render_(sf::RenderWindow& window)
     Render(window);
     OnRender(window);
 
+    sf::View oldView = window.getView();
     for (auto& component_sp: m_components) {
         if (component_sp->IsVisible()) {
+            sf::View view(sf::FloatRect(
+                    component_sp->AbsoluteX(),
+                    component_sp->AbsoluteY(),
+                    component_sp->Width(),
+                    component_sp->Height()));
+            view.setViewport(sf::FloatRect(
+                    float(component_sp->AbsoluteX()) / Root().Width(),
+                    float(component_sp->AbsoluteY()) / Root().Height(),
+                    float(component_sp->Width()) / Root().Width(),
+                    float(component_sp->Height()) / Root().Height()));
+            window.setView(view); // Clip drawing to component boundaries
             component_sp->Render_(window);
         }
     }
+    window.setView(oldView);
 }
 
 bool Component::HandleEvent_(const sf::Event& event)
