@@ -17,6 +17,7 @@ public:
             if (!json.contains("width")) SetWidth(width);
             if (!json.contains("height")) SetHeight(height);
         }
+        LinkEvent(OnMouseClick([this]{ BringToFront(); }));
     }
     ~Form() = default;
 

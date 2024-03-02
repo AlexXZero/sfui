@@ -43,6 +43,7 @@ public:
     bool IsFocused() const;
     void GainFocus();
     void LoseFocus();
+    static void RotateFocus();
 
     void BringToFront();
     void BringToBack();

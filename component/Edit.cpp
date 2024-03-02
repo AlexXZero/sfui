@@ -120,6 +120,9 @@ void Edit::TextEnteredHandler(uint32_t unicode)
             m_text.setString(text);
         }
         break;
+    case L'\t': // Tab
+        RotateFocus();
+        break;
     case L'\n': // Enter
         // TODO
         break;

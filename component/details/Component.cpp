@@ -121,6 +121,23 @@ void Component::LoseFocus()
     }
 }
 
+void Component::RotateFocus()
+{
+    std::lock_guard guard(g_focusControlMutex);
+    auto focusedComponent_sp = FocusedComponent();
+    if (focusedComponent_sp != nullptr) {
+        auto predicate = [focusedComponent_sp](const std::shared_ptr<Component> component){ return component == focusedComponent_sp; };
+        auto& component_list = static_cast<Component&>(focusedComponent_sp->Parent()).m_components;
+        auto it = std::find_if(component_list.begin(), component_list.end(), predicate);
+        assert(it != component_list.end());
+        auto it_next = (std::next(it) != component_list.end() ? std::next(it) : component_list.begin());
+
+        std::static_pointer_cast<Component>(focusedComponent_sp)->OnLoseFocus();
+        g_focusedComponent = *it_next;
+        std::static_pointer_cast<Component>(*it_next)->OnGainFocus();
+    }
+}
+
 void Component::BringToFront()
 {
     if (IsRoot()) return; // The root element is always at the front and back, so no need to bring it forward.

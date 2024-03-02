@@ -94,7 +94,6 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
 
             m_mouseClickHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             std::cerr << Name() << ": Press: " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
-            BringToFront();
             return true;
         }
         break;
