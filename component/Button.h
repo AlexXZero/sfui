@@ -3,6 +3,7 @@
 
 #include "details/ComponentBase.h"
 #include "Image.h"
+#include "Label.h"
 
 namespace sfui {
 
@@ -43,6 +44,7 @@ public:
                 if (!json.contains("height")) SetHeight(height);
             }
         }
+        if (json.contains("label")) m_label.emplace(*this, GetLabelProperties(json));
         LinkEvent(OnMouseEnter([this]{ m_state = Active; }));
         LinkEvent(OnMouseLeave([this]{ m_state = Neutral; }));
     }
@@ -50,6 +52,7 @@ public:
 
     void Render(sf::RenderWindow& window) override {
         m_images[m_state].Render(window);
+        if (m_label.has_value()) m_label.value().Render(window);
     }
 
 private:
@@ -58,9 +61,18 @@ private:
         if (json.contains("image") && json["image"].contains(state)) properties += {"image", json["image"][state]};
         return properties;
     }
+    static nlohmann::json GetLabelProperties(nlohmann::json json) {
+        nlohmann::json properties {{"name", "_label"}};
+        if (json.contains("label")) properties += {"text", json["label"]};
+        if (json.contains("font")) properties += {"font", json["font"]};
+        if (json.contains("font-size")) properties += {"height", json["font-size"]};
+        if (json.contains("text-color")) properties += {"text-color", json["text-color"]};
+        return properties;
+    }
 
 private:
     std::array<Image, State::Count> m_images;
+    std::optional<Label> m_label;
     State m_state = State::Neutral;
 };
 

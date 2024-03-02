@@ -1,6 +1,7 @@
 #include "Edit.h"
 #include "details/Parsers.h"
 #include "../FontLibrary.h"
+#include "../utils/unicode.h"
 #include <SFML/Graphics/Font.hpp>
 
 namespace sfui {
@@ -19,7 +20,7 @@ Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(pa
     }
 
     if (json.contains("text")) {
-        m_text.setString(json["text"].get<std::string>());
+        m_text.setString(utils::s2ws(json["text"]));
     }
 
     if (json.contains("text-color")) {
