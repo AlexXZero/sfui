@@ -18,12 +18,21 @@ class ComponentBase;
 
 class Component: public std::enable_shared_from_this<Component> {
 public:
-    Component(ComponentBase& parent, const nlohmann::json& json);
+    struct Properties {
+        std::string name;
+        bool isEnabled = true;
+        bool isVisible = true;
+
+        Properties() = default;
+        Properties(const nlohmann::json& json);
+    };
+
+    Component(ComponentBase& parent, const Properties& properties);
     virtual ~Component() = default;
 
-    template<typename Component, typename... Args>
-    Component& Emplace(const Args&... args) {
-        return static_cast<Component&>(*m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), args...)));
+    template<typename Component, typename Properties>
+    Component& Emplace(const Properties& properties) {
+        return static_cast<Component&>(*m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), properties)));
     }
 
     const std::string& Name() const;

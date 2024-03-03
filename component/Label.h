@@ -7,7 +7,23 @@ namespace sfui {
 
 class Label: public ComponentBase {
 public:
-    Label(ComponentBase& parent, const nlohmann::json& json);
+    enum TextAlignment { Left, Right, Center };
+
+    struct Properties: public ComponentBase::Properties {
+        std::optional<sf::Color> backgroundColor;
+        std::optional<sf::Font> font;
+        std::optional<std::string> text;
+        std::optional<sf::Color> textColor;
+        std::uint32_t textStyle = sf::Text::Regular;
+        TextAlignment textAlignment = TextAlignment::Left;
+
+        Properties() = default;
+        Properties(const nlohmann::json& json);
+    };
+
+    Label(ComponentBase& parent, const Properties& properties);
+    Label(ComponentBase& parent, const nlohmann::json& json)
+        : Label(parent, Properties(json)) { ParseHandlers(json); }
     ~Label() = default;
 
     void SetBackgroundColor(sf::Color color);
@@ -19,10 +35,11 @@ public:
 
 private:
     void Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle);
-    void Render_(sf::RenderWindow& window, sf::Text& text);
+    void Render_(sf::RenderWindow& window, sf::Text& text, TextAlignment alignment);
 
 private:
     std::optional<sf::RectangleShape> m_background;
+    TextAlignment m_textAlignment;
     sf::Text m_text;
 };
 

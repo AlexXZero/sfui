@@ -4,17 +4,29 @@
 
 using namespace sfui;
 
-ComponentGeometry::ComponentGeometry(ComponentBase& parent, const nlohmann::json& json)
-        : Component(parent, json)
+ComponentGeometry::Properties::Properties(const nlohmann::json& json)
+    : Component::Properties(json)
 {
-    if (IsRoot())                   m_position  = Position::Absolute;
-    if (json.contains("position"))  m_position  = ParsePosition(json["position"]);
-    if (json.contains("left"))      m_left      = ParseOffset(json["left"]);
-    if (json.contains("right"))     m_right     = ParseOffset(json["right"]);
-    if (json.contains("top"))       m_top       = ParseOffset(json["top"]);
-    if (json.contains("bottom"))    m_bottom    = ParseOffset(json["bottom"]);
-    if (json.contains("width"))     m_width     = ParseSize(json["width"]);
-    if (json.contains("height"))    m_height    = ParseSize(json["height"]);
+    if (json.contains("position"))  position    = ParsePosition(json["position"]);
+    if (json.contains("left"))      left        = ParseOffset(json["left"]);
+    if (json.contains("right"))     right       = ParseOffset(json["right"]);
+    if (json.contains("top"))       top         = ParseOffset(json["top"]);
+    if (json.contains("bottom"))    bottom      = ParseOffset(json["bottom"]);
+    if (json.contains("width"))     width       = ParseSize(json["width"]);
+    if (json.contains("height"))    height      = ParseSize(json["height"]);
+}
+
+ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& properties)
+    : Component(parent, properties)
+{
+    if (IsRoot())                        m_position = Position::Absolute;
+    if (properties.position.has_value()) m_position = properties.position.value();
+    if (properties.left.has_value())     m_left     = properties.left.value();
+    if (properties.right.has_value())    m_right    = properties.right.value();
+    if (properties.top.has_value())      m_top      = properties.top.value();
+    if (properties.bottom.has_value())   m_bottom   = properties.bottom.value();
+    if (properties.width.has_value())    m_width    = properties.width.value();
+    if (properties.height.has_value())   m_height   = properties.height.value();
 
     assert(!IsRoot() || (m_position == Position::Absolute && m_width.has_value() && m_height.has_value()));
 }

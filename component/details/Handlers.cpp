@@ -3,11 +3,19 @@
 
 using namespace sfui;
 
-// ComponentHandlers
-ComponentHandlers::ComponentHandlers(ComponentBase& parent, const nlohmann::json& json)
-        : ComponentGeometry(parent, json)
+ComponentHandlers::ComponentHandlers(ComponentBase& parent, const Properties& properties)
+    : ComponentGeometry(parent, properties)
 {
-    // parse optional properties
+}
+
+ComponentHandlers::ComponentHandlers(ComponentBase& parent, const nlohmann::json& json)
+    : ComponentHandlers(parent, Properties(json))
+{
+    ParseHandlers(json);
+}
+
+void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
+{
     if (json.contains("onKeyPress")) {
         for (const auto& handler_json: json["onKeyPress"]) {
             if (handler_json.contains("key")) {

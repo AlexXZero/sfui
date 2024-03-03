@@ -19,6 +19,8 @@ class ComponentHandlers : public ComponentGeometry {
     template<typename F> std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseClickHandler(F&& handler);
 
 public:
+    using Properties = ComponentGeometry::Properties;
+    ComponentHandlers(ComponentBase& parent, const Properties& properties);
     ComponentHandlers(ComponentBase& parent, const nlohmann::json& json);
     virtual ~ComponentHandlers() = default;
 
@@ -42,6 +44,7 @@ public:
     template<typename Handler> ObserverToken OnTextEntered(Handler&& handler) { return m_textEnterHandlers.Set(CastToTextEnterHandler(std::forward<Handler>(handler))); }
 
 protected:
+    void ParseHandlers(const nlohmann::json& json);
     void LinkEvent(ObserverToken observerToken) { m_observers.push_back(observerToken); }
 
 private:

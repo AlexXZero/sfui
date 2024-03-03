@@ -7,23 +7,35 @@ namespace sfui {
 
 class Image: public ComponentBase {
 public:
-    Image(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
-        // parse optional properties
-        if (json.contains("image")) {
-            SetImage(json["image"].get<std::string>());
+    struct Properties: public ComponentBase::Properties {
+        std::optional<sf::Color> backgroundColor;
+        std::optional<std::string> imagePath;
+
+        Properties() = default;
+        Properties(const nlohmann::json& json) : ComponentBase::Properties(json) {
+            if (json.contains("image")) imagePath = json["image"].get<std::string>();
+            if (json.contains("background-color")) backgroundColor = ParseColor(json["background-color"]);
+        }
+    };
+
+    Image(ComponentBase& parent, const Properties& properties) : ComponentBase(parent, properties) {
+        if (properties.imagePath.has_value()) {
+            SetImage(properties.imagePath.value());
             auto [width, height] = m_texture.getSize();
-            if (!json.contains("width")) SetWidth(width);
-            if (!json.contains("height")) SetHeight(height);
+            if (!properties.width.has_value()) SetWidth(width);
+            if (!properties.height.has_value()) SetHeight(height);
             m_image->setSize({float(Width()), float(Height())});
             m_image->setPosition(AbsoluteX(), AbsoluteY());
             //OnResize([this](std::uint16_t width, std::uint16_t height){ m_image->setSize(sf::Vector2f(width, height)); });
             //OnMove([this](std::int16_t x, std::int16_t y){ m_image->setPosition(x, y); });
         }
 
-        if (json.contains("background-color")) {
-            SetBackgroundColor(ParseColor(json["background-color"]));
+        if (properties.backgroundColor.has_value()) {
+            SetBackgroundColor(properties.backgroundColor.value());
         }
     }
+    Image(ComponentBase& parent, const nlohmann::json& json)
+        : Image(parent, Properties(json)) { ParseHandlers(json); }
     ~Image() = default;
 
     void SetBackgroundColor(sf::Color color) {

@@ -7,6 +7,8 @@ namespace sfui {
 
 class ComponentBase : public ComponentHandlers {
 public:
+    using Properties = ComponentHandlers::Properties;
+    ComponentBase(ComponentBase& parent, const Properties& properties);
     ComponentBase(ComponentBase& parent, const nlohmann::json& json);
     virtual ~ComponentBase() = default;
 };

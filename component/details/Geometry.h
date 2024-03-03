@@ -16,7 +16,16 @@ using SizePercentage    = float;
 
 class ComponentGeometry : public Component {
 public:
-    ComponentGeometry(ComponentBase& parent, const nlohmann::json& json);
+    struct Properties : public Component::Properties {
+        std::optional<Position> position;
+        std::optional<std::variant<SizePixels, SizePercentage>> width, height;
+        std::optional<std::variant<OffsetPixels, OffsetPercentage>> left, right, top, bottom;
+
+        Properties() = default;
+        Properties(const nlohmann::json& json);
+    };
+
+    ComponentGeometry(ComponentBase& parent, const Properties& properties);
     virtual ~ComponentGeometry() = default;
 
     // Getters

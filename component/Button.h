@@ -62,7 +62,7 @@ private:
         return properties;
     }
     static nlohmann::json GetLabelProperties(nlohmann::json json) {
-        nlohmann::json properties {{"name", "_label"}};
+        nlohmann::json properties {{"name", "_label"}, {"text-alignment", "center"}};
         if (json.contains("label")) properties += {"text", json["label"]};
         if (json.contains("font")) properties += {"font", json["font"]};
         if (json.contains("font-size")) properties += {"height", json["font-size"]};

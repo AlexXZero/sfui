@@ -23,11 +23,20 @@ private:
 
 using namespace sfui;
 
-Component::Component(ComponentBase& parent, const nlohmann::json& json)
-    : std::enable_shared_from_this<Component>(), m_parent(parent), m_name(json["name"]), m_enabled(true), m_visible(true)
+Component::Properties::Properties(const nlohmann::json& json)
+    : name(json["name"]), isEnabled(true), isVisible(true)
 {
-    if (json.contains("enabled")) m_enabled = json["enabled"].get<bool>();
-    if (json.contains("visible")) m_visible = json["visible"].get<bool>();
+    if (json.contains("enabled")) isEnabled = json["enabled"].get<bool>();
+    if (json.contains("visible")) isVisible = json["visible"].get<bool>();
+}
+
+Component::Component(ComponentBase& parent, const Component::Properties& properties)
+    : std::enable_shared_from_this<Component>()
+    , m_parent(parent)
+    , m_name(properties.name)
+    , m_enabled(properties.isEnabled)
+    , m_visible(properties.isVisible)
+{
 }
 
 const std::string& Component::Name() const
