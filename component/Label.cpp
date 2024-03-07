@@ -4,7 +4,7 @@
 #include "../utils/unicode.h"
 #include <SFML/Graphics/Font.hpp>
 
-namespace sfui {
+using namespace sfui;
 
 Label::Properties::Properties(const nlohmann::json& json) : ComponentBase::Properties(json)
 {
@@ -111,6 +111,4 @@ void Label::Render_(sf::RenderWindow& window, sf::Text& text, TextAlignment alig
     }
 
     window.draw(text);
-}
-
 }

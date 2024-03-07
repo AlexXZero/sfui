@@ -4,7 +4,7 @@
 #include "../utils/unicode.h"
 #include <SFML/Graphics/Font.hpp>
 
-namespace sfui {
+using namespace sfui;
 
 Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json)
 {
@@ -132,6 +132,4 @@ void Edit::TextEnteredHandler(uint32_t unicode)
         }
         break;
     }
-}
-
 }

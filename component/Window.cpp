@@ -1,9 +1,10 @@
 #include "Window.h"
 #include "details/Parsers.h"
 
-namespace sfui {
+using namespace sfui;
 
-Window::Window(const nlohmann::json& json) : ComponentBase(*this, json), m_title(json["name"])
+Window::Window(const nlohmann::json& json)
+    : ComponentBase(*this, json), m_title(json["name"])
 {
     // parse optional properties
     if (json.contains("title")) SetTitle(json["title"].get<std::string>());
@@ -62,5 +63,3 @@ void Window::Render()
     Render_(*m_window_up);
     m_window_up->display();
 }
-
-} // end of namespace sfui

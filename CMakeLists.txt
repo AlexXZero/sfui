@@ -9,6 +9,7 @@ add_library(sfui STATIC
     UserInterface.cpp
     component/Edit.cpp
     component/Label.cpp
+    component/Image.cpp
     component/Window.cpp
     component/details/ComponentBase.cpp
     component/details/Component.cpp
