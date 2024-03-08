@@ -66,6 +66,7 @@ protected:
     void Render_(sf::RenderWindow& window);
     bool HandleEvent_(const sf::Event& event);
     void Update_();
+    void UpdateGeometry_();
 
 private:
     Component(const Component&) = delete;
@@ -81,6 +82,7 @@ private:
     virtual void OnDisable() = 0;
     virtual void OnGainFocus() = 0;
     virtual void OnLoseFocus() = 0;
+    virtual void OnUpdateGeometry() = 0;
 
 private:
     ComponentBase& m_parent;

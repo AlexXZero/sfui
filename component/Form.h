@@ -3,78 +3,51 @@
 
 #include "details/ComponentBase.h"
 #include "details/Parsers.h"
+#include "Image.h"
 
 namespace sfui {
 
 class Form: public ComponentBase {
 public:
-    Form(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json) {
+    Form(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json), m_background(*this, GetBackgroundProperties(json)) {
         // parse optional properties
-        if (json.contains("background")) SetBackground(ParseColor(json["background"]));
-        if (json.contains("background-image")) {
-            SetBackground(json["background-image"].get<std::string>());
-            auto [width, height] = m_texture.getSize();
+        if (json.contains("background-image") && (!json.contains("width") || !json.contains("height"))) {
+            auto [width, height] = m_background.GetNativeSize();
             if (!json.contains("width")) SetWidth(width);
             if (!json.contains("height")) SetHeight(height);
         }
+        LinkEvent(OnResize([this]{ m_background.SetSize(Width(), Height()); }));
+        LinkEvent(OnMove([this]{ m_background.SetPosition(0, 0); }));
         LinkEvent(OnMouseClick([this]{ BringToFront(); }));
     }
     ~Form() = default;
 
-    void SetBackground(sf::Color color) {
-        InitialiseBackground();
-        m_background->setFillColor(sf::Color(color));
+    void SetBackgroundImage(const std::string& image_path) {
+        m_background.SetImage(image_path);
     }
 
-    void SetBackground(std::uint32_t color) {
-        SetBackground(sf::Color(color));
+    void SetBackgroundColor(sf::Color color) {
+        m_background.SetBackgroundColor(color);
     }
 
-    void SetBackground(const std::string& image_path) {
-        InitialiseBackground();
-        m_texture.loadFromFile(image_path);
-        m_background->setTexture(&m_texture);
+    void SetBackgroundColor(std::uint32_t color) {
+        SetBackgroundColor(sf::Color(color));
     }
 
     void Render(sf::RenderWindow& window) override {
-        if (m_background.has_value()) {
-            const sf::Vector2f old_position = m_background->getPosition();
-            const sf::Vector2f new_position(AbsoluteX(), AbsoluteY());
-            if (old_position != new_position) {
-                m_background->setPosition(new_position);
-            }
-
-            const sf::Vector2f old_size = m_background->getSize();
-            const sf::Vector2f new_size(Width(), Height());
-            if (old_size != new_size) {
-                m_background->setSize(new_size);
-            }
-
-#if 0 // TODO (there is a wrong version, more complex path should be done here and for position as well)
-            const sf::IntRect old_texture_rect = m_background->getTextureRect();
-            const sf::IntRect new_texture_rect(Left() < 0 Left() : 0, Parent().AbsoluteY(), Parent().Width(), Parent().Height());
-            if (old_texture_rect != new_texture_rect) {
-                m_background->setTextureRect(new_texture_rect);
-            }
-#endif
-
-            window.draw(m_background.value());
-        }
+        m_background.Render(window);
     }
 
 private:
-    void InitialiseBackground() {
-        if (!m_background.has_value()) {
-            m_background = sf::RectangleShape(/*sf::Vector2f(Width(), Height())*/);
-            m_background->setPosition(AbsoluteX(), AbsoluteY());
-            //OnResize([this](std::uint16_t width, std::uint16_t height){ m_background->setSize(sf::Vector2f(width, height)); });
-            //OnMove([this](std::int16_t x, std::int16_t y){ m_background->setPosition(x, y); });
-        }
+    static nlohmann::json GetBackgroundProperties(nlohmann::json json) {
+        nlohmann::json background {{"name", "_background"}};
+        if (json.contains("background-image")) background += {"image", json["background-image"]};
+        if (json.contains("background-color")) background += {"background-color", json["background-color"]};
+        return background;
     }
 
 private:
-    std::optional<sf::RectangleShape> m_background;
-    sf::Texture m_texture;
+    Image m_background;
 };
 
 }

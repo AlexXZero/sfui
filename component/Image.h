@@ -32,9 +32,6 @@ public:
     void Render(sf::RenderWindow& window) override;
 
 private:
-    void Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle);
-
-private:
     sf::Texture m_texture;
     std::optional<sf::RectangleShape> m_image;
     std::optional<sf::RectangleShape> m_background;

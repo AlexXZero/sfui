@@ -47,7 +47,18 @@ Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBas
     m_textAlignment = properties.textAlignment;
 
     m_text.setCharacterSize(Height() - 4); // in pixels
-    m_text.setPosition(AbsoluteX(), AbsoluteY());
+    m_text.setPosition(GetTextRenderPosition(m_text, m_textAlignment));
+
+    LinkEvent(OnResize([this]{
+        m_text.setCharacterSize(Height() - 4);
+        m_text.setPosition(GetTextRenderPosition(m_text, m_textAlignment));
+        if (m_background.has_value()) m_background->setSize(sf::Vector2f(Width(), Height()));
+    }));
+    LinkEvent(OnMove([this]{
+        m_text.setCharacterSize(Height() - 4);
+        m_text.setPosition(GetTextRenderPosition(m_text, m_textAlignment));
+        if (m_background.has_value()) m_background->setPosition(AbsoluteX(), AbsoluteY());
+    }));
 }
 
 void Label::SetBackgroundColor(sf::Color color)
@@ -60,55 +71,17 @@ void Label::SetBackgroundColor(sf::Color color)
 void Label::Render(sf::RenderWindow& window)
 {
     if (m_background.has_value()) {
-        Render_(window, m_background.value());
+        window.draw(m_background.value());
     }
 
-    Render_(window, m_text, m_textAlignment);
+    window.draw(m_text);
 }
 
-void Label::Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle)
+sf::Vector2f Label::GetTextRenderPosition(sf::Text& text, TextAlignment alignment)
 {
-    const sf::Vector2f old_position = rectangle.getPosition();
-    const sf::Vector2f new_position(AbsoluteX(), AbsoluteY());
-    if (old_position != new_position) {
-        rectangle.setPosition(new_position);
-    }
-
-    const sf::Vector2f old_size = rectangle.getSize();
-    const sf::Vector2f new_size(Width(), Height());
-    if (old_size != new_size) {
-        rectangle.setSize(new_size);
-    }
-
-#if 0 // TODO (there is a wrong version, more complex path should be done here and for position as well)
-    const sf::IntRect old_texture_rect = rectangle.getTextureRect();
-    const sf::IntRect new_texture_rect(Left() < 0 Left() : 0, Parent().AbsoluteY(), Parent().Width(), Parent().Height());
-    if (old_texture_rect != new_texture_rect) {
-        rectangle.setTextureRect(new_texture_rect);
-    }
-#endif
-
-    window.draw(rectangle);
-}
-
-void Label::Render_(sf::RenderWindow& window, sf::Text& text, TextAlignment alignment)
-{
-    const sf::Vector2f old_position = text.getPosition();
     const sf::FloatRect textLocalBounds = text.getLocalBounds();
-    const sf::Vector2f new_position =
-        alignment == TextAlignment::Left ? sf::Vector2f(AbsoluteX(), AbsoluteY()) :
-        alignment == TextAlignment::Right ? sf::Vector2f(AbsoluteX() + Width() - textLocalBounds.width, AbsoluteY()) :
-        alignment == TextAlignment::Center ? sf::Vector2f(AbsoluteX() + (Width() - textLocalBounds.width) / 2, AbsoluteY()) :
-        throw std::runtime_error("unknown alignment value: " + alignment);
-    if (old_position != new_position) {
-        text.setPosition(new_position);
-    }
-
-    const unsigned int old_size = text.getCharacterSize();
-    const unsigned int new_size = Height() - 4;
-    if (old_size != new_size) {
-        text.setCharacterSize(new_size);
-    }
-
-    window.draw(text);
+    return alignment == TextAlignment::Left ? sf::Vector2f(AbsoluteX(), AbsoluteY())
+         : alignment == TextAlignment::Right ? sf::Vector2f(AbsoluteX() + Width() - textLocalBounds.width, AbsoluteY())
+         : alignment == TextAlignment::Center ? sf::Vector2f(AbsoluteX() + (Width() - textLocalBounds.width) / 2, AbsoluteY())
+         : throw std::runtime_error("unknown alignment value: " + alignment);
 }

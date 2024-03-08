@@ -232,3 +232,12 @@ void Component::Update_()
         }
     }
 }
+
+void Component::UpdateGeometry_()
+{
+    OnUpdateGeometry();
+
+    for (auto& component_sp: m_components) {
+        component_sp->UpdateGeometry_();
+    }
+}

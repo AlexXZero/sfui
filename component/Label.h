@@ -34,8 +34,7 @@ public:
     void Render(sf::RenderWindow& window) override;
 
 private:
-    void Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle);
-    void Render_(sf::RenderWindow& window, sf::Text& text, TextAlignment alignment);
+    sf::Vector2f GetTextRenderPosition(sf::Text& text, TextAlignment alignment);
 
 private:
     std::optional<sf::RectangleShape> m_background;

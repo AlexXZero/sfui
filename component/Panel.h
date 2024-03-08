@@ -17,8 +17,8 @@ public:
             if (!json.contains("width")) SetWidth(width);
             if (!json.contains("height")) SetHeight(height);
         }
-        //OnResize([this](std::uint16_t width, std::uint16_t height){ m_background.setSize(sf::Vector2f(width, height)); });
-        //OnMove([this](std::int16_t x, std::int16_t y){ m_background.setPosition(x, y); });
+        LinkEvent(OnResize([this]{ m_background.SetSize(Width(), Height()); }));
+        LinkEvent(OnMove([this]{ m_background.SetPosition(0, 0); }));
     }
     ~Panel() = default;
 

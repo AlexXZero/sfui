@@ -29,9 +29,87 @@ ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& pr
     if (properties.height.has_value())   m_height   = properties.height.value();
 
     assert(!IsRoot() || (m_position == Position::Absolute && m_width.has_value() && m_height.has_value()));
+
+#if 0 // Can not be called from the constructor since it calls virtual methods
+    OnUpdateGeometry();
+#else
+    m_cachedLeft = ComputeLeft();
+    m_cachedRight = ComputeRight();
+    m_cachedTop = ComputeTop();
+    m_cachedBottom = ComputeBottom();
+    m_cachedWidth = ComputeWidth();
+    m_cachedHeight = ComputeHeight();
+    m_cachedAbsoluteX = ComputeAbsoluteX();
+    m_cachedAbsoluteY = ComputeAbsoluteY();
+#endif
 }
 
-OffsetPixels ComponentGeometry::Left() const
+bool ComponentGeometry::Contains(OffsetPixels x, OffsetPixels y) const
+{
+    return x >= AbsoluteX() && x < AbsoluteX() + Width() && y >= AbsoluteY() && y < AbsoluteY() + Height();
+}
+
+bool ComponentGeometry::Contains(std::pair<OffsetPixels, OffsetPixels> point) const
+{
+    return Contains(point.first, point.second);
+}
+
+void ComponentGeometry::SetLeft(OffsetPixels leftOffset)
+{
+    m_left = leftOffset;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetRight(OffsetPixels rightOffset)
+{
+    m_right = rightOffset;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetTop(OffsetPixels topOffset)
+{
+    m_top = topOffset;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetBottom(OffsetPixels bottomOffset)
+{
+    m_bottom = bottomOffset;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetWidth(SizePixels width)
+{
+    m_width = width;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetHeight(SizePixels height)
+{
+    m_height = height;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetSize(SizePixels width, SizePixels height)
+{
+    m_width = width;
+    m_height = height;
+    UpdateGeometry_();
+}
+
+void ComponentGeometry::SetPosition(OffsetPixels left,
+                                    OffsetPixels top,
+                                    std::optional<OffsetPixels> right,
+                                    std::optional<OffsetPixels> bottom)
+{
+    m_left = left;
+    m_top = top;
+    if (right.has_value()) m_right = right.value();
+    if (bottom.has_value()) m_bottom = bottom.value();
+    UpdateGeometry_();
+}
+
+OffsetPixels ComponentGeometry::ComputeLeft() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -49,19 +127,19 @@ OffsetPixels ComponentGeometry::Left() const
 
     // Try to calculate left offset using right alignment
     if (m_right.has_value() && m_width.has_value()) {
-        return ParentWidth() - Right() - Width();
+        return ParentWidth() - ComputeRight() - ComputeWidth();
     }
 
     // Try to calculate left offset using center alignment
     if (m_width.has_value()) {
-        return (ParentWidth() - Width()) / 2;
+        return (ParentWidth() - ComputeWidth()) / 2;
     }
 
     // Width is not defined, so component will use zero left offset
     return 0;
 }
 
-OffsetPixels ComponentGeometry::Right() const
+OffsetPixels ComponentGeometry::ComputeRight() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -79,19 +157,19 @@ OffsetPixels ComponentGeometry::Right() const
 
     // Try to calculate right offset using left alignment
     if (m_left.has_value() && m_width.has_value()) {
-        return ParentWidth() - Left() - Width();
+        return ParentWidth() - ComputeLeft() - ComputeWidth();
     }
 
     // Try to calculate right offset using center alignment
     if (m_width.has_value()) {
-        return (ParentWidth() - Width()) / 2;
+        return (ParentWidth() - ComputeWidth()) / 2;
     }
 
     // Width is not defined, so component will use zero right offset
     return 0;
 }
 
-OffsetPixels ComponentGeometry::Top() const
+OffsetPixels ComponentGeometry::ComputeTop() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -109,19 +187,19 @@ OffsetPixels ComponentGeometry::Top() const
 
     // Try to calculate top offset using bottom alignment
     if (m_bottom.has_value() && m_height.has_value()) {
-        return ParentHeight() - Bottom() - Height();
+        return ParentHeight() - ComputeBottom() - ComputeHeight();
     }
 
     // Try to calculate top offset using center alignment
     if (m_height.has_value()) {
-        return (ParentHeight() - Height()) / 2;
+        return (ParentHeight() - ComputeHeight()) / 2;
     }
 
     // Height is not defined, so component will use zero top offset
     return 0;
 }
 
-OffsetPixels ComponentGeometry::Bottom() const
+OffsetPixels ComponentGeometry::ComputeBottom() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
@@ -139,25 +217,25 @@ OffsetPixels ComponentGeometry::Bottom() const
 
     // Try to calculate bottom offset using top alignment
     if (m_top.has_value() && m_height.has_value()) {
-        return ParentHeight() - Top() - Height();
+        return ParentHeight() - ComputeTop() - ComputeHeight();
     }
 
     // Try to calculate bottom offset using center alignment
     if (m_height.has_value()) {
-        return (ParentHeight() - Height()) / 2;
+        return (ParentHeight() - ComputeHeight()) / 2;
     }
 
     // Height is not defined, so component will use zero bottom offset
     return 0;
 }
 
-SizePixels ComponentGeometry::Width() const
+SizePixels ComponentGeometry::ComputeWidth() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
     // Use left and right offset when they are defined
     if (!IsRoot() && m_left.has_value() && m_right.has_value()) {
-        return ParentWidth() - Left() - Right();
+        return ParentWidth() - ComputeLeft() - ComputeRight();
     }
 
     // Use defined width value
@@ -175,13 +253,13 @@ SizePixels ComponentGeometry::Width() const
     return ParentWidth();
 }
 
-SizePixels ComponentGeometry::Height() const
+SizePixels ComponentGeometry::ComputeHeight() const
 {
     assert(!IsRoot() || m_position == Position::Absolute);
 
     // Use top and bottom offset when they are defined
     if (!IsRoot() && m_top.has_value() && m_bottom.has_value()) {
-        return ParentHeight() - Top() - Bottom();
+        return ParentHeight() - ComputeTop() - ComputeBottom();
     }
 
     // Use defined height value
@@ -199,64 +277,14 @@ SizePixels ComponentGeometry::Height() const
     return ParentHeight();
 }
 
-OffsetPixels ComponentGeometry::AbsoluteX() const
+OffsetPixels ComponentGeometry::ComputeAbsoluteX() const
 {
     return m_position == Position::Absolute ? Left() : Parent().AbsoluteX() + Left();
 }
 
-OffsetPixels ComponentGeometry::AbsoluteY() const
+OffsetPixels ComponentGeometry::ComputeAbsoluteY() const
 {
     return m_position == Position::Absolute ? Top() : Parent().AbsoluteY() + Top();
-}
-
-bool ComponentGeometry::Contains(OffsetPixels x, OffsetPixels y) const
-{
-    return x >= AbsoluteX() && x < AbsoluteX() + Width() && y >= AbsoluteY() && y < AbsoluteY() + Height();
-}
-
-bool ComponentGeometry::Contains(std::pair<OffsetPixels, OffsetPixels> point) const
-{
-    return Contains(point.first, point.second);
-}
-
-void ComponentGeometry::SetLeft(OffsetPixels leftOffset)
-{
-    m_left = leftOffset;
-    if (m_width.has_value()) OnMove();
-    else OnResize();
-}
-
-void ComponentGeometry::SetRight(OffsetPixels rightOffset)
-{
-    m_right = rightOffset;
-    if (m_width.has_value()) OnMove();
-    else OnResize();
-}
-
-void ComponentGeometry::SetTop(OffsetPixels topOffset)
-{
-    m_top = topOffset;
-    if (m_height.has_value()) OnMove();
-    else OnResize();
-}
-
-void ComponentGeometry::SetBottom(OffsetPixels bottomOffset)
-{
-    m_bottom = bottomOffset;
-    if (m_height.has_value()) OnMove();
-    else OnResize();
-}
-
-void ComponentGeometry::SetWidth(SizePixels width)
-{
-    m_width = width;
-    OnResize();
-}
-
-void ComponentGeometry::SetHeight(SizePixels height)
-{
-    m_height = height;
-    OnResize();
 }
 
 SizePixels ComponentGeometry::ParentWidth() const
@@ -306,4 +334,31 @@ std::variant<SizePixels, SizePercentage> ComponentGeometry::ParseSize(const nloh
             throw std::runtime_error("Error parsing component size: " + string);
         }
     }
+}
+
+void ComponentGeometry::OnUpdateGeometry()
+{
+    // Compute a new relative position
+    m_cachedLeft = ComputeLeft();
+    m_cachedRight = ComputeRight();
+    m_cachedTop = ComputeTop();
+    m_cachedBottom = ComputeBottom();
+
+    // Compute a new absolute X,Y position
+    const auto x = ComputeAbsoluteX();
+    const auto y = ComputeAbsoluteY();
+    const bool isMoved = (m_cachedAbsoluteX != x || m_cachedAbsoluteY != y);
+    m_cachedAbsoluteX = x;
+    m_cachedAbsoluteY = y;
+
+    // Compute a new dimensions
+    const auto width = ComputeWidth();
+    const auto height = ComputeHeight();
+    const bool isResized = (m_cachedWidth != width || m_cachedHeight != height);
+    m_cachedWidth = width;
+    m_cachedHeight = height;
+
+    // Call corresponded handlers
+    if (isMoved) OnMove();
+    if (isResized) OnResize();
 }

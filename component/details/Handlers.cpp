@@ -64,7 +64,6 @@ void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
     }
 }
 
-#include <iostream>
 bool ComponentHandlers::HandleEvent(const sf::Event& event)
 {
     switch (event.type) {
@@ -101,14 +100,12 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
             GainFocus();
 
             m_mouseClickHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
-            std::cerr << Name() << ": Press: " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
             return true;
         }
         break;
 
     case sf::Event::MouseButtonReleased:
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
-            std::cerr << Name() << ": Release: " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
             return true;
         }
         break;
@@ -116,12 +113,10 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
     case sf::Event::MouseMoved:
         // Check mouse left and enter events, then remember mouse position for next check
         if (!Contains(m_mouseOldPosition) && Contains(event.mouseMove.x, event.mouseMove.y)) {
-            std::cerr << Name() << ": Enter: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
             m_mouseEnterHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseEntered});
         }
         else if (Contains(m_mouseOldPosition) && !Contains(event.mouseMove.x, event.mouseMove.y)) {
-            std::cerr << Name() << ": Leave: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
             m_mouseLeaveHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseLeft});
         }
@@ -129,7 +124,6 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         m_mouseOldPosition.second = event.mouseMove.y;
 
         if (Contains(event.mouseMove.x, event.mouseMove.y)) {
-            std::cerr << Name() << ": Move: " <<  event.mouseMove.x << ", " << event.mouseMove.y << std::endl;
             return true;
         }
         break;

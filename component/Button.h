@@ -47,6 +47,14 @@ public:
         if (json.contains("label")) m_label.emplace(*this, GetLabelProperties(json));
         LinkEvent(OnMouseEnter([this]{ m_state = Active; }));
         LinkEvent(OnMouseLeave([this]{ m_state = Neutral; }));
+        LinkEvent(OnResize([this]{
+            for (auto& i: m_images) i.SetSize(Width(), Height());
+            if (m_label.has_value()) m_label->SetSize(Width(), Height());
+        }));
+        LinkEvent(OnMove([this]{
+            for (auto& i: m_images) i.SetPosition(0, 0);
+            if (m_label.has_value()) m_label->SetPosition(0, 0);
+        }));
     }
     ~Button() = default;
 

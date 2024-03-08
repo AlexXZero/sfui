@@ -29,16 +29,16 @@ public:
     virtual ~ComponentGeometry() = default;
 
     // Getters
-    OffsetPixels Left() const;
-    OffsetPixels Right() const;
-    OffsetPixels Top() const;
-    OffsetPixels Bottom() const;
-    SizePixels Width() const;
-    SizePixels Height() const;
+    OffsetPixels Left() const   { return m_cachedLeft; }
+    OffsetPixels Right() const  { return m_cachedRight; }
+    OffsetPixels Top() const    { return m_cachedTop; }
+    OffsetPixels Bottom() const { return m_cachedBottom; }
+    SizePixels Width() const    { return m_cachedWidth; }
+    SizePixels Height() const   { return m_cachedHeight; }
 
     // Global horizontal and vertical position
-    OffsetPixels AbsoluteX() const;
-    OffsetPixels AbsoluteY() const;
+    OffsetPixels AbsoluteX() const  { return m_cachedAbsoluteX; }
+    OffsetPixels AbsoluteY() const  { return m_cachedAbsoluteY; }
 
     // Check if a point is inside the component's area.
     bool Contains(OffsetPixels x, OffsetPixels y) const;
@@ -51,8 +51,20 @@ public:
     void SetBottom(OffsetPixels bottomOffset);
     void SetWidth(SizePixels width);
     void SetHeight(SizePixels height);
+    void SetSize(SizePixels width, SizePixels height);
+    void SetPosition(OffsetPixels left, OffsetPixels top, std::optional<OffsetPixels> right = std::nullopt, std::optional<OffsetPixels> bottom = std::nullopt);
 
 private:
+    // Computers for computing cached values
+    OffsetPixels ComputeLeft() const;
+    OffsetPixels ComputeRight() const;
+    OffsetPixels ComputeTop() const;
+    OffsetPixels ComputeBottom() const;
+    SizePixels ComputeWidth() const;
+    SizePixels ComputeHeight() const;
+    OffsetPixels ComputeAbsoluteX() const;
+    OffsetPixels ComputeAbsoluteY() const;
+
     // Getters for the parent's dimensions
     SizePixels ParentWidth() const;
     SizePixels ParentHeight() const;
@@ -62,6 +74,7 @@ private:
     static std::variant<OffsetPixels, OffsetPercentage> ParseOffset(const nlohmann::json& json);
     static std::variant<SizePixels, SizePercentage> ParseSize(const nlohmann::json& json);
 
+    virtual void OnUpdateGeometry() final;
     virtual void OnResize() = 0;
     virtual void OnMove() = 0;
 
@@ -69,6 +82,11 @@ private:
     Position m_position = Position::Relative;
     std::optional<std::variant<SizePixels, SizePercentage>> m_width, m_height;
     std::optional<std::variant<OffsetPixels, OffsetPercentage>> m_left, m_right, m_top, m_bottom;
+
+    // Cashed component position and dimensions
+    SizePixels m_cachedWidth, m_cachedHeight;
+    OffsetPixels m_cachedAbsoluteX, m_cachedAbsoluteY;
+    OffsetPixels m_cachedLeft, m_cachedRight, m_cachedTop, m_cachedBottom;
 };
 
 }
