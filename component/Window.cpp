@@ -56,6 +56,8 @@ void Window::Update()
             }
         }
     }
+
+    Update_();
 }
 
 void Window::Render()

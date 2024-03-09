@@ -38,6 +38,12 @@ void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
             LinkEvent(OnRender(std::move(handler)));
         }
     }
+    if (json.contains("onUpdate")) {
+        for (const auto& handler_json: json["onUpdate"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnUpdate(std::move(handler)));
+        }
+    }
     if (json.contains("onShow")) {
         for (const auto& handler_json: json["onShow"]) {
             auto handler = ParseComponentHandler(*this, handler_json);
