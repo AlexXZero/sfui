@@ -17,7 +17,7 @@ namespace utils {
 
 // Helper function to deduce the argument types of a callable object
 template<typename Func>
-struct function_traits : function_traits<decltype(&Func::operator())> {};
+struct function_traits : function_traits<decltype(&std::remove_reference_t<Func>::operator())> {};
 
 // Specialization for class member function (including lambda functions)
 template<typename ClassType, typename ReturnType, typename... Args>
