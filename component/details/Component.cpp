@@ -39,7 +39,7 @@ Component::Component(ComponentBase& parent, const Component::Properties& propert
 {
 }
 
-void Component::Remove(std::shared_ptr<const ComponentBase> component)
+void Component::Remove(const std::shared_ptr<ComponentBase> component)
 {
     auto it = std::find(m_components.begin(), m_components.end(), component);
     assert(it != m_components.end());

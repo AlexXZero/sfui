@@ -237,11 +237,11 @@ static const CallHandler* FindHandler(const std::string& handlerName)
 static std::function<void()> GetComponentCallHandler(ComponentHandlers& component, const nlohmann::json& json)
 {
     if (const auto* handler = FindHandler(json["call"])) { // fast option, handler should be setup at program startup
-        return [&component, handler] { (*handler)(dynamic_cast<Component&>(component)); };
+        return [&component, handler] { (*handler)(component); };
     } else {
         return [&component, handlerName = json["call"]] { // slow option, handler is searching in runtime
             if (const auto* handler = FindHandler(handlerName)) {
-                (*handler)(dynamic_cast<Component&>(component));
+                (*handler)(component);
             } else {
                 throw std::runtime_error(std::string("CallHandler \"") + std::string(handlerName) + std::string("\" not found for call"));
             }

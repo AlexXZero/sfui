@@ -35,7 +35,7 @@ public:
         return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), properties)));
     }
 
-    void Remove(std::shared_ptr<const ComponentBase> component);
+    void Remove(const std::shared_ptr<ComponentBase> component);
     const std::string& Name() const;
     ComponentBase& Parent() const;
     ComponentBase& Root() const;

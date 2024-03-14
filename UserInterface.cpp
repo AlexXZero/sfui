@@ -10,7 +10,7 @@
 namespace sfui {
 
 struct UserInterface::Impl {
-    std::map<std::string, Window> windows; // FIXME UB: all components should be created as shared_ptr to let shared_from_this working!
+    std::map<std::string, std::shared_ptr<Window>> windows;
     // TODO: std::list<Font> m_fonts;
 };
 
@@ -62,7 +62,7 @@ UserInterface::UserInterface(const std::string& configDir, const std::string& co
 
     if (configJSON.contains("windows")) {
         for (const auto& windowConfig: configJSON["windows"]) {
-            m_pImpl->windows.emplace(windowConfig["name"], windowConfig);
+            m_pImpl->windows.emplace(windowConfig["name"], std::make_shared<Window>(windowConfig));
         }
     }
 }
@@ -71,20 +71,18 @@ UserInterface::~UserInterface() = default;
 
 void UserInterface::Update()
 {
-    for (auto& windowIt: m_pImpl->windows) {
-        auto& window = windowIt.second;
-        if (window.IsVisible()) {
-            window.Update();
+    for (auto& [_, window]: m_pImpl->windows) {
+        if (window->IsVisible()) {
+            window->Update();
         }
     }
 }
 
 void UserInterface::Render()
 {
-    for (auto& windowIt: m_pImpl->windows) {
-        auto& window = windowIt.second;
-        if (window.IsVisible()) {
-            window.Render();
+    for (auto& [_, window]: m_pImpl->windows) {
+        if (window->IsVisible()) {
+            window->Render();
         }
     }
 }
@@ -93,7 +91,7 @@ Component& UserInterface::operator[](const std::string& name)
 {
     auto nameEnd = name.find(".");
     if (nameEnd == std::string::npos) {
-        return m_pImpl->windows.at(name);
+        return *m_pImpl->windows.at(name);
     }
 
     return operator[](name.substr(0u, nameEnd)).operator[](name.substr(nameEnd + 1));

@@ -9,7 +9,7 @@ ComponentHandlers::ComponentHandlers(ComponentBase& parent, const Properties& pr
 }
 
 ComponentHandlers::ComponentHandlers(ComponentBase& parent, const nlohmann::json& json)
-    : ComponentHandlers(parent, Properties(json))
+    : ComponentGeometry(parent, Properties(json))
 {
     ParseHandlers(json);
 }
