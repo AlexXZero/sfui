@@ -31,10 +31,11 @@ public:
     virtual ~Component() = default;
 
     template<typename Component, typename Properties>
-    Component& Emplace(const Properties& properties) {
-        return static_cast<Component&>(*m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), properties)));
+    std::shared_ptr<Component> Emplace(const Properties& properties) {
+        return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), properties)));
     }
 
+    void Remove(std::shared_ptr<const ComponentBase> component);
     const std::string& Name() const;
     ComponentBase& Parent() const;
     ComponentBase& Root() const;
