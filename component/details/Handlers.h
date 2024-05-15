@@ -12,6 +12,7 @@
 namespace sfui {
 
 class ComponentHandlers : public ComponentGeometry {
+protected:
     template<typename F> std::function<void()> CastToDefaultHandler(F&& handler);
     template<typename F> std::function<void(sf::RenderWindow& /*window*/)> CastToRenderHandler(F&& handler);
     template<typename F> std::function<void(std::uint32_t /*unicode*/)> CastToTextEnterHandler(F&& handler);
@@ -40,6 +41,8 @@ public:
     template<typename Handler> ObserverToken OnMouseLeave(Handler&& handler) { return m_mouseLeaveHandlers.Set(std::move(CastToMouseMoveHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> ObserverToken OnMouseClick(Handler&& handler) { return m_mouseClickHandlers.Set(std::move(CastToMouseClickHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseClickHandlers.Set([handler = CastToMouseClickHandler(std::forward<Handler>(handler)), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) handler(button, x, y); }); }
+    template<typename Handler> ObserverToken OnMouseScrollUp(Handler&& handler) { return m_mouseScrollUpHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> ObserverToken OnMouseScrollDown(Handler&& handler) { return m_mouseScrollDownHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressedHandlers[key].Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> ObserverToken OnTextEntered(Handler&& handler) { return m_textEnterHandlers.Set(std::move(CastToTextEnterHandler(std::forward<Handler>(handler)))); }
 
@@ -79,6 +82,8 @@ private:
     Observers<std::function<void(std::uint32_t)>> m_textEnterHandlers;
     Observers<std::function<void()>> m_gainedFocusHandlers;
     Observers<std::function<void()>> m_lostFocusHandlers;
+    Observers<std::function<void()>> m_mouseScrollUpHandlers;
+    Observers<std::function<void()>> m_mouseScrollDownHandlers;
     std::pair<std::int16_t, std::int16_t> m_mouseOldPosition;
 };
 

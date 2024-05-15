@@ -32,6 +32,18 @@ void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
             LinkEvent(OnMouseLeftClick(std::move(handler)));
         }
     }
+    if (json.contains("onScrollUp")) {
+        for (const auto& handler_json: json["onScrollUp"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnMouseScrollUp(std::move(handler)));
+        }
+    }
+    if (json.contains("onScrollDown")) {
+        for (const auto& handler_json: json["onScrollDown"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnMouseScrollDown(std::move(handler)));
+        }
+    }
     if (json.contains("onRender")) {
         for (const auto& handler_json: json["onRender"]) {
             auto handler = ParseComponentHandler(*this, handler_json);
@@ -99,6 +111,16 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         break;
 
     case sf::Event::MouseWheelScrolled:
+        if (Contains(m_mouseOldPosition.first, m_mouseOldPosition.second)) {
+            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
+                if (event.mouseWheelScroll.delta > 0) {
+                    m_mouseScrollUpHandlers.Invoke(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
+                } else if (event.mouseWheelScroll.delta < 0) {
+                    m_mouseScrollDownHandlers.Invoke(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
+                }
+            }
+            return true;
+        }
         break;
 
     case sf::Event::MouseButtonPressed:

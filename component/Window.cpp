@@ -14,6 +14,12 @@ Window::Window(const nlohmann::json& json)
     if (IsVisible()) m_window_up = std::make_unique<sf::RenderWindow>(sf::VideoMode(Width(), Height()), m_title); // TODO: should not be processed in constructor, but after UI has been built
     LinkEvent(OnShow([this]{ std::make_unique<sf::RenderWindow>(sf::VideoMode(Width(), Height()), m_title); }));
     LinkEvent(OnHide([this]{ m_window_up.reset(); }));
+    if (json.contains("onClose")) {
+        for (const auto& handler_json: json["onClose"]) {
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnClose(std::move(handler)));
+        }
+    }
 }
 
 void Window::Render(sf::RenderWindow& window)
@@ -30,7 +36,7 @@ void Window::Update()
         while (m_window_up->pollEvent(event)) {
             switch (event.type) {
             case sf::Event::Closed:
-                m_close_handlers.Invoke();
+                m_closeHandlers.Invoke();
                 break;
             case sf::Event::Resized:
                 SetWidth(event.size.width);

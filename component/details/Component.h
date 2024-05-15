@@ -30,9 +30,9 @@ public:
     Component(ComponentBase& parent, const Properties& properties);
     virtual ~Component() = default;
 
-    template<typename Component, typename Properties>
-    std::shared_ptr<Component> Emplace(const Properties& properties) {
-        return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), properties)));
+    template<typename Component, typename... Args>
+    std::shared_ptr<Component> Emplace(Args&&... args) {
+        return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), std::forward<Args>(args)...)));
     }
 
     void Remove(const std::shared_ptr<ComponentBase> component);

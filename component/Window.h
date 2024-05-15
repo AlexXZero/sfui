@@ -6,7 +6,6 @@
 namespace sfui {
 
 class Window: public ComponentBase {
-    using CloseHandler = std::function<void()>;
 public:
     Window(const nlohmann::json& json);
     ~Window() = default;
@@ -17,7 +16,7 @@ public:
     void SetBackground(std::uint32_t color) { m_background = sf::Color(color); }
 
     // Handlers
-    ObserverToken OnClose(CloseHandler&& handler) { return m_close_handlers.Set(std::forward<CloseHandler>(handler)); }
+    template<typename Handler> ObserverToken OnClose(Handler&& handler) { return m_closeHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
 
     void Render(sf::RenderWindow& window) override;
 
@@ -30,7 +29,7 @@ private:
     std::string m_title;
     std::unique_ptr<sf::RenderWindow> m_window_up;
     std::optional<sf::Color> m_background;
-    Observers<CloseHandler> m_close_handlers;
+    Observers<std::function<void()>> m_closeHandlers;
 };
 
 }
