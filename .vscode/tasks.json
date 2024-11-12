@@ -1,0 +1,44 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build (linux)",
+            "type": "shell",
+            "command": "docker run --rm -it -v `pwd`:/project -w /project/example vertixgames/builder_linux bash -c \"cmake -B build && make -j -C build --no-print-directory\"",
+            "group": "build",
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "docker run --rm -v `pwd`:/project  -w /project vertixgames/builder_linux rm -rf example/build tests/build",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "run linux",
+            "type": "shell",
+            "command": "docker run --rm -v `pwd`:/project  -w /project/example/build -eDISPLAY=${DISPLAY} -v${XAUTHORITY}:/home/user/.Xauthority:ro -v/tmp/.X11-unix:/tmp/.X11-unix --network host vertixgames/builder_linux ./ProjectExample",
+            "group": "build",
+            "dependsOn": ["build (linux)"],
+            "problemMatcher": [],
+        },
+        {
+            "label": "build tests",
+            "type": "shell",
+            "command": "docker run --rm -it -v `pwd`:/project -w /project/tests vertixgames/builder_linux bash -c \"cmake -B build && make -j -C build --no-print-directory\"",
+            "group": "build",
+            "problemMatcher": [],
+        },
+        {
+            "label": "run tests",
+            "type": "shell",
+            "command": "docker run --rm -v `pwd`:/project  -w /project/tests/build vertixgames/builder_linux bash -c 'for test_file in Test*; do [[ -x \"${test_file}\" ]] && ./\"${test_file}\" || { exit 1; }; done'",
+            "group": "build",
+            "dependsOn": ["build tests"],
+            "problemMatcher": [],
+        }
+    ]
+}
