@@ -1,5 +1,5 @@
-#include "ComponentBase.h"
-#include "Parsers.h"
+#include "component/details/ComponentBase.h"
+#include "component/details/Parsers.h"
 
 using namespace sfui;
 

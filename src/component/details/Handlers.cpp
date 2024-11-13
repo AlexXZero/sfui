@@ -1,5 +1,5 @@
-#include "Handlers.h"
-#include "Parsers.h"
+#include "component/details/Handlers.h"
+#include "component/details/Parsers.h"
 
 using namespace sfui;
 

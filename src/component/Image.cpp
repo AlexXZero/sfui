@@ -1,5 +1,5 @@
-#include "Image.h"
-#include "details/Parsers.h"
+#include "component/Image.h"
+#include "component/details/Parsers.h"
 
 using namespace sfui;
 

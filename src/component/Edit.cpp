@@ -1,6 +1,6 @@
-#include "Edit.h"
-#include "details/Parsers.h"
-#include "../FontLibrary.h"
+#include "component/Edit.h"
+#include "component/details/Parsers.h"
+#include "FontLibrary.h"
 #include "../utils/unicode.h"
 #include <SFML/Graphics/Font.hpp>
 

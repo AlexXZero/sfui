@@ -1,6 +1,6 @@
-#include "Component.h"
-#include "ComponentBase.h"
-#include "Handlers.h"
+#include "component/details/Component.h"
+#include "component/details/ComponentBase.h"
+#include "component/details/Handlers.h"
 #include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>

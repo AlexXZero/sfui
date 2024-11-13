@@ -1,4 +1,4 @@
-#include "Parsers.h"
+#include "component/details/Parsers.h"
 #include <map>
 
 using namespace sfui;
@@ -150,12 +150,12 @@ sf::Keyboard::Key sfui::ParseKey(const nlohmann::json& json)
 }
 
 //=== Components parser ===//
-#include "../Form.h"
-#include "../Edit.h"
-#include "../Panel.h"
-#include "../Image.h"
-#include "../Label.h"
-#include "../Button.h"
+#include "component/Form.h"
+#include "component/Edit.h"
+#include "component/Panel.h"
+#include "component/Image.h"
+#include "component/Label.h"
+#include "component/Button.h"
 
 static std::unordered_map<std::string, ComponentParser> g_componentParsers = {
     {"button",  MakeComponentParser<Button> },

@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "details/Parsers.h"
+#include "component/Window.h"
+#include "component/details/Parsers.h"
 
 using namespace sfui;
 

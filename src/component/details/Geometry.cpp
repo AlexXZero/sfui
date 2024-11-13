@@ -1,5 +1,5 @@
-#include "Geometry.h"
-#include "ComponentBase.h"
+#include "component/details/Geometry.h"
+#include "component/details/ComponentBase.h"
 #include <cassert>
 
 using namespace sfui;

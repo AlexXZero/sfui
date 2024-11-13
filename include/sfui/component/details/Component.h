@@ -30,6 +30,7 @@ public:
     Component(ComponentBase& parent, const Properties& properties);
     virtual ~Component() = default;
 
+    //=== Nodes control ===//
     template<typename Component, typename... Args>
     std::shared_ptr<Component> Emplace(Args&&... args) {
         return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), std::forward<Args>(args)...)));
@@ -41,23 +42,29 @@ public:
     ComponentBase& Root() const;
     bool IsRoot() const;
 
+    //=== General ===//
+    //--- Processing control ---//
     bool IsEnabled() const;
     void Enable();
     void Disable();
 
+    //--- Render control ---//
     bool IsVisible() const;
     void Show();
     void Hide();
 
+    //--- Focus control ---//
     static std::shared_ptr<ComponentBase> FocusedComponent();
     bool IsFocused() const;
     void GainFocus();
     void LoseFocus();
     static void RotateFocus();
 
+    //--- Order control ---//
     void BringToFront();
     void BringToBack();
 
+    //=== Other ===//
     virtual void Render(sf::RenderWindow& window) = 0;
     virtual bool HandleEvent(const sf::Event& event) = 0;
 

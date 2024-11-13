@@ -1,6 +1,6 @@
-#include "Label.h"
-#include "details/Parsers.h"
-#include "../FontLibrary.h"
+#include "component/Label.h"
+#include "component/details/Parsers.h"
+#include "FontLibrary.h"
 #include "../utils/unicode.h"
 #include <SFML/Graphics/Font.hpp>
 
