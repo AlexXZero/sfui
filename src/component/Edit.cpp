@@ -1,7 +1,7 @@
 #include "component/Edit.h"
 #include "component/details/Parsers.h"
 #include "FontLibrary.h"
-#include "../utils/unicode.h"
+#include <CxxUtils/unicode.h>
 #include <SFML/Graphics/Font.hpp>
 
 using namespace sfui;
@@ -20,7 +20,7 @@ Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(pa
     }
 
     if (json.contains("text")) {
-        m_text.setString(utils::s2ws(json["text"]));
+        m_text.setString(CxxUtils::s2ws(json["text"]));
     }
 
     if (json.contains("text-color")) {

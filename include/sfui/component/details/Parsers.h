@@ -1,13 +1,13 @@
 #ifndef SFUI_PARSERS_H_INCLUDED
 #define SFUI_PARSERS_H_INCLUDED
 
-#include <nlohmann/json.hpp>
+#include "ComponentBase.h"
+#include <CxxUtils/function_traits.h>
 #include <SFML/Graphics.hpp>
+#include <nlohmann/json.hpp>
 #include <functional>
 #include <cstdint>
 #include <string>
-#include "../../utils/function_traits.h"
-#include "ComponentBase.h"
 
 namespace sfui {
 
@@ -25,10 +25,10 @@ std::function<void()> ParseComponentHandler(ComponentHandlers& component, const 
 using CallHandler = std::function<void(Component&)>;
 struct RegisterCallHandler_ {
     template<typename F> RegisterCallHandler_(F&& handler, const std::string& handler_name) {
-        if constexpr (utils::arguments_count<F> == 0) {
+        if constexpr (CxxUtils::arguments_count<F> == 0) {
             Impl([handler = std::forward<F>(handler)](Component&){ handler(); }, handler_name);
         } else {
-            using T = std::remove_reference_t<utils::first_argument_t<F>>;
+            using T = std::remove_reference_t<CxxUtils::first_argument_t<F>>;
             static_assert(std::is_base_of_v<Component, T>, "CallHandler must accept a Component or derived type argument!");
 
             if constexpr (std::is_same_v<T, Component>) {

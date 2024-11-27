@@ -1,7 +1,7 @@
 #include "component/Label.h"
 #include "component/details/Parsers.h"
 #include "FontLibrary.h"
-#include "../utils/unicode.h"
+#include <CxxUtils/unicode.h>
 #include <SFML/Graphics/Font.hpp>
 
 using namespace sfui;
@@ -36,7 +36,7 @@ Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBas
     }
 
     if (properties.text.has_value()) {
-        m_text.setString(utils::s2ws(properties.text.value()));
+        m_text.setString(CxxUtils::s2ws(properties.text.value()));
     }
 
     if (properties.textColor.has_value()) {

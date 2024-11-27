@@ -16,7 +16,7 @@ public:
     void SetBackground(std::uint32_t color) { m_background = sf::Color(color); }
 
     // Handlers
-    template<typename Handler> ObserverToken OnClose(Handler&& handler) { return m_closeHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnClose(Handler&& handler) { return m_closeHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
 
     void Render(sf::RenderWindow& window) override;
 
@@ -29,7 +29,7 @@ private:
     std::string m_title;
     std::unique_ptr<sf::RenderWindow> m_window_up;
     std::optional<sf::Color> m_background;
-    Observers<std::function<void()>> m_closeHandlers;
+    CxxUtils::Observers<std::function<void()>> m_closeHandlers;
 };
 
 }

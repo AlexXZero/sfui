@@ -40,4 +40,5 @@ target_include_directories(sfui
 target_link_libraries(sfui PRIVATE
     sfml-graphics
     nlohmann_json::nlohmann_json
+    CxxUtils
 )

@@ -13,6 +13,7 @@ add_compile_options(-O2 -Wall -Wextra -Wno-unused-parameter)
 
 # Add the internal libraries
 add_subdirectory(sfui)
+add_subdirectory(sfui/dependencies/CxxUtils)
 
 # Function to add test executables
 function(add_test_executable test_file)
