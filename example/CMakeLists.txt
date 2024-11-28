@@ -18,6 +18,7 @@ find_package(SFML COMPONENTS graphics REQUIRED)
 # Add the internal libraries
 add_subdirectory(sfui)
 add_subdirectory(sfui/dependencies/CxxUtils)
+add_subdirectory(sfui/dependencies/libvfs)
 
 # Specify the source files
 add_executable(ProjectExample

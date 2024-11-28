@@ -1,3 +1,6 @@
 [submodule "dependencies/CxxUtils"]
 	path = dependencies/CxxUtils
 	url = ssh://alexx.pw/~/git/CxxUtils
+[submodule "dependencies/libvfs"]
+	path = dependencies/libvfs
+	url = ssh://alexx.pw/~/git/libvfs
