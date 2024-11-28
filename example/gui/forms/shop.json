@@ -1,0 +1,20 @@
+{
+    "name": "Shop",
+    "type": "form",
+    "background-image": "data/main/DATA/FormShop/2Panel.png",
+    "visible": false,
+    /*"right-max": "30%",
+    "right-min": "10%",
+    "left-max": "30%",
+    "left-min": "10%",
+    "top-max": "30%",
+    "top-min": 0,
+    "bottom-max": "30%",
+    "bottom-min": "10%",*/
+    "onKeyPress": [
+        {
+            "key": "Escape",
+            "hide": "this"
+        }
+    ]
+}

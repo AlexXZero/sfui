@@ -1,0 +1,74 @@
+{
+    "name": "NewGame",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormGameSet/2BG.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Back",
+            "type": "button",
+            "hint": "Назад",
+            "bottom": "2%",
+            "left": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormIntro/2ButLeftN.png",
+                "active": "data/main/DATA/FormIntro/2ButLeftA.png",
+                "down": "data/main/DATA/FormIntro/2ButLeftD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.NewGame"
+                },
+                {
+                    "show": "OpenSR.MainMenu"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "Escape",
+                    "hide": "OpenSR.NewGame"
+                },
+                {
+                    "key": "Escape",
+                    "show": "OpenSR.MainMenu"
+                }
+            ]
+        },
+        {
+            "name": "Next",
+            "type": "button",
+            "hint": "Далее",
+            "bottom": "2%",
+            "right": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormIntro/2ButRightN.png",
+                "active": "data/main/DATA/FormIntro/2ButRightA.png",
+                "down": "data/main/DATA/FormIntro/2ButRightD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.NewGame"
+                },
+                {
+                    "show": "OpenSR.StartGame"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "N",
+                    "hide": "OpenSR.NewGame"
+                },
+                {
+                    "key": "N",
+                    "show": "OpenSR.StartGame"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "name": "GalaxyMap",
+    "type": "form",
+    "visible": false,
+    "onKeyPress": [
+        {
+            "key": "Escape",
+            "hide": "this"
+        }
+    ]
+}

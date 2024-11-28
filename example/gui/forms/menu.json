@@ -1,0 +1,17 @@
+{
+    "name": "Menu",
+    "type": "form",
+    //"left": 10, "width": 30, "top": 5, "height": 20,
+    //"images": [{"name": "image1", "left": 10, "top": 10, "image": "data/main/DATA/FormMenu/2BG.png"}],
+    "left": 100, "width": 300, "top": 50, "height": 200,
+    "images": [{"name": "image1", "left": 10, "top": 10, "image": "data/main/DATA/FormMenu/2BG.png"}],
+    //"background-color": "white",
+    "background-image": "data/main/DATA/FormMenu/2BG.png",
+    "visible": false,
+    "onKeyPress": [
+        {
+            "key": "Escape",
+            "hide": "this"
+        }
+    ]
+}

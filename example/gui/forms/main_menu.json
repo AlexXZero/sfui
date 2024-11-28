@@ -1,0 +1,201 @@
+{
+    "name": "MainMenu",
+    "type": "form",
+    "visible": true,
+    "elements": [
+        {
+            "name": "Animation",
+            "type": "image",
+            "image": "data/main/DATA/FormMain/2fon.png",
+            "width": "400%",
+            "height": "62%",
+            "left": 0,
+            "top": "22%"
+        },
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormMain/2BG.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Bar",
+            "type": "image",
+            "image": "data/main/DATA/FormMain/2BAR.png",
+            "width": "100%",
+            "height": "10%",
+            "bottom": "1%"
+        },
+        {
+            "name": "Title",
+            "type": "image",
+            "image": "data/2TitleRus1.png",
+            "width": "100%",
+            "height": "16.70%",
+            "top": 0
+        },
+        {
+            "name": "NewGame",
+            "type": "button",
+            "label": "                   Новая игра",
+            "font-size": 16,
+            "bottom": "5.5%",
+            "right": "45.25%",
+            "width": "26.5%",
+            "height": "5%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT0A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT0N.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "show": "OpenSR.NewGame"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "N",
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "key": "N",
+                    "show": "OpenSR.NewGame"
+                }
+            ]
+        },
+        {
+            "name": "Scores",
+            "type": "button",
+            "label": "                       Рекорды",
+            "font-size": 16,
+            "bottom": "1%",
+            "right": "44%",
+            "width": "30%",
+            "height": "5%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT1A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT1N.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "show": "OpenSR.Scores"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "R",
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "key": "R",
+                    "show": "OpenSR.Scores"
+                }
+            ]
+        },
+        {
+            "name": "LoadGame",
+            "type": "button",
+            "label": "\n             Загрузить",
+            "font-size": 16,
+            "bottom": "0.7%",
+            "right": "19%",
+            "width": "27%",
+            "height": "9%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT2A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT2N.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.LoadGame"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "F3",
+                    "show": "OpenSR.LoadGame"
+                }
+            ]
+        },
+        {
+            "name": "Settings",
+            "type": "button",
+            "label": "            Настройки\n",
+            "font-size": 16,
+            "bottom": "1.2%",
+            "right": "23%",
+            "width": "22.5%",
+            "height": "9%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT3A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT3N.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "show": "OpenSR.Settings"
+                }
+            ]
+        },
+        {
+            "name": "About",
+            "type": "button",
+            "label": "            Об авторах",
+            "font-size": 16,
+            "bottom": "5.5%",
+            "right": "0%",
+            "width": "24%",
+            "height": "5%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT4A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT4N.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "show": "OpenSR.About"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "F1",
+                    "hide": "OpenSR.MainMenu"
+                },
+                {
+                    "key": "F1",
+                    "show": "OpenSR.About"
+                }
+            ]
+        },
+        {
+            "name": "Quit",
+            "type": "button",
+            "label": "             Выход",
+            "font-size": 16,
+            "bottom": "1%",
+            "right": "-1%",
+            "width": "24%",
+            "height": "5%",
+            "image": {
+                "active": "data/main/DATA/FormMain/2BUT5A.png",
+                "neutral": "data/main/DATA/FormMain/2BUT5N.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.QuitDialog"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,152 @@
+// The `position` property determines how an element is positioned within its parent container. It can take one of the following values:
+//  - `absolute`: The element is positioned relative to global coordinates.
+//  - `relative` (default): The element is positioned relative to its parent element.
+//
+// Coordinates (top, right, bottom, left).
+// You can use the following properties to control element positioning:
+//  - `top`: Sets the distance from the top edge of the element to the top edge of its containing element.
+//  - `right`: Sets the distance from the right edge of the element to the right edge of its containing element.
+//  - `bottom`: Sets the distance from the bottom edge of the element to the bottom edge of its containing element.
+//  - `left`: Sets the distance from the left edge of the element to the left edge of its containing element.
+//
+// Sizes (width and height)
+// By default the size of element will be automatically detected using background image size. But you can override it by setting up your custom sizes.
+//  - `width`: Sets the horizontal dimension of the element.
+//  - `height`: Sets the vertical dimension of the element.
+{
+    "name": "main_panel",
+    "type": "panel",
+    "position": "relative",
+    "bottom": 0,
+    "width": "100%",
+    "height": "auto",
+    "image": "2main.pkg/DATA/PanelMain/2BG.GI",
+    "elements": [
+        {
+            "name": "menu",
+            "type": "button",
+            "left": 10,
+            "bottom": 5,
+            "image": {
+                "active": "2main.pkg/DATA/PanelMain/2BBreakA.gi",
+                "down": "2main.pkg/DATA/PanelMain/2BBreakD.gi",
+                "neutral": "2main.pkg/DATA/PanelMain/2BBreakN.gi"
+            },
+            "hint": "Меню",
+            "onClick": [
+                {
+                    "show": "menu_panel"
+                }
+            ]
+        },
+        {
+            "name": "ship",
+            "type": "button",
+            "right": 300,
+            "bottom": 100,
+            "image": {
+                "active": "2main.pkg/DATA/PanelMain/2BShipA.gi",
+                "down": "2main.pkg/DATA/PanelMain/2BShipD.gi",
+                "neutral": "2main.pkg/DATA/PanelMain/2BShipN.gi"
+            },
+            "hint": "корабль",
+            "onClick": [
+                {
+                    "show": "ship_window"
+                }
+            ]
+        },
+        {
+            "name": "rating",
+            "type": "button",
+            "right": 250,
+            "bottom": 100,
+            "image": {
+                "active": "2main.pkg/DATA/PanelMain/2BRatingA.gi",
+                "down": "2main.pkg/DATA/PanelMain/2BRatingD.gi",
+                "neutral": "2main.pkg/DATA/PanelMain/2BRatingN.gi"
+            },
+            "hint": "рейтинг",
+            "onClick": [
+                {
+                    "show": "rating_window"
+                }
+            ]
+        },
+        {
+            "name": "galaxy",
+            "type": "button",
+            "right": 200,
+            "bottom": 100,
+            "image": {
+                "active": "2main.pkg/DATA/PanelMain/2BGalA.gi",
+                "down": "2main.pkg/DATA/PanelMain/2BGalD.gi",
+                "neutral": "2main.pkg/DATA/PanelMain/2BGalN.gi"
+            },
+            "hint": "галактическая карта",
+            "onClick": [
+                {
+                    "show": "galaxy_map_window"
+                }
+            ]
+        },
+        {
+            "name": "turn",
+            "type": "button",
+            "right": 10,
+            "bottom": 5,
+            "image": {
+                "active": "2main.pkg/DATA/PanelMain/2BTurnA.gi",
+                "down": "2main.pkg/DATA/PanelMain/2BTurnD.gi",
+                "neutral": null
+            },
+            "hint": "Сделать ход",
+            "onClick": [
+                {
+                    "call": "OpenSR::MakeTurn"
+                }
+            ]
+        },
+        {
+            "name": "free_space",
+            "type": "label",
+            "right": 475,
+            "bottom": 5,
+            "width": 50,
+            "height": 25,
+            "hint": "свободно",
+            "font": "arial09bold"
+        },
+        {
+            "name": "money",
+            "type": "label",
+            "right": 375,
+            "bottom": 5,
+            "width": 50,
+            "height": 25,
+            "hint": "деньги",
+            "font": "arial09bold"
+        },
+        {
+            "name": "date",
+            "type": "label",
+            "right": 275,
+            "bottom": 5,
+            "width": 100,
+            "height": 25,
+            "hint": "дата",
+            "font": "arial09bold"
+        },
+        {
+            "name": "hint",
+            "type": "label",
+            "left": 100,
+            "bottom": 5,
+            "width": "calc(100% - 600px)",
+            "height": 25,
+            "text_alignment": "center",
+            "font": "arial09"
+        }
+        // TODO: значки информации и подсказки
+    ]
+}

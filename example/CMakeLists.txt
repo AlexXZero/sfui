@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ProjectExample VERSION 1.0.0)
+project(SpaceRangers VERSION 1.0.0)
 
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -21,12 +21,12 @@ add_subdirectory(sfui/dependencies/CxxUtils)
 add_subdirectory(sfui/dependencies/libvfs)
 
 # Specify the source files
-add_executable(ProjectExample
+add_executable(SpaceRangers
     main.cpp
 )
 
 # Link libraries to the executable
-target_link_libraries(ProjectExample PRIVATE
-    sfml-graphics
+target_link_libraries(SpaceRangers PRIVATE
+    CxxUtils
     sfui
 )

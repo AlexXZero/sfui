@@ -1,0 +1,197 @@
+{
+    "name": "Planet",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/City/2People.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Next",
+            "type": "button",
+            "hint": "Далее",
+            "bottom": "2%",
+            "right": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormIntro/2ButRightN.png",
+                "active": "data/main/DATA/FormIntro/2ButRightA.png",
+                "down": "data/main/DATA/FormIntro/2ButRightD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.StartGame"
+                },
+                {
+                    "show": "OpenSR.MainMenu"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "N",
+                    "hide": "OpenSR.StartGame"
+                },
+                {
+                    "key": "N",
+                    "show": "OpenSR.MainMenu"
+                }
+            ]
+        },
+        {
+            "name": "Planet",
+            "type": "button",
+            "hint": "Планета",
+            "bottom": 100,
+            "right": 45,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2PlanetN.png",
+                "active": "data/main/DATA/PanelPlanet/2PlanetA.png",
+                "down": "data/main/DATA/PanelPlanet/2PlanetD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.Government"
+                },
+                {
+                    "hide": "OpenSR.Shop"
+                },
+                {
+                    "hide": "OpenSR.TradeCenter"
+                },
+                {
+                    "hide": "OpenSR.InfoCenter"
+                },
+                {
+                    "hide": "OpenSR.Hangar"
+                },
+                {
+                    "show": "OpenSR.Planet"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "P",
+                    "show": "OpenSR.Planet"
+                }
+            ]
+        },
+        {
+            "name": "Shop",
+            "type": "button",
+            "hint": "Магазин",
+            "bottom": 150,
+            "right": 100,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2ShopN.png",
+                "active": "data/main/DATA/PanelPlanet/2ShopA.png",
+                "down": "data/main/DATA/PanelPlanet/2ShopD.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.Shop"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "E",
+                    "show": "OpenSR.Shop"
+                }
+            ]
+        },
+        {
+            "name": "TradeCenter",
+            "type": "button",
+            "hint": "Торговый центр",
+            "bottom": 170,
+            "right": 50,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2GoodsN.png",
+                "active": "data/main/DATA/PanelPlanet/2GoodsA.png",
+                "down": "data/main/DATA/PanelPlanet/2GoodsD.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.TradeCenter"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "T",
+                    "show": "OpenSR.TradeCenter"
+                }
+            ]
+        },
+        {
+            "name": "InfoCenter",
+            "type": "button",
+            "hint": "Информационный центр",
+            "bottom": 150,
+            "right": 0,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2InfoN.png",
+                "active": "data/main/DATA/PanelPlanet/2InfoA.png",
+                "down": "data/main/DATA/PanelPlanet/2InfoD.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.InfoCenter"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "T",
+                    "show": "OpenSR.InfoCenter"
+                }
+            ]
+        },
+        {
+            "name": "Government",
+            "type": "button",
+            "hint": "Правительство",
+            "bottom": 100,
+            "right": 110,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2GovN.png",
+                "active": "data/main/DATA/PanelPlanet/2GovA.png",
+                "down": "data/main/DATA/PanelPlanet/2GovD.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.Government"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "G",
+                    "show": "OpenSR.Government"
+                }
+            ]
+        },
+        {
+            "name": "Hangar",
+            "type": "button",
+            "hint": "Ангар",
+            "bottom": 50,
+            "right": 80,
+            "image": {
+                "neutral": "data/main/DATA/PanelPlanet/2HangarN.png",
+                "active": "data/main/DATA/PanelPlanet/2HangarA.png",
+                "down": "data/main/DATA/PanelPlanet/2HangarD.png"
+            },
+            "onClick": [
+                {
+                    "show": "OpenSR.Hangar"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "H",
+                    "show": "OpenSR.Hangar"
+                }
+            ]
+        }
+    ]
+}

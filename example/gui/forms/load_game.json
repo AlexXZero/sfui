@@ -1,0 +1,20 @@
+{
+    "name": "LoadGame",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormSave/2BG.png",
+            "height": "100%",
+            "right": 0
+        }
+    ],
+    "onKeyPress": [
+        {
+            "key": "Escape",
+            "hide": "this"
+        }
+    ]
+}

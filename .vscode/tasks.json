@@ -20,7 +20,7 @@
         {
             "label": "run linux",
             "type": "shell",
-            "command": "docker run --rm -v `pwd`:/project  -w /project/example/build -eDISPLAY=${DISPLAY} -v${XAUTHORITY}:/home/user/.Xauthority:ro -v/tmp/.X11-unix:/tmp/.X11-unix --network host vertixgames/builder_linux ./ProjectExample",
+            "command": "docker run --rm -v `pwd`:/project  -w /project/example -eDISPLAY=${DISPLAY} -v${XAUTHORITY}:/home/user/.Xauthority:ro -v/tmp/.X11-unix:/tmp/.X11-unix --network host vertixgames/builder_linux ./build/SpaceRangers",
             "group": "build",
             "dependsOn": ["build (linux)"],
             "problemMatcher": [],

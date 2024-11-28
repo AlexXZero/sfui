@@ -28,7 +28,7 @@ To build and run the example, follow these steps:
 
 #### 2. Run the example:
    ```sh
-   ./ExampleProject
+   ./SpaceRangers
    ```
 
 ## Features Demonstrated

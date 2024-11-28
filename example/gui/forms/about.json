@@ -1,0 +1,44 @@
+{
+    "name": "About",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormAbout/2bg.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Back",
+            "type": "button",
+            "hint": "Назад",
+            "bottom": "2%",
+            "left": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormIntro/2ButLeftN.png",
+                "active": "data/main/DATA/FormIntro/2ButLeftA.png",
+                "down": "data/main/DATA/FormIntro/2ButLeftD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.About"
+                },
+                {
+                    "show": "OpenSR.MainMenu"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "Escape",
+                    "hide": "OpenSR.About"
+                },
+                {
+                    "key": "Escape",
+                    "show": "OpenSR.MainMenu"
+                }
+            ]
+        }
+    ]
+}

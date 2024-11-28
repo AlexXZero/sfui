@@ -1,0 +1,14 @@
+{
+    "name": "Government",
+    "type": "form",
+    "left": 100,
+    "top": 100,
+    "background-image": "data/main/DATA/Gov/2TWin.png",
+    "visible": false,
+    "onKeyPress": [
+        {
+            "key": "Escape",
+            "hide": "this"
+        }
+    ]
+}

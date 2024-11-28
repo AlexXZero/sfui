@@ -1,0 +1,220 @@
+{
+    "fonts": [
+        {
+            "name": "font",
+            "file": "data/common/FONT/font.ttf",
+            "default": true
+        }/*,
+        {
+            "name": "arial09",
+            "file": "common.pkg/DATA/FONT/Arial_09.aft"
+        },
+        {
+            "name": "arial09bold",
+            "file": "common.pkg/DATA/FONT/Arial_09bold.aft"
+        }*/
+    ],
+    "windows": [
+        {
+            "name": "OpenSR",
+            "title": "Space Rangers",
+            "width": 1024, "height": 768,
+            //"width": 200, "height": 150,
+            "background": "Gray", // 0x808080ff,
+            "onOpen": [
+                {
+                    "call": "OpenSR::Init"
+                },
+                {
+                    "set_mode": "intro"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "G",
+                    "show": "Government"
+                },
+                {
+                    "key": "E",
+                    "show": "Shop"
+                },
+                {
+                    "key": "Escape",
+                    "show": "Menu"
+                }
+            ],
+            "onQuit": [
+                {
+                    "call": "OpenSR::Quit"
+                }
+            ],
+            /* possible renameing: layouts, viewes */
+            "modes": [
+                {
+                    "name": "intro",
+                    "import": "intro.json"
+                },
+                {
+                    "name": "menu",
+                    "import": "main_menu.json"
+                },
+                {
+                    "name": "settings",
+                    "import": "settings.json"
+                },
+                {
+                    "name": "new_game",
+                    "import": "new_game.json"
+                },
+                {
+                    "name": "records",
+                    "import": "records.json"
+                },
+                {
+                    "name": "authors",
+                    "import": "authors.json"
+                },
+                {
+                    "name": "game",
+                    "import": "game.json",
+                    "modes": [
+                        {
+                            "name": "planet",
+                            "import": "planet.json"
+                        },
+                        {
+                            "name": "uninhabited planet",
+                            "import": "uninhabited_planet.json"
+                        },
+                        {
+                            "name": "space",
+                            "import": "space.json",
+                            "onInit": [
+                                {
+                                    "call": "OpenSR::SetSpaceMode"
+                                },
+                                {
+                                    "show": "main_panel"
+                                },
+                                {
+                                    "show": "radar"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "station",
+                            "import": "station.json"
+                        },
+                        {
+                            "name": "text_quest",
+                            "import": "text_quest.json"
+                        },
+                        {
+                            "name": "arcade_battle",
+                            "import": "arcade_battle.json"
+                        },
+                        {
+                            "name": "planetary_battle",
+                            "import": "planetary_battle.json"
+                        }
+                    ]
+                }
+            ],
+            "elements": [
+                {
+                    "import": "forms/main_menu.json"
+                },
+                {
+                    "import": "forms/settings.json"
+                },
+                {
+                    "import": "forms/about.json"
+                },
+                {
+                    "import": "forms/new_game.json"
+                },
+                {
+                    "import": "forms/start_game.json"
+                },
+                {
+                    "import": "forms/load_game.json"
+                },
+                {
+                    "import": "forms/save_game.json"
+                },
+                {
+                    "import": "forms/planet.json"
+                },
+                {
+                    "import": "forms/ship.json"
+                },
+                {
+                    "import": "forms/galaxy_map.json"
+                },
+                {
+                    "import": "forms/rating.json"
+                },
+                {
+                    "import": "forms/talk.json"
+                },
+                {
+                    "import": "forms/trade_center.json"
+                },
+                {
+                    "import": "forms/shop.json"
+                },
+                {
+                    "import": "forms/hangar.json"
+                },
+                {
+                    "import": "forms/government.json"
+                },
+                {
+                    "import": "forms/info_center.json"
+                },
+                {
+                    "import": "forms/menu.json"
+                }/*,
+                {
+                    "import": "panels/main_panel.json"
+                },
+                {
+                    "name": "menu_panel",
+                    "import": "panels/menu_panel.json"
+                },
+                {
+                    "name": "planet_panel",
+                    "import": "panels/planet_panel.json"
+                },
+                {
+                    "name": "base_panel",
+                    "import": "panels/base_panel.json"
+                },
+                {
+                    "name": "weapons_panel",
+                    "import": "panels/weapons_panel.json"
+                },
+                {
+                    "name": "storage_panel",
+                    "import": "panels/storage_panel.json"
+                },
+                {
+                    "name": "film_panel",
+                    "import": "panels/film_panel.json"
+                },
+                {
+                    "name": "radar",
+                    "import": "panels/radar.json"
+                },
+                {
+                    "name": "arcade_panel",
+                    "import": "panels/arcade_panel.json"
+                },
+                {
+                    "name": "object_info_panel",
+                    "import": "panels/object_info_panel.json"
+                }*/
+            ]
+        }
+    ]
+}

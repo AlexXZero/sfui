@@ -1,0 +1,74 @@
+{
+    "name": "Settings",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormOptions/2bg.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Ok",
+            "type": "button",
+            "hint": "Принять",
+            "bottom": "2%",
+            "left": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormOptions/2OkN.png",
+                "active": "data/main/DATA/FormOptions/2OkA.png",
+                "down": "data/main/DATA/FormOptions/2OkD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.Settings"
+                },
+                {
+                    "show": "OpenSR.MainMenu"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "Y",
+                    "hide": "OpenSR.Settings"
+                },
+                {
+                    "key": "Y",
+                    "show": "OpenSR.MainMenu"
+                }
+            ]
+        },
+        {
+            "name": "Cancel",
+            "type": "button",
+            "hint": "Отменить",
+            "bottom": "2%",
+            "right": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormOptions/2CancelN.png",
+                "active": "data/main/DATA/FormOptions/2CancelA.png",
+                "down": "data/main/DATA/FormOptions/2CancelD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.Settings"
+                },
+                {
+                    "show": "OpenSR.MainMenu"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "Escape",
+                    "hide": "OpenSR.Settings"
+                },
+                {
+                    "key": "Escape",
+                    "show": "OpenSR.MainMenu"
+                }
+            ]
+        }
+    ]
+}

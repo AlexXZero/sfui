@@ -1,0 +1,51 @@
+{
+    "name": "StartGame",
+    "type": "form",
+    "visible": false,
+    "elements": [
+        {
+            "name": "Background",
+            "type": "image",
+            "image": "data/main/DATA/FormIntro/2BG.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Panel",
+            "type": "image",
+            "image": "data/main/DATA/FormIntro/2Panel.png",
+            "width": "100%",
+            "height": "100%"
+        },
+        {
+            "name": "Next",
+            "type": "button",
+            "hint": "Далее",
+            "bottom": "2%",
+            "right": "2%",
+            "image": {
+                "neutral": "data/main/DATA/FormIntro/2ButRightN.png",
+                "active": "data/main/DATA/FormIntro/2ButRightA.png",
+                "down": "data/main/DATA/FormIntro/2ButRightD.png"
+            },
+            "onClick": [
+                {
+                    "hide": "OpenSR.StartGame"
+                },
+                {
+                    "show": "OpenSR.Planet"
+                }
+            ],
+            "onKeyPress": [
+                {
+                    "key": "N",
+                    "hide": "OpenSR.StartGame"
+                },
+                {
+                    "key": "N",
+                    "show": "OpenSR.Planet"
+                }
+            ]
+        }
+    ]
+}
