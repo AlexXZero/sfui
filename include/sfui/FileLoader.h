@@ -2,8 +2,12 @@
 #define SFUI_FILE_LOADER_H_INCLUDED
 
 #include <memory>
+#include <vector>
+#include <filesystem>
 #include <string_view>
 #include <libvfs/FileReader.h>
+#include <CxxUtils/logger.h>
+#include <CxxUtils/exception.h>
 
 namespace sfui {
 
@@ -57,7 +61,98 @@ public:
      * @return The loaded data of type T.
      */
     virtual T Load(std::string_view filepath, LibVFS::FileReader&& reader) const = 0;
-    T Load(std::string_view filepath) const { return Load(filepath, std::move(LibVFS::FileReader(filepath))); }
+};
+
+/**
+ * @class iFileLoadable
+ * @brief Interface for managing file loadable objects and their loaders.
+ *
+ * This class provides functionality to register and utilize file loaders for specific
+ * resource types. It determines the appropriate loader for a given file based on its
+ * priority and compatibility with the file.
+ *
+ * @tparam T The type of resource that can be loaded (e.g., ImageData, AudioData).
+ */
+template<typename T>
+class iFileLoadable {
+public:
+    /**
+     * @brief Virtual destructor for the iFileLoadable interface.
+     */
+    virtual ~iFileLoadable() = default;
+
+    /**
+     * @brief Loads a resource of type T from the specified file path.
+     *
+     * This function iterates through registered loaders in priority order to find
+     * the most suitable loader for the given file. It first checks loaders marked
+     * as `HighlyLikely`, followed by `Likely`, and finally considers others.
+     *
+     * @param filepath The path to the file to be loaded.
+     * @return The loaded resource of type T.
+     * @throws CxxUtils::Exception If no suitable loader is found for the file.
+     *
+     * @note This function assumes that at least one loader is registered for the type T.
+     */
+    static T Load(const std::filesystem::path& filepath) {
+        auto extension = filepath.extension();
+        LibVFS::FileReader reader(filepath);
+
+        // Check highly likely loaders
+        for (const auto& loader : m_loaders) {
+            LoaderPriorityLevel priority = loader->GetPriority(extension);
+            if (priority == LoaderPriorityLevel::HighlyLikely && loader->Probe(reader)) {
+                return loader->Load(filepath, std::move(reader));
+            }
+        }
+        CxxUtils::LogInfo("No highly likely loader found for file: ") << filepath;
+
+        // Check likely applicable loaders
+        for (const auto& loader : m_loaders) {
+            LoaderPriorityLevel priority = loader->GetPriority(extension);
+            if (priority == LoaderPriorityLevel::Likely && loader->Probe(reader)) {
+                return loader->Load(filepath, std::move(reader));
+            }
+        }
+        CxxUtils::LogWarning("No likely loader found for file: ") << filepath;
+
+        // Check the rest of the possible loaders
+        for (const auto& loader : m_loaders) {
+            LoaderPriorityLevel priority = loader->GetPriority(extension);
+            if (priority != LoaderPriorityLevel::HighlyLikely && priority != LoaderPriorityLevel::Likely && loader->Probe(reader)) {
+                return loader->Load(filepath, std::move(reader));
+            }
+        }
+        CxxUtils::LogError("No applicable loader found for file: ") << filepath;
+
+        throw CxxUtils::Exception("No applicable loader found for file: %s", filepath.c_str());
+    }
+
+    /**
+     * @brief Registers a file loader for the resource type T.
+     *
+     * This function allows adding custom loaders that implement the `iFileLoader` interface.
+     * The loaders are stored in an internal list and used during the `Load` process.
+     *
+     * @param loader A unique pointer to the loader to be registered.
+     *
+     * Example usage:
+     * @code
+     * iFileLoadable<ImageData>::RegisterFileLoader(std::make_unique<MyImageLoader>());
+     * @endcode
+     */
+    static void RegisterFileLoader(std::unique_ptr<iFileLoader<T>> loader) {
+        m_loaders.emplace_back(std::move(loader));
+    }
+
+private:
+    /**
+     * @brief A list of registered loaders for the resource type T.
+     *
+     * The loaders are stored in a static inline vector and queried during the
+     * loading process to determine the best match for a given file.
+     */
+    static inline std::vector<std::unique_ptr<iFileLoader<T>>> m_loaders;
 };
 
 /**
@@ -92,8 +187,7 @@ static inline void LoaderRegister(Args&&... args)
 {
     using Type = typename Loader::Type;
     static_assert(std::is_base_of_v<iFileLoader<Type>, Loader>);
-    extern void RegisterFileLoader(std::unique_ptr<iFileLoader<Type>>);
-    RegisterFileLoader(std::make_unique<Loader>(std::forward<Args>(args)...));
+    Type::RegisterFileLoader(std::make_unique<Loader>(std::forward<Args>(args)...));
 }
 
 }

@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include/**",
-                "${workspaceFolder}/dependencies/CxxUtils/include"
+                "${workspaceFolder}/dependencies/CxxUtils/include",
+                "${workspaceFolder}/dependencies/libvfs/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

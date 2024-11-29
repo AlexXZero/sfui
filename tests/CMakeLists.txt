@@ -20,7 +20,7 @@ add_subdirectory(sfui/dependencies/libvfs)
 function(add_test_executable test_file)
     get_filename_component(test_name ${test_file} NAME_WE)
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} PRIVATE sfui vfs)
+    target_link_libraries(${test_name} PRIVATE sfui CxxUtils vfs)
 endfunction()
 
 # Automatically find all test source files matching Test*.cpp pattern

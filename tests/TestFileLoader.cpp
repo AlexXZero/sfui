@@ -3,13 +3,9 @@
 
 namespace sfui {
 
-struct TestImageData {};
-struct TestAudioData {};
-struct TestFontData {};
-
-void RegisterFileLoader(std::unique_ptr<sfui::iFileLoader<TestImageData>> up) {}
-void RegisterFileLoader(std::unique_ptr<sfui::iFileLoader<TestAudioData>> up) {}
-void RegisterFileLoader(std::unique_ptr<sfui::iFileLoader<TestFontData>> up) {}
+struct TestImageData final : public iFileLoadable<TestImageData> {};
+struct TestAudioData final : public iFileLoadable<TestAudioData> {};
+struct TestFontData final : public iFileLoadable<TestFontData> {};
 
 }
 
