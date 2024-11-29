@@ -5,6 +5,7 @@
         "tests/sfui": true
     },
     "cSpell.words": [
+        "SFUI",
         "UTEST"
     ],
     "files.associations": {
@@ -73,6 +74,9 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "csignal": "cpp",
+        "set": "cpp",
+        "ranges": "cpp"
     }
 }
