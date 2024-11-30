@@ -14,32 +14,34 @@ namespace {
 class PngFileLoader final : public sfui::iFileLoader<sfui::TestImageData> {
 public:
     bool Probe(const LibVFS::FileReader& reader) const final { return true; }
-    sfui::LoaderPriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::LoaderPriorityLevel::Likely; }
+    sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestImageData Load(std::string_view filepath, LibVFS::FileReader&& reader) const final { return {}; } // fake reader
 };
 
 class WavFileLoader final : public sfui::iFileLoader<sfui::TestAudioData> {
 public:
     bool Probe(const LibVFS::FileReader& reader) const final { return true; }
-    sfui::LoaderPriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::LoaderPriorityLevel::Likely; }
+    sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestAudioData Load(std::string_view filepath, LibVFS::FileReader&& reader) const final { return {}; } // fake reader
 };
 
 class TtfFileLoader final : public sfui::iFileLoader<sfui::TestFontData> {
 public:
     bool Probe(const LibVFS::FileReader& reader) const final { return true; }
-    sfui::LoaderPriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::LoaderPriorityLevel::Likely; }
+    sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestFontData Load(std::string_view filepath, LibVFS::FileReader&& reader) const final { return {}; } // fake reader
 };
 
+// Static loader registration
+static sfui::FileLoaderRegistrar<PngFileLoader> pngRegistrar;
+static sfui::FileLoaderRegistrar<WavFileLoader> wavRegistrar;
+
 }
 
-UTEST(LoadersRegistration)
+UTEST(RuntimeLoadersRegistration)
 {
     // Given:
-    sfui::LoaderRegister<PngFileLoader>();
-    sfui::LoaderRegister<WavFileLoader>();
-    sfui::LoaderRegister<TtfFileLoader>();
+    sfui::FileLoaderRegistry::Register<TtfFileLoader>();
 
     // Then:
     UTEST_ASSERT_TRUE(true);

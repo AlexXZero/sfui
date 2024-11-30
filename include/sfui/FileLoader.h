@@ -11,15 +11,19 @@
 
 namespace sfui {
 
+namespace FileLoader {
+
 /**
- * @enum LoaderPriorityLevel
- * @brief Defines priority levels for file loaders.
+ * @enum PriorityLevel
+ * @brief Specifies the priority of file loaders.
  */
-enum class LoaderPriorityLevel {
+enum class PriorityLevel {
     Unlikely,       /**< Loader is unlikely to be used */
     Likely,         /**< Loader is likely to be used */
-    HighlyLikely    /**< Loader is highly likely to be used */
+    HighlyLikely    /**< Loader is very likely to be used */
 };
+
+}
 
 /**
  * @class iFileLoader
@@ -38,12 +42,12 @@ public:
     virtual ~iFileLoader() = default;
 
     /**
-     * @brief Gets the priority of the loader based on the file extension.
+     * @brief Returns the loader's priority based on the file extension.
      *
      * @param extension The file extension to check.
-     * @return The priority level of the loader.
+     * @return The loader's priority level.
      */
-    virtual LoaderPriorityLevel GetPriority(std::string_view extension) const noexcept = 0;
+    virtual FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept = 0;
 
     /**
      * @brief Probes the file reader to check if it can be loaded by this loader.
@@ -56,22 +60,131 @@ public:
     /**
      * @brief Loads data from the file reader.
      *
-     * @param filepath The path to referenced file reader.
-     * @param reader The file reader to load from.
+     * @param filepath The file's path.
+     * @param reader The file reader to load data from.
      * @return The loaded data of type T.
      */
     virtual T Load(std::string_view filepath, LibVFS::FileReader&& reader) const = 0;
 };
 
 /**
+ * @class FileLoaderRegistry
+ * @brief Manages file loaders and their registration.
+ *
+ * Registers file loaders for different resource types and selects the most appropriate one based on file characteristics.
+ */
+class FileLoaderRegistry {
+public:
+    /**
+     * @brief Registers a custom file loader for a resource type.
+     *
+     * This function allows the system to handle file loading for a specific resource type by registering a loader.
+     *
+     * @tparam Loader The loader class that implements `iFileLoader<Type>`.
+     * @tparam Args   Arguments for the loader's constructor.
+     *
+     * @param args Arguments passed to the loader's constructor.
+     *
+     * @note The `Loader` class must be derived from `iFileLoader<Type>`.
+     *
+     * Example usage:
+     * @code
+     * class PngFileLoader final : public iFileLoader<ImageData> { ... };
+     * class WavFileLoader final : public iFileLoader<AudioData> { ... };
+     *
+     * int main()
+     * {
+     *     FileLoaderRegistry::Register<PngFileLoader>();
+     *     FileLoaderRegistry::Register<WavFileLoader>();
+     *     ...
+     * }
+     * @endcode
+     */
+    template<typename Loader, typename... Args>
+    static inline void Register(Args&&... args) {
+        using LoaderType = typename Loader::Type;
+        static_assert(std::is_base_of_v<iFileLoader<LoaderType>, Loader>);
+        Instance<LoaderType>().emplace_back(std::make_unique<Loader>(std::forward<Args>(args)...));
+    }
+
+    /**
+     * @brief Finds the most suitable loader for a resource.
+     *
+     * Searches for a loader based on the file's extension and reader compatibility, prioritizing highly likely loaders first.
+     *
+     * @tparam T The type of resource to load (e.g., ImageData, AudioData).
+     * @param filepath The path to the file.
+     * @param reader The file reader associated with the file.
+     * @return The appropriate loader for the resource.
+     * @throws CxxUtils::Exception If no suitable loader is found.
+     */
+    template<typename T>
+    static const iFileLoader<T>& GetLoader(const std::filesystem::path& filepath, const LibVFS::FileReader& reader) {
+        const auto extension = filepath.extension();
+        const auto& loaders = Instance<T>();
+
+        // Check highly likely loaders first
+        for (const auto& loader : loaders) {
+            FileLoader::PriorityLevel priority = loader->GetPriority(extension);
+            if (priority == FileLoader::PriorityLevel::HighlyLikely && loader->Probe(reader)) {
+                return *loader;
+            }
+        }
+        CxxUtils::LogInfo("No highly likely loader found for file: ") << filepath;
+
+        // Check likely applicable loaders
+        for (const auto& loader : loaders) {
+            FileLoader::PriorityLevel priority = loader->GetPriority(extension);
+            if (priority == FileLoader::PriorityLevel::Likely && loader->Probe(reader)) {
+                return *loader;
+            }
+        }
+        CxxUtils::LogWarning("No likely loader found for file: ") << filepath;
+
+        // Check other loaders
+        for (const auto& loader : loaders) {
+            FileLoader::PriorityLevel priority = loader->GetPriority(extension);
+            if (priority != FileLoader::PriorityLevel::HighlyLikely && priority != FileLoader::PriorityLevel::Likely && loader->Probe(reader)) {
+                return *loader;
+            }
+        }
+        CxxUtils::LogError("No applicable loader found for file: ") << filepath;
+
+        throw CxxUtils::Exception("No suitable loader found for file: %s", filepath.c_str());
+    }
+
+private:
+    template<typename T>
+    using FileLoaderRegistryImp = std::vector<std::unique_ptr<iFileLoader<T>>>;
+
+    template<typename T>
+    static FileLoaderRegistryImp<T>& Instance() {
+        static FileLoaderRegistryImp<T> instance;
+        return instance;
+    }
+};
+
+/**
+ * @brief Helper for static registration of file loaders.
+ *
+ * Automatically registers a loader when the program starts.
+ *
+ * Example usage:
+ * @code
+ * static FileLoaderRegistrar<PngFileLoader> pngRegistrar;
+ * static FileLoaderRegistrar<WavFileLoader> wavRegistrar;
+ * @endcode
+ */
+template<typename Loader>
+struct FileLoaderRegistrar {
+    FileLoaderRegistrar() { FileLoaderRegistry::Register<Loader>(); }
+};
+
+/**
  * @class iFileLoadable
- * @brief Interface for managing file loadable objects and their loaders.
+ * @brief Interface for managing objects loadable from file.
  *
- * This class provides functionality to register and utilize file loaders for specific
- * resource types. It determines the appropriate loader for a given file based on its
- * priority and compatibility with the file.
- *
- * @tparam T The type of resource that can be loaded (e.g., ImageData, AudioData).
+ * @tparam T The type of resource to load (e.g., ImageData, AudioData).
  */
 template<typename T>
 class iFileLoadable {
@@ -82,113 +195,21 @@ public:
     virtual ~iFileLoadable() = default;
 
     /**
-     * @brief Loads a resource of type T from the specified file path.
+     * @brief Loads a resource from the specified file.
      *
-     * This function iterates through registered loaders in priority order to find
-     * the most suitable loader for the given file. It first checks loaders marked
-     * as `HighlyLikely`, followed by `Likely`, and finally considers others.
+     * This function finds the best loader for the file based on its extension
+     * and compatibility with the reader. Then use it for loading the resource.
      *
-     * @param filepath The path to the file to be loaded.
+     * @param filepath The path to the file.
      * @return The loaded resource of type T.
-     * @throws CxxUtils::Exception If no suitable loader is found for the file.
-     *
-     * @note This function assumes that at least one loader is registered for the type T.
+     * @throws CxxUtils::Exception If no suitable loader is found.
      */
     static T Load(const std::filesystem::path& filepath) {
-        auto extension = filepath.extension();
         LibVFS::FileReader reader(filepath);
-
-        // Check highly likely loaders
-        for (const auto& loader : m_loaders) {
-            LoaderPriorityLevel priority = loader->GetPriority(extension);
-            if (priority == LoaderPriorityLevel::HighlyLikely && loader->Probe(reader)) {
-                return loader->Load(filepath, std::move(reader));
-            }
-        }
-        CxxUtils::LogInfo("No highly likely loader found for file: ") << filepath;
-
-        // Check likely applicable loaders
-        for (const auto& loader : m_loaders) {
-            LoaderPriorityLevel priority = loader->GetPriority(extension);
-            if (priority == LoaderPriorityLevel::Likely && loader->Probe(reader)) {
-                return loader->Load(filepath, std::move(reader));
-            }
-        }
-        CxxUtils::LogWarning("No likely loader found for file: ") << filepath;
-
-        // Check the rest of the possible loaders
-        for (const auto& loader : m_loaders) {
-            LoaderPriorityLevel priority = loader->GetPriority(extension);
-            if (priority != LoaderPriorityLevel::HighlyLikely && priority != LoaderPriorityLevel::Likely && loader->Probe(reader)) {
-                return loader->Load(filepath, std::move(reader));
-            }
-        }
-        CxxUtils::LogError("No applicable loader found for file: ") << filepath;
-
-        throw CxxUtils::Exception("No applicable loader found for file: %s", filepath.c_str());
+        const auto& loader = FileLoaderRegistry::GetLoader<T>(filepath, reader);
+        return loader.Load(filepath, std::move(reader));
     }
-
-    /**
-     * @brief Registers a file loader for the resource type T.
-     *
-     * This function allows adding custom loaders that implement the `iFileLoader` interface.
-     * The loaders are stored in an internal list and used during the `Load` process.
-     *
-     * @param loader A unique pointer to the loader to be registered.
-     *
-     * Example usage:
-     * @code
-     * iFileLoadable<ImageData>::RegisterFileLoader(std::make_unique<MyImageLoader>());
-     * @endcode
-     */
-    static void RegisterFileLoader(std::unique_ptr<iFileLoader<T>> loader) {
-        m_loaders.emplace_back(std::move(loader));
-    }
-
-private:
-    /**
-     * @brief A list of registered loaders for the resource type T.
-     *
-     * The loaders are stored in a static inline vector and queried during the
-     * loading process to determine the best match for a given file.
-     */
-    static inline std::vector<std::unique_ptr<iFileLoader<T>>> m_loaders;
 };
-
-/**
- * @brief Registers a custom file loader for a specific resource type.
- *
- * This function registers a loader class that implements the `iFileLoader` interface
- * for a particular resource type, enabling the system to handle file loading for that type.
- *
- * @tparam Loader The class implementing the `iFileLoader` interface for the specific resource type.
- *                It must inherit from `iFileLoader<Type>`, where `Type` is the resource type
- *                the loader handles (e.g., `ImageData`, `AudioData`, etc.).
- * @tparam Args   Variadic template for the arguments to be passed to the loader's constructor.
- *
- * @param args Arguments forwarded to the constructor of the `Loader` class.
- *
- * @note The `Loader` class must be derived from `iFileLoader<Type>`.
- *
- * Example usage:
- * @code
- * class PngFileLoader final : public iFileLoader<ImageData> { ... };
- * class WavFileLoader final : public iFileLoader<AudioData> { ... };
- *
- * int main()
- * {
- *     LoaderRegister<PngFileLoader>();
- *     LoaderRegister<WavFileLoader>();
- * ...
- * @endcode
- */
-template<typename Loader, typename... Args>
-static inline void LoaderRegister(Args&&... args)
-{
-    using Type = typename Loader::Type;
-    static_assert(std::is_base_of_v<iFileLoader<Type>, Loader>);
-    Type::RegisterFileLoader(std::make_unique<Loader>(std::forward<Args>(args)...));
-}
 
 }
 
