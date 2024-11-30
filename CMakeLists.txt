@@ -18,6 +18,7 @@ find_package(nlohmann_json REQUIRED)
 # Specify the source files
 add_library(sfui SHARED
     src/ImageData.cpp
+    src/AnimsLoader.cpp
     src/FontLibrary.cpp
     src/UserInterface.cpp
     src/component/Edit.cpp
