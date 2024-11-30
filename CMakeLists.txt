@@ -16,7 +16,8 @@ find_package(SFML COMPONENTS graphics REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 # Specify the source files
-add_library(sfui STATIC
+add_library(sfui SHARED
+    src/ImageData.cpp
     src/FontLibrary.cpp
     src/UserInterface.cpp
     src/component/Edit.cpp

@@ -7,6 +7,7 @@
 #include <string_view>
 #include <libvfs/FileReader.h>
 #include <CxxUtils/logger.h>
+#include <CxxUtils/demangle.h>
 #include <CxxUtils/exception.h>
 
 namespace sfui {
@@ -64,7 +65,7 @@ public:
      * @param reader The file reader to load data from.
      * @return The loaded data of type T.
      */
-    virtual T Load(std::string_view filepath, LibVFS::FileReader&& reader) const = 0;
+    virtual T Load(const std::filesystem::path& filepath, LibVFS::FileReader&& reader) const = 0;
 };
 
 /**
@@ -104,6 +105,9 @@ public:
     static inline void Register(Args&&... args) {
         using LoaderType = typename Loader::Type;
         static_assert(std::is_base_of_v<iFileLoader<LoaderType>, Loader>);
+        CxxUtils::LogInfo("Registering FileLoader: ")
+            << CxxUtils::demangle(typeid(Loader).name())
+            << "<" << CxxUtils::demangle(typeid(LoaderType).name()) << ">";
         Instance<LoaderType>().emplace_back(std::make_unique<Loader>(std::forward<Args>(args)...));
     }
 
@@ -120,7 +124,7 @@ public:
      */
     template<typename T>
     static const iFileLoader<T>& GetLoader(const std::filesystem::path& filepath, const LibVFS::FileReader& reader) {
-        const auto extension = filepath.extension();
+        const auto extension = filepath.extension().string();
         const auto& loaders = Instance<T>();
 
         // Check highly likely loaders first
@@ -130,7 +134,7 @@ public:
                 return *loader;
             }
         }
-        CxxUtils::LogInfo("No highly likely loader found for file: ") << filepath;
+        CxxUtils::LogInfo("No highly likely loader found for file: ") << filepath.string();
 
         // Check likely applicable loaders
         for (const auto& loader : loaders) {
@@ -139,7 +143,7 @@ public:
                 return *loader;
             }
         }
-        CxxUtils::LogWarning("No likely loader found for file: ") << filepath;
+        CxxUtils::LogWarning("No likely loader found for file: ") << filepath.string();
 
         // Check other loaders
         for (const auto& loader : loaders) {
@@ -148,7 +152,7 @@ public:
                 return *loader;
             }
         }
-        CxxUtils::LogError("No applicable loader found for file: ") << filepath;
+        CxxUtils::LogError("No applicable loader found for file: ") << filepath.string();
 
         throw CxxUtils::Exception("No suitable loader found for file: %s", filepath.c_str());
     }

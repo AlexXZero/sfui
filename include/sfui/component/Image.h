@@ -2,6 +2,7 @@
 #define SFUI_IMAGE_H_INCLUDED
 
 #include "details/ComponentBase.h"
+#include "ImageData.h"
 
 namespace sfui {
 
@@ -32,7 +33,7 @@ public:
     void Render(sf::RenderWindow& window) override;
 
 private:
-    sf::Texture m_texture;
+    ImageData m_textures;
     std::optional<sf::RectangleShape> m_image;
     std::optional<sf::RectangleShape> m_background;
 };

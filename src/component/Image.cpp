@@ -15,7 +15,7 @@ Image::Image(ComponentBase& parent, const Properties& properties)
 {
     if (properties.imagePath.has_value()) {
         SetImage(properties.imagePath.value());
-        auto [width, height] = m_texture.getSize();
+        auto [width, height] = m_textures.Size();
         if (!properties.width.has_value()) SetWidth(width);
         if (!properties.height.has_value()) SetHeight(height);
         m_image->setSize({float(Width()), float(Height())});
@@ -46,13 +46,13 @@ void Image::SetBackgroundColor(sf::Color color)
 void Image::SetImage(const std::string& image_path)
 {
     m_image.emplace();
-    m_texture.loadFromFile(image_path);
-    m_image->setTexture(&m_texture);
+    m_textures = ImageData::Load(image_path);
+    m_image->setTexture(&m_textures.Frame(0));
 }
 
 std::pair<uint16_t, uint16_t> Image::GetNativeSize() const
 {
-    auto [width, height] = m_texture.getSize();
+    auto [width, height] = m_textures.Size();
     return {width, height};
 }
 
