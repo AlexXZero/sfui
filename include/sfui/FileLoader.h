@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <algorithm>
 #include <filesystem>
 #include <string_view>
 #include <libvfs/FileReader.h>
@@ -45,7 +46,7 @@ public:
     /**
      * @brief Returns the loader's priority based on the file extension.
      *
-     * @param extension The file extension to check.
+     * @param extension The file extension, converted to lowercase, to check.
      * @return The loader's priority level.
      */
     virtual FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept = 0;
@@ -124,8 +125,11 @@ public:
      */
     template<typename T>
     static const iFileLoader<T>& GetLoader(const std::filesystem::path& filepath, const LibVFS::FileReader& reader) {
-        const auto extension = filepath.extension().string();
         const auto& loaders = Instance<T>();
+        auto extension = filepath.extension().string();
+
+        // Convert the file extension to lowercase to ensure case-insensitive comparison
+        std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
 
         // Check highly likely loaders first
         for (const auto& loader : loaders) {

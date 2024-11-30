@@ -36,6 +36,15 @@
             "top": 0
         },
         {
+            "name": "Anims",
+            "type": "image",
+            "image": "data/main/DATA/FormMain/2ANIM0.ANIMS",
+            "width": "18.7%",
+            "height": "73.8%",
+            "left": "9.2%",
+            "top": "21.24%"
+        },
+        {
             "name": "NewGame",
             "type": "button",
             "label": "                   Новая игра",
