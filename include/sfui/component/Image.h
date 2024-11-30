@@ -33,8 +33,7 @@ public:
     void Render(sf::RenderWindow& window) override;
 
 private:
-    ImageData m_textures;
-    std::optional<sf::RectangleShape> m_image;
+    std::optional<RepeatingAnimation> m_image;
     std::optional<sf::RectangleShape> m_background;
 };
 

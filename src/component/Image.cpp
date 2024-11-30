@@ -15,11 +15,11 @@ Image::Image(ComponentBase& parent, const Properties& properties)
 {
     if (properties.imagePath.has_value()) {
         SetImage(properties.imagePath.value());
-        auto [width, height] = m_textures.Size();
+        auto [width, height] = m_image->GetNativeSize();
         if (!properties.width.has_value()) SetWidth(width);
         if (!properties.height.has_value()) SetHeight(height);
-        m_image->setSize({float(Width()), float(Height())});
-        m_image->setPosition(AbsoluteX(), AbsoluteY());
+        m_image->SetSize({float(Width()), float(Height())});
+        m_image->SetPosition(AbsoluteX(), AbsoluteY());
     }
 
     if (properties.backgroundColor.has_value()) {
@@ -27,11 +27,11 @@ Image::Image(ComponentBase& parent, const Properties& properties)
     }
 
     LinkEvent(OnResize([this]{
-        if (m_image.has_value()) m_image->setSize(sf::Vector2f(Width(), Height()));
+        if (m_image.has_value()) m_image->SetSize(sf::Vector2f(Width(), Height()));
         if (m_background.has_value()) m_background->setSize(sf::Vector2f(Width(), Height()));
     }));
     LinkEvent(OnMove([this]{
-        if (m_image.has_value()) m_image->setPosition(AbsoluteX(), AbsoluteY());
+        if (m_image.has_value()) m_image->SetPosition(AbsoluteX(), AbsoluteY());
         if (m_background.has_value()) m_background->setPosition(AbsoluteX(), AbsoluteY());
     }));
 }
@@ -45,14 +45,12 @@ void Image::SetBackgroundColor(sf::Color color)
 
 void Image::SetImage(const std::string& image_path)
 {
-    m_image.emplace();
-    m_textures = ImageData::Load(image_path);
-    m_image->setTexture(&m_textures.Frame(0));
+    m_image.emplace(image_path);
 }
 
 std::pair<uint16_t, uint16_t> Image::GetNativeSize() const
 {
-    auto [width, height] = m_textures.Size();
+    auto [width, height] = m_image->GetNativeSize();
     return {width, height};
 }
 
