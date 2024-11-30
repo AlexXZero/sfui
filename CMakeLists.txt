@@ -38,7 +38,7 @@ target_include_directories(sfui
 )
 
 # Link dependent libraries
-target_link_libraries(sfui PRIVATE
+target_link_libraries(sfui PUBLIC
     sfml-graphics
     nlohmann_json::nlohmann_json
     CxxUtils

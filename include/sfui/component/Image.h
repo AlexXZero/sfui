@@ -2,7 +2,7 @@
 #define SFUI_IMAGE_H_INCLUDED
 
 #include "details/ComponentBase.h"
-#include "ImageData.h"
+#include "../ImageData.h"
 
 namespace sfui {
 
