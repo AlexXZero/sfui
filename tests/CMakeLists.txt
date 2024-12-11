@@ -14,13 +14,12 @@ add_compile_options(-O2 -Wall -Wextra -Wno-unused-parameter)
 # Add the internal libraries
 add_subdirectory(sfui)
 add_subdirectory(sfui/dependencies/CxxUtils)
-add_subdirectory(sfui/dependencies/libvfs)
 
 # Function to add test executables
 function(add_test_executable test_file)
     get_filename_component(test_name ${test_file} NAME_WE)
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} PRIVATE sfui CxxUtils vfs)
+    target_link_libraries(${test_name} PRIVATE sfui CxxUtils)
 endfunction()
 
 # Automatically find all test source files matching Test*.cpp pattern

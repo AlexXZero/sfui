@@ -43,5 +43,4 @@ target_link_libraries(sfui PUBLIC
     sfml-graphics
     nlohmann_json::nlohmann_json
     CxxUtils
-    vfs
 )

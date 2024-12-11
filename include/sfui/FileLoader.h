@@ -6,10 +6,10 @@
 #include <algorithm>
 #include <filesystem>
 #include <string_view>
-#include <libvfs/FileReader.h>
 #include <CxxUtils/logger.h>
 #include <CxxUtils/demangle.h>
 #include <CxxUtils/exception.h>
+#include <CxxUtils/vfs/ifstream.h>
 
 namespace sfui {
 
@@ -57,7 +57,7 @@ public:
      * @param reader The file reader to probe.
      * @return True if the reader can be loaded, false otherwise.
      */
-    virtual bool Probe(const LibVFS::FileReader& reader) const = 0;
+    virtual bool Probe(const CxxUtils::ifstream& reader) const = 0;
 
     /**
      * @brief Loads data from the file reader.
@@ -66,7 +66,7 @@ public:
      * @param reader The file reader to load data from.
      * @return The loaded data of type T.
      */
-    virtual T Load(const std::filesystem::path& filepath, LibVFS::FileReader&& reader) const = 0;
+    virtual T Load(const std::filesystem::path& filepath, CxxUtils::ifstream&& reader) const = 0;
 };
 
 /**
@@ -124,7 +124,7 @@ public:
      * @throws CxxUtils::Exception If no suitable loader is found.
      */
     template<typename T>
-    static const iFileLoader<T>& GetLoader(const std::filesystem::path& filepath, const LibVFS::FileReader& reader) {
+    static const iFileLoader<T>& GetLoader(const std::filesystem::path& filepath, const CxxUtils::ifstream& reader) {
         const auto& loaders = Instance<T>();
         auto extension = filepath.extension().string();
 
@@ -213,7 +213,8 @@ public:
      * @throws CxxUtils::Exception If no suitable loader is found.
      */
     static T Load(const std::filesystem::path& filepath) {
-        LibVFS::FileReader reader(filepath);
+        CxxUtils::ifstream reader(filepath);
+        reader.exceptions(std::ios::failbit | std::ios::badbit); // Enable exceptions
         const auto& loader = FileLoaderRegistry::GetLoader<T>(filepath, reader);
         return loader.Load(filepath, std::move(reader));
     }

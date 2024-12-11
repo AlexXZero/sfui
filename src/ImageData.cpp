@@ -8,7 +8,7 @@ namespace {
 
 class DefaultImageFileLoader final : public iFileLoader<ImageData> {
 public:
-    bool Probe(const LibVFS::FileReader& reader) const final {
+    bool Probe(const CxxUtils::ifstream& reader) const final {
         return true;
     }
 
@@ -20,11 +20,12 @@ public:
                    : FileLoader::PriorityLevel::Unlikely;
     }
 
-    ImageData Load(const std::filesystem::path& filepath, LibVFS::FileReader&& reader) const final {
+    ImageData Load(const std::filesystem::path& filepath, CxxUtils::ifstream&& reader) const final {
         auto frames = std::make_shared<std::vector<sf::Texture>>();
 
-        const auto fileSize = reader.GetSize();
-        const auto fileData = reader.ReadVector<std::uint8_t>(fileSize);
+        reader.exceptions(std::ios::failbit | std::ios::badbit); // Make sure exceptions are enabled
+        const auto fileSize = reader.size();
+        const auto fileData = reader.readVector<std::uint8_t>(fileSize);
 
         // Use SFML to load the texture
         sf::Texture texture;
