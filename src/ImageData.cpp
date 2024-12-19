@@ -8,7 +8,7 @@ namespace {
 
 class DefaultImageFileLoader final : public iFileLoader<ImageData> {
 public:
-    bool Probe(const CxxUtils::ifstream& reader) const final {
+    bool Probe(const CxxUtils::ifstream& reader) const noexcept final {
         return true;
     }
 

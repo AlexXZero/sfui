@@ -56,8 +56,10 @@ public:
      *
      * @param reader The file reader to probe.
      * @return True if the reader can be loaded, false otherwise.
+     * @note Functions shouldn't throw any exceptions. It ensures callers understand
+     *       that probe cannot throw exceptions and does not modify the input stream.
      */
-    virtual bool Probe(const CxxUtils::ifstream& reader) const = 0;
+    virtual bool Probe(const CxxUtils::ifstream& reader) const noexcept = 0;
 
     /**
      * @brief Loads data from the file reader.

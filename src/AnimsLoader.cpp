@@ -7,7 +7,7 @@ namespace {
 
 class AnimsImageFileLoader final : public iFileLoader<ImageData> {
 public:
-    bool Probe(const CxxUtils::ifstream& reader) const final {
+    bool Probe(const CxxUtils::ifstream& reader) const noexcept final {
         if (reader.size() < std::streamoff(expectedSignature.size())) return false;
         auto signature = reader.peekArray<std::uint8_t, expectedSignature.size()>();
         return signature == expectedSignature;
