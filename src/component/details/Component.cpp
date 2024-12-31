@@ -24,10 +24,11 @@ private:
 using namespace sfui;
 
 Component::Properties::Properties(const nlohmann::json& json)
-    : name(json["name"]), isEnabled(true), isVisible(true)
+    : name(json["name"]), isEnabled(true), isVisible(true), isIgnorable(false)
 {
     if (json.contains("enabled")) isEnabled = json["enabled"].get<bool>();
     if (json.contains("visible")) isVisible = json["visible"].get<bool>();
+    if (json.contains("ignorable")) isIgnorable = json["ignorable"].get<bool>();
 }
 
 Component::Component(ComponentBase& parent, const Component::Properties& properties)
@@ -36,6 +37,7 @@ Component::Component(ComponentBase& parent, const Component::Properties& propert
     , m_name(properties.name)
     , m_enabled(properties.isEnabled)
     , m_visible(properties.isVisible)
+    , m_ignorable(properties.isIgnorable)
 {
 }
 
@@ -98,6 +100,21 @@ void Component::Hide()
 {
     m_visible = false;
     OnHide();
+}
+
+bool Component::IsIgnorable() const
+{
+    return m_ignorable;
+}
+
+void Component::Ignore()
+{
+    m_ignorable = true;
+}
+
+void Component::Intercept()
+{
+    m_ignorable = false;
 }
 
 static std::weak_ptr<Component> g_focusedComponent;
@@ -217,6 +234,8 @@ void Component::Render_(sf::RenderWindow& window)
 
 bool Component::HandleEvent_(const sf::Event& event)
 {
+    if (m_ignorable) return false;
+
     for (auto& component_sp: std::ranges::reverse_view(m_components)) {
         if (component_sp->IsVisible() && component_sp->HandleEvent_(event)) {
             return true;

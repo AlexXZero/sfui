@@ -22,6 +22,7 @@ public:
         std::string name;
         bool isEnabled = true;
         bool isVisible = true;
+        bool isIgnorable = false;
 
         Properties() = default;
         Properties(const nlohmann::json& json);
@@ -52,6 +53,11 @@ public:
     bool IsVisible() const;
     void Show();
     void Hide();
+
+    //--- Intercept control ---//
+    bool IsIgnorable() const;
+    void Ignore();
+    void Intercept();
 
     //--- Focus control ---//
     static std::shared_ptr<ComponentBase> FocusedComponent();
@@ -97,6 +103,7 @@ private:
     std::string m_name;
     bool m_enabled;
     bool m_visible;
+    bool m_ignorable;
     std::vector<std::shared_ptr<ComponentBase>> m_components;
 };
 
