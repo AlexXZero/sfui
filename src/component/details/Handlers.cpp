@@ -127,13 +127,14 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
             GainFocus();
 
-            m_mouseClickHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
+            m_mouseButtonPressHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             return true;
         }
         break;
 
     case sf::Event::MouseButtonReleased:
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
+            m_mouseButtonReleaseHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             return true;
         }
         break;

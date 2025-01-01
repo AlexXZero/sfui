@@ -39,8 +39,10 @@ public:
     template<typename Handler> CxxUtils::ObserverToken OnMouseMove(Handler&& handler) { return m_mouseMoveHandlers.Set(std::move(CastToMouseMoveHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseEnter(Handler&& handler) { return m_mouseEnterHandlers.Set(std::move(CastToMouseMoveHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseLeave(Handler&& handler) { return m_mouseLeaveHandlers.Set(std::move(CastToMouseMoveHandler(std::forward<Handler>(handler)))); }
-    template<typename Handler> CxxUtils::ObserverToken OnMouseClick(Handler&& handler) { return m_mouseClickHandlers.Set(std::move(CastToMouseClickHandler(std::forward<Handler>(handler)))); }
-    template<typename Handler> CxxUtils::ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseClickHandlers.Set([handler = CastToMouseClickHandler(std::forward<Handler>(handler)), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) handler(button, x, y); }); }
+    template<typename Handler> CxxUtils::ObserverToken OnMouseButtonPress(Handler&& handler) { return m_mouseButtonPressHandlers.Set(std::move(CastToMouseClickHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnMouseButtonRelease(Handler&& handler) { return m_mouseButtonReleaseHandlers.Set(std::move(CastToMouseClickHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnMouseClick(Handler&& handler) { return m_mouseButtonPressHandlers.Set(std::move(CastToMouseClickHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseButtonPressHandlers.Set([handler = CastToMouseClickHandler(std::forward<Handler>(handler)), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) handler(button, x, y); }); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseScrollUp(Handler&& handler) { return m_mouseScrollUpHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseScrollDown(Handler&& handler) { return m_mouseScrollDownHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressedHandlers[key].Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
@@ -76,7 +78,8 @@ private:
     CxxUtils::Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseMoveHandlers;
     CxxUtils::Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseEnterHandlers;
     CxxUtils::Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseLeaveHandlers;
-    CxxUtils::Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseClickHandlers;
+    CxxUtils::Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseButtonPressHandlers;
+    CxxUtils::Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseButtonReleaseHandlers;
     std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyPressedHandlers;
     std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyReleasedHandlers;
     CxxUtils::Observers<std::function<void(std::uint32_t)>> m_textEnterHandlers;
