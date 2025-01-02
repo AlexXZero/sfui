@@ -28,13 +28,13 @@ void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
     if (json.contains("onMouseEnter")) {
         for (const auto& handler_json: json["onMouseEnter"]) {
             auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(onMouseEnter(std::move(handler)));
+            LinkEvent(OnMouseEnter(std::move(handler)));
         }
     }
     if (json.contains("onMouseLeave")) {
         for (const auto& handler_json: json["onMouseLeave"]) {
             auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(onMouseLeave(std::move(handler)));
+            LinkEvent(OnMouseLeave(std::move(handler)));
         }
     }
     if (json.contains("onClick")) {
