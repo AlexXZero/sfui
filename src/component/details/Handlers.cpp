@@ -32,6 +32,20 @@ void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
             LinkEvent(OnMouseLeftClick(std::move(handler)));
         }
     }
+    if (json.contains("onButtonPress")) {
+        for (const auto& handler_json: json["onButtonPress"]) {
+            // TODO: if (handler_json.contains("button"))
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnMouseButtonPress(std::move(handler)));
+        }
+    }
+    if (json.contains("onButtonRelease")) {
+        for (const auto& handler_json: json["onButtonRelease"]) {
+            // TODO: if (handler_json.contains("button"))
+            auto handler = ParseComponentHandler(*this, handler_json);
+            LinkEvent(OnMouseButtonRelease(std::move(handler)));
+        }
+    }
     if (json.contains("onScrollUp")) {
         for (const auto& handler_json: json["onScrollUp"]) {
             auto handler = ParseComponentHandler(*this, handler_json);
