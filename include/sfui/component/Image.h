@@ -11,6 +11,7 @@ public:
     struct Properties: public ComponentBase::Properties {
         std::optional<sf::Color> backgroundColor;
         std::optional<std::string> imagePath;
+        std::optional<std::variant<OffsetPixels, OffsetPercentage>> scrollSpeed;
 
         Properties() = default;
         Properties(const nlohmann::json& json);
@@ -28,6 +29,8 @@ public:
 
     void SetImage(const std::string& image_path);
 
+    void SetScrollSpeed(std::variant<OffsetPixels, OffsetPercentage> speed);
+
     std::pair<uint16_t, uint16_t> GetNativeSize() const;
 
     void Render(sf::RenderWindow& window) override;
@@ -35,6 +38,8 @@ public:
 private:
     std::optional<RepeatingAnimation> m_image;
     std::optional<sf::RectangleShape> m_background;
+    std::optional<OffsetPercentage> m_scrollSpeed;
+    std::chrono::high_resolution_clock::time_point m_scrollStart;
 };
 
 }

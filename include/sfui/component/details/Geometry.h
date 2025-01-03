@@ -54,6 +54,12 @@ public:
     void SetSize(SizePixels width, SizePixels height);
     void SetPosition(OffsetPixels left, OffsetPixels top, std::optional<OffsetPixels> right = std::nullopt, std::optional<OffsetPixels> bottom = std::nullopt);
 
+protected:
+    // Parsers
+    static Position ParsePosition(const nlohmann::json& json);
+    static std::variant<OffsetPixels, OffsetPercentage> ParseOffset(const nlohmann::json& json);
+    static std::variant<SizePixels, SizePercentage> ParseSize(const nlohmann::json& json);
+
 private:
     // Computers for computing cached values
     OffsetPixels ComputeLeft() const;
@@ -68,11 +74,6 @@ private:
     // Getters for the parent's dimensions
     SizePixels ParentWidth() const;
     SizePixels ParentHeight() const;
-
-    // Parsers
-    static Position ParsePosition(const nlohmann::json& json);
-    static std::variant<OffsetPixels, OffsetPercentage> ParseOffset(const nlohmann::json& json);
-    static std::variant<SizePixels, SizePercentage> ParseSize(const nlohmann::json& json);
 
     virtual void OnUpdateGeometry() final;
     virtual void OnResize() = 0;

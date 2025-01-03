@@ -7,6 +7,7 @@
             "name": "Animation",
             "type": "image",
             "image": "data/main/DATA/FormMain/2fon.png",
+            "scrollSpeed": "-1%",
             "width": "400%",
             "height": "62%",
             "left": 0,
