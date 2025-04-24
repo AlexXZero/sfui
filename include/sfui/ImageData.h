@@ -18,18 +18,21 @@ public:
     std::size_t FramesCount() const noexcept { return m_data ? m_data->size() : 0; }
     const sf::Texture& Frame(std::size_t frameIndex) const noexcept { assert(FramesCount() > frameIndex); return (*m_data)[frameIndex]; }
     sf::Vector2u Size() const noexcept { return Frame(0).getSize(); }
+    std::shared_ptr<std::vector<sf::Texture>> Data() { return m_data; }
+    void SetSmooth(bool smooth) { for (auto& texture : *m_data) texture.setSmooth(smooth); }
 
 private:
     std::shared_ptr<std::vector<sf::Texture>> m_data;
 };
 
-class RepeatingAnimation : /*public sf::Transformable, */public sf::Drawable {
+// Non repeated animations
+class FiniteAnimation : /*public sf::Transformable, */public sf::Drawable {
 public:
-    RepeatingAnimation(const std::filesystem::path& path, std::size_t fps = 60)
-        : m_data(ImageData::Load(path)), m_fps(fps), m_shape(sf::Vector2f(m_data.Size())), m_startRenderingTime(std::chrono::high_resolution_clock::now()) {}
-    RepeatingAnimation(ImageData data, std::size_t fps = 60)
+    FiniteAnimation(ImageData data, std::size_t fps = 60)
         : m_data(data), m_fps(fps), m_shape(sf::Vector2f(m_data.Size())), m_startRenderingTime(std::chrono::high_resolution_clock::now()) {}
-    ~RepeatingAnimation() final = default;
+    FiniteAnimation(const std::filesystem::path& path, std::size_t fps = 60)
+        : FiniteAnimation(ImageData::Load(path), fps) {}
+    ~FiniteAnimation() override = default;
     sf::Vector2u GetNativeSize() const { return m_data.Size(); }
 
     void SetSize(const sf::Vector2f& size) { m_shape.setSize(size); }
@@ -56,23 +59,52 @@ public:
     void Scale(float factorX, float factorY) { m_shape.scale(factorX, factorY); }
     void Scale(const sf::Vector2f &factor) { m_shape.scale(factor); }
 
-protected:
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const final {
+    bool IsFinished() const {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_startRenderingTime).count();
-        auto frameIndex = (elapsedTime * m_fps / 1000) % m_data.FramesCount();
-        m_shape.setTexture(&m_data.Frame(frameIndex));
-        target.draw(m_shape, states); // m_shape.draw(target, states);
-        //states.transform *= getTransform();
-        //states.texture = &m_data.Frame(frameIndex);
-        //target.draw(m_vertices, states);
+        auto frameIndex = (elapsedTime * m_fps / 1000);
+        return frameIndex >= m_data.FramesCount();
+    }
+    void ResetPlay() const {
+        m_startRenderingTime = std::chrono::high_resolution_clock::now();
+    }
+
+protected:
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - m_startRenderingTime).count();
+        auto frameIndex = (elapsedTime * m_fps / 1000);
+        if (frameIndex < m_data.FramesCount()) {
+            m_shape.setTexture(&m_data.Frame(frameIndex));
+            target.draw(m_shape, states); // m_shape.draw(target, states);
+            //states.transform *= getTransform();
+            //states.texture = &m_data.Frame(frameIndex);
+            //target.draw(m_vertices, states);
+        }
     }
 
 private:
     ImageData m_data;
     std::size_t m_fps;
     mutable sf::RectangleShape m_shape;
-    std::chrono::high_resolution_clock::time_point m_startRenderingTime;
+    mutable std::chrono::high_resolution_clock::time_point m_startRenderingTime;
+};
+
+class RepeatingAnimation : public FiniteAnimation {
+public:
+    RepeatingAnimation(ImageData data, std::size_t fps = 60)
+            : FiniteAnimation(data, fps) {}
+    RepeatingAnimation(const std::filesystem::path& path, std::size_t fps = 60)
+            : FiniteAnimation(path, fps) {}
+    ~RepeatingAnimation() final = default;
+
+private:
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const final {
+        if (IsFinished()) {
+            ResetPlay();
+        }
+        FiniteAnimation::draw(target, states);
+    }
 };
 
 }

@@ -120,8 +120,8 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
 
     case sf::Event::KeyPressed:
         if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
-            if (m_keyPressedHandlers.count(event.key.code) > 0 && m_keyPressedHandlers.at(event.key.code).Count() > 0) {
-                m_keyPressedHandlers.at(event.key.code).Invoke();
+            if (m_keyPressHandlers.count(event.key.code) > 0 && m_keyPressHandlers.at(event.key.code).Count() > 0) {
+                m_keyPressHandlers.at(event.key.code).Invoke();
                 return true;
             }
         }
@@ -129,8 +129,8 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
 
     case sf::Event::KeyReleased:
         if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
-            if (m_keyReleasedHandlers.count(event.key.code) > 0 && m_keyReleasedHandlers.at(event.key.code).Count() > 0) {
-                m_keyReleasedHandlers.at(event.key.code).Invoke();
+            if (m_keyReleaseHandlers.count(event.key.code) > 0 && m_keyReleaseHandlers.at(event.key.code).Count() > 0) {
+                m_keyReleaseHandlers.at(event.key.code).Invoke();
                 return true;
             }
         }

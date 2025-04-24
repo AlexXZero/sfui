@@ -45,7 +45,8 @@ public:
     template<typename Handler> CxxUtils::ObserverToken OnMouseLeftClick(Handler&& handler) { return m_mouseButtonPressHandlers.Set([handler = CastToMouseClickHandler(std::forward<Handler>(handler)), this](sf::Mouse::Button button, std::int16_t x, std::int16_t y){ if (button == sf::Mouse::Button::Left) handler(button, x, y); }); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseScrollUp(Handler&& handler) { return m_mouseScrollUpHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnMouseScrollDown(Handler&& handler) { return m_mouseScrollDownHandlers.Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
-    template<typename Handler> CxxUtils::ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressedHandlers[key].Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnKeyPress(sf::Keyboard::Key key, Handler&& handler) { return m_keyPressHandlers[key].Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
+    template<typename Handler> CxxUtils::ObserverToken OnKeyRelease(sf::Keyboard::Key key, Handler&& handler) { return m_keyReleaseHandlers[key].Set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
     template<typename Handler> CxxUtils::ObserverToken OnTextEntered(Handler&& handler) { return m_textEnterHandlers.Set(std::move(CastToTextEnterHandler(std::forward<Handler>(handler)))); }
 
 protected:
@@ -80,8 +81,8 @@ private:
     CxxUtils::Observers<std::function<void(std::int16_t, std::int16_t)>> m_mouseLeaveHandlers;
     CxxUtils::Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseButtonPressHandlers;
     CxxUtils::Observers<std::function<void(sf::Mouse::Button, std::int16_t, std::int16_t)>> m_mouseButtonReleaseHandlers;
-    std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyPressedHandlers;
-    std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyReleasedHandlers;
+    std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyPressHandlers;
+    std::unordered_map<sf::Keyboard::Key, CxxUtils::Observers<std::function<void()>>> m_keyReleaseHandlers;
     CxxUtils::Observers<std::function<void(std::uint32_t)>> m_textEnterHandlers;
     CxxUtils::Observers<std::function<void()>> m_gainedFocusHandlers;
     CxxUtils::Observers<std::function<void()>> m_lostFocusHandlers;

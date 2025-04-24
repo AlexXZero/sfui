@@ -48,7 +48,7 @@
                     "call": "OpenSR::Quit"
                 }
             ],
-            /* possible renameing: layouts, viewes */
+            /* possible renaming: layouts, views */
             "modes": [
                 {
                     "name": "intro",

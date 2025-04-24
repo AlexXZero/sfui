@@ -13,21 +13,21 @@ namespace {
 
 class PngFileLoader final : public sfui::iFileLoader<sfui::TestImageData> {
 public:
-    bool Probe(const CxxUtils::ifstream& reader) const final { return true; }
+    bool Probe(const CxxUtils::ifstream& reader) const noexcept final { return true; }
     sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestImageData Load(const std::filesystem::path& filepath, CxxUtils::ifstream&& reader) const final { return {}; } // fake reader
 };
 
 class WavFileLoader final : public sfui::iFileLoader<sfui::TestAudioData> {
 public:
-    bool Probe(const CxxUtils::ifstream& reader) const final { return true; }
+    bool Probe(const CxxUtils::ifstream& reader) const noexcept final { return true; }
     sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestAudioData Load(const std::filesystem::path& filepath, CxxUtils::ifstream&& reader) const final { return {}; } // fake reader
 };
 
 class TtfFileLoader final : public sfui::iFileLoader<sfui::TestFontData> {
 public:
-    bool Probe(const CxxUtils::ifstream& reader) const final { return true; }
+    bool Probe(const CxxUtils::ifstream& reader) const noexcept final { return true; }
     sfui::FileLoader::PriorityLevel GetPriority(std::string_view extension) const noexcept final { return sfui::FileLoader::PriorityLevel::Likely; }
     sfui::TestFontData Load(const std::filesystem::path& filepath, CxxUtils::ifstream&& reader) const final { return {}; } // fake reader
 };
