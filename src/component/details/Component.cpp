@@ -187,7 +187,6 @@ void Component::BringToBack()
     auto it = std::find(component_list.begin(), component_list.end(), shared_from_this());
     assert(it != component_list.end());
     std::rotate(component_list.begin(), it, std::next(it));
-    Parent().BringToBack();
 }
 
 ComponentBase& Component::operator[](std::string_view name)

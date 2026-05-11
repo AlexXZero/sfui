@@ -78,6 +78,8 @@
         "variant": "cpp",
         "csignal": "cpp",
         "set": "cpp",
-        "ranges": "cpp"
+        "ranges": "cpp",
+        "unordered_set": "cpp",
+        "queue": "cpp"
     }
 }

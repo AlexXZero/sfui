@@ -112,25 +112,25 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
 {
     switch (event.type) {
     case sf::Event::TextEntered:
-        if (m_textEnterHandlers.Count() > 0 && IsFocused()) {
-            m_textEnterHandlers.Invoke(event.text.unicode);
+        if (m_textEnterHandlers.count() > 0 && IsFocused()) {
+            m_textEnterHandlers.notify(event.text.unicode);
             return true;
         }
         break;
 
     case sf::Event::KeyPressed:
-        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
-            if (m_keyPressHandlers.count(event.key.code) > 0 && m_keyPressHandlers.at(event.key.code).Count() > 0) {
-                m_keyPressHandlers.at(event.key.code).Invoke();
+        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.count() == 0) {
+            if (m_keyPressHandlers.count(event.key.code) > 0 && m_keyPressHandlers.at(event.key.code).count() > 0) {
+                m_keyPressHandlers.at(event.key.code).notify();
                 return true;
             }
         }
         break;
 
     case sf::Event::KeyReleased:
-        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.Count() == 0) {
-            if (m_keyReleaseHandlers.count(event.key.code) > 0 && m_keyReleaseHandlers.at(event.key.code).Count() > 0) {
-                m_keyReleaseHandlers.at(event.key.code).Invoke();
+        if (auto focusedComponent_sp = FocusedComponent(); focusedComponent_sp == nullptr || focusedComponent_sp->m_textEnterHandlers.count() == 0) {
+            if (m_keyReleaseHandlers.count(event.key.code) > 0 && m_keyReleaseHandlers.at(event.key.code).count() > 0) {
+                m_keyReleaseHandlers.at(event.key.code).notify();
                 return true;
             }
         }
@@ -140,9 +140,9 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         if (Contains(m_mouseOldPosition.first, m_mouseOldPosition.second)) {
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
                 if (event.mouseWheelScroll.delta > 0) {
-                    m_mouseScrollUpHandlers.Invoke(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
+                    m_mouseScrollUpHandlers.notify(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
                 } else if (event.mouseWheelScroll.delta < 0) {
-                    m_mouseScrollDownHandlers.Invoke(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
+                    m_mouseScrollDownHandlers.notify(/*m_mouseOldPosition.first, m_mouseOldPosition.second, event.mouseWheelScroll.delta*/);
                 }
             }
             return true;
@@ -153,14 +153,14 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
             GainFocus();
 
-            m_mouseButtonPressHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
+            m_mouseButtonPressHandlers.notify(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             return true;
         }
         break;
 
     case sf::Event::MouseButtonReleased:
         if (Contains(event.mouseButton.x, event.mouseButton.y)) {
-            m_mouseButtonReleaseHandlers.Invoke(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
+            m_mouseButtonReleaseHandlers.notify(event.mouseButton.button, event.mouseButton.x, event.mouseButton.y);
             return true;
         }
         break;
@@ -168,11 +168,11 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
     case sf::Event::MouseMoved:
         // Check mouse left and enter events, then remember mouse position for next check
         if (!Contains(m_mouseOldPosition) && Contains(event.mouseMove.x, event.mouseMove.y)) {
-            m_mouseEnterHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
+            m_mouseEnterHandlers.notify(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseEntered});
         }
         else if (Contains(m_mouseOldPosition) && !Contains(event.mouseMove.x, event.mouseMove.y)) {
-            m_mouseLeaveHandlers.Invoke(event.mouseMove.x, event.mouseMove.y);
+            m_mouseLeaveHandlers.notify(event.mouseMove.x, event.mouseMove.y);
             //HandleEvent_({sf::Event::MouseLeft});
         }
         m_mouseOldPosition.first = event.mouseMove.x;
@@ -193,50 +193,50 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
 
 void ComponentHandlers::OnRender(sf::RenderWindow& window)
 {
-    m_renderHandlers.Invoke(std::ref(window));
+    m_renderHandlers.notify(std::ref(window));
 }
 
 void ComponentHandlers::OnUpdate()
 {
-    m_updateHandlers.Invoke();
+    m_updateHandlers.notify();
 }
 
 void ComponentHandlers::OnShow()
 {
-    m_showHandlers.Invoke();
+    m_showHandlers.notify();
 }
 
 void ComponentHandlers::OnHide()
 {
-    m_hideHandlers.Invoke();
+    m_hideHandlers.notify();
 }
 
 void ComponentHandlers::OnEnable()
 {
-    m_enableHandlers.Invoke();
+    m_enableHandlers.notify();
 }
 
 void ComponentHandlers::OnDisable()
 {
-    m_disableHandlers.Invoke();
+    m_disableHandlers.notify();
 }
 
 void ComponentHandlers::OnGainFocus()
 {
-    m_gainedFocusHandlers.Invoke();
+    m_gainedFocusHandlers.notify();
 }
 
 void ComponentHandlers::OnLoseFocus()
 {
-    m_lostFocusHandlers.Invoke();
+    m_lostFocusHandlers.notify();
 }
 
 void ComponentHandlers::OnResize()
 {
-    m_resizeHandlers.Invoke();
+    m_resizeHandlers.notify();
 }
 
 void ComponentHandlers::OnMove()
 {
-    m_moveHandlers.Invoke();
+    m_moveHandlers.notify();
 }

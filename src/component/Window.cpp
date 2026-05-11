@@ -36,7 +36,7 @@ void Window::Update()
         while (m_window_up->pollEvent(event)) {
             switch (event.type) {
             case sf::Event::Closed:
-                m_closeHandlers.Invoke();
+                m_closeHandlers.notify();
                 break;
             case sf::Event::Resized:
                 SetWidth(event.size.width);
