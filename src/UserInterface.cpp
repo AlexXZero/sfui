@@ -1,10 +1,6 @@
 #include "UserInterface.h"
 #include "FontLibrary.h"
 #include "component/Window.h"
-#include <CxxUtils/json5e.h>
-#include <filesystem>
-#include <exception>
-#include <fstream>
 #include <map>
 
 namespace sfui {
@@ -14,24 +10,19 @@ struct UserInterface::Impl {
     // TODO: std::list<Font> m_fonts;
 };
 
-UserInterface::UserInterface(const std::string& configDir, const std::string& configFile)
+UserInterface::UserInterface(ConfigView config)
     : m_pImpl(std::make_unique<UserInterface::Impl>())
 {
-    auto configJSON = CxxUtils::json5e::parse(std::filesystem::path(configDir)/configFile);
-
-    if (configJSON.contains("fonts")) {
-        for (const auto& fontConfig: configJSON["fonts"]) {
-            FontLibrary::Load(fontConfig["name"], fontConfig["file"]);
-            if (fontConfig.contains("default") && fontConfig["default"].get<bool>()) {
-                FontLibrary::SetDefaultFont(FontLibrary::Get(fontConfig["name"]));
-            }
+    for (const auto& fontConfig : config.array("fonts")) {
+        auto fontName = fontConfig.required<std::string>("name");
+        FontLibrary::Load(fontName, fontConfig.required<std::string>("file"));
+        if (fontConfig.valueOr<bool>("default", false)) {
+            FontLibrary::SetDefaultFont(FontLibrary::Get(fontName));
         }
     }
 
-    if (configJSON.contains("windows")) {
-        for (const auto& windowConfig: configJSON["windows"]) {
-            m_pImpl->windows.emplace(windowConfig["name"], std::make_shared<Window>(windowConfig));
-        }
+    for (const auto& windowConfig : config.array("windows")) {
+        m_pImpl->windows.emplace(windowConfig.required<std::string>("name"), std::make_shared<Window>(windowConfig));
     }
 }
 

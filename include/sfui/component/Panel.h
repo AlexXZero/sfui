@@ -7,15 +7,16 @@
 
 namespace sfui {
 
-
 class Panel: public ComponentBase {
 public:
-    Panel(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json), m_background(*this, GetBackgroundProperties(json)) {
+    static constexpr std::string_view ComponentTypeName = "panel";
+public:
+    Panel(ComponentBase& parent, ConfigView config) : ComponentBase(parent, config), m_background(*this, GetBackgroundProperties(config)) {
         // parse optional properties
-        if (json.contains("background-image") && (!json.contains("width") || !json.contains("height"))) {
+        if (config.contains("background-image") && (!config.contains("width") || !config.contains("height"))) {
             auto [width, height] = m_background.GetNativeSize();
-            if (!json.contains("width")) SetWidth(width);
-            if (!json.contains("height")) SetHeight(height);
+            if (!config.contains("width")) SetWidth(width);
+            if (!config.contains("height")) SetHeight(height);
         }
         LinkEvent(OnResize([this]{ m_background.SetSize(Width(), Height()); }));
         LinkEvent(OnMove([this]{ m_background.SetPosition(0, 0); }));
@@ -39,11 +40,11 @@ public:
     }
 
 private:
-    static nlohmann::json GetBackgroundProperties(nlohmann::json json) {
-        nlohmann::json background {{"name", "_background"}, {"width", "100%"}, {"height", "100%"}};
-        if (json.contains("background-image")) background += {"image", json["background-image"]};
-        if (json.contains("background-color")) background += {"background-color", json["background-color"]};
-        return background;
+    static Image::Properties GetBackgroundProperties(ConfigView config) {
+        nlohmann::json background = {{"name", "_background"}, {"width", "100%"}, {"height", "100%"}};
+        if (auto backgroundImage = config.optional("background-image")) background += {"image", backgroundImage->raw()};
+        if (auto backgroundColor = config.optional("background-color")) background += {"background-color", backgroundColor->raw()};
+        return Image::Properties(ConfigView(background));
     }
 
 private:

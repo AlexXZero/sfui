@@ -21,6 +21,7 @@ add_library(sfui SHARED
     src/AnimsLoader.cpp
     src/FontLibrary.cpp
     src/UserInterface.cpp
+    src/ComponentFactory.cpp
     src/component/Edit.cpp
     src/component/Label.cpp
     src/component/Image.cpp

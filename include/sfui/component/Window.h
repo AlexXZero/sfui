@@ -7,7 +7,7 @@ namespace sfui {
 
 class Window: public ComponentBase {
 public:
-    Window(const nlohmann::json& json);
+    Window(ConfigView config);
     ~Window() = default;
 
     std::string_view Title() const { return m_title; }

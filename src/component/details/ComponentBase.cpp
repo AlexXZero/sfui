@@ -1,5 +1,5 @@
 #include "component/details/ComponentBase.h"
-#include "component/details/Parsers.h"
+#include "ComponentFactory.h"
 
 using namespace sfui;
 
@@ -8,8 +8,10 @@ ComponentBase::ComponentBase(ComponentBase& parent, const Properties& properties
 {
 }
 
-ComponentBase::ComponentBase(ComponentBase& parent, const nlohmann::json& json)
-    : ComponentHandlers(parent, json)
+ComponentBase::ComponentBase(ComponentBase& parent, ConfigView config)
+    : ComponentHandlers(parent, config)
 {
-    ParseComponents(*this, json);
+    for (const auto& componentConfig : config.array("elements")) {
+        ComponentFactory::create(componentConfig, *this);
+    }
 }

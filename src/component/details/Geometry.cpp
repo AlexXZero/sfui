@@ -4,17 +4,52 @@
 
 using namespace sfui;
 
-ComponentGeometry::Properties::Properties(const nlohmann::json& json)
-    : Component::Properties(json)
+// Position and detentions parsers
+Position sfui::ConfigParser<Position>::parse(ConfigView config)
 {
-    if (json.contains("position"))  position    = ParsePosition(json["position"]);
-    if (json.contains("left"))      left        = ParseOffset(json["left"]);
-    if (json.contains("right"))     right       = ParseOffset(json["right"]);
-    if (json.contains("top"))       top         = ParseOffset(json["top"]);
-    if (json.contains("bottom"))    bottom      = ParseOffset(json["bottom"]);
-    if (json.contains("width"))     width       = ParseSize(json["width"]);
-    if (json.contains("height"))    height      = ParseSize(json["height"]);
+    std::string position_string = config.as<std::string>();
+    return position_string == "absolute" ? Position::Absolute
+        : position_string == "relative" ? Position::Relative
+        : throw std::runtime_error("Error parsing component position");
 }
+
+static SizePercentage parsePercentage(const std::string& string)
+{
+    if (auto n = string.find("%"); n != std::string::npos) {
+        return std::stof(string.substr(0, n)) / 100.0f; // expected string format is "25%" or "100.0%"
+    } else {
+        throw std::runtime_error("Invalid type, expected percentage or pixel units value: " + string);
+    }
+}
+
+DimensionSize sfui::ConfigParser<DimensionSize>::parse(ConfigView config)
+{
+    if (config.raw().is_number()) {
+        return config.as<SizePixels>();
+    } else {
+        return parsePercentage(config.as<std::string>());
+    }
+}
+
+PositionOffset sfui::ConfigParser<PositionOffset>::parse(ConfigView config)
+{
+    if (config.raw().is_number()) {
+        return config.as<OffsetPixels>();
+    } else {
+        return parsePercentage(config.as<std::string>());
+    }
+}
+
+ComponentGeometry::Properties::Properties(ConfigView config)
+    : Component::Properties(config)
+    , position  {config.optional<Position>("position")}
+    , width     {config.optional<DimensionSize>("width")}
+    , height    {config.optional<DimensionSize>("height")}
+    , left      {config.optional<PositionOffset>("left")}
+    , right     {config.optional<PositionOffset>("right")}
+    , top       {config.optional<PositionOffset>("top")}
+    , bottom    {config.optional<PositionOffset>("bottom")}
+{}
 
 ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& properties)
     : Component(parent, properties)
@@ -297,43 +332,6 @@ SizePixels ComponentGeometry::ParentHeight() const
 {
     assert(!IsRoot());
     return m_position == Position::Absolute ? Root().Height() : Parent().Height();
-}
-
-
-Position ComponentGeometry::ParsePosition(const nlohmann::json& json)
-{
-    std::string position_string = json.get<std::string>();
-    return position_string == "absolute" ? Position::Absolute
-        : position_string == "relative" ? Position::Relative
-        : throw std::runtime_error("Error parsing component position");
-}
-
-std::variant<OffsetPixels, OffsetPercentage> ComponentGeometry::ParseOffset(const nlohmann::json& json)
-{
-    if (json.is_number()) {
-        return json.get<OffsetPixels>();
-    } else {
-        std::string string = json.get<std::string>();
-        if (auto n = string.find("%"); n != std::string::npos) {
-            return std::stof(string.substr(0, n)) / 100.0f; // expected string format is "25%" or "100.0%"
-        } else {
-            throw std::runtime_error("Error parsing component offset: " + string);
-        }
-    }
-}
-
-std::variant<SizePixels, SizePercentage> ComponentGeometry::ParseSize(const nlohmann::json& json)
-{
-    if (json.is_number()) {
-        return json.get<SizePixels>();
-    } else {
-        std::string string = json.get<std::string>();
-        if (auto n = string.find("%"); n != std::string::npos) {
-            return std::stof(string.substr(0, n)) / 100.0f; // expected string format is "25%" or "100.0%"
-        } else {
-            throw std::runtime_error("Error parsing component size: " + string);
-        }
-    }
 }
 
 void ComponentGeometry::OnUpdateGeometry()

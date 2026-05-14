@@ -6,21 +6,27 @@
 
 using namespace sfui;
 
-Label::Properties::Properties(const nlohmann::json& json) : ComponentBase::Properties(json)
+Label::Properties::Properties(ConfigView config)
+    : ComponentBase::Properties(config)
+    , backgroundColor{config.optional<sf::Color>("background-color")}
+    , font{std::nullopt}
+    , text{config.optional<std::string>("text")}
+    , textColor{config.optional<sf::Color>("text-color")}
+    , textStyle{sf::Text::Regular}
+    , textAlignment{TextAlignment::Left}
 {
-    if (json.contains("background-color")) backgroundColor = ParseColor(json["background-color"]);
-    if (json.contains("font")) font = FontLibrary::Get(json["font"]);
-    if (json.contains("text")) text = json["text"].get<std::string>();
-    if (json.contains("text-color")) textColor = ParseColor(json["text-color"]);
-    if (json.contains("bold") && json["bold"].get<bool>()) textStyle |= sf::Text::Bold;
-    if (json.contains("italic") && json["italic"].get<bool>()) textStyle |= sf::Text::Italic;
-    if (json.contains("underlined") && json["underlined"].get<bool>()) textStyle |= sf::Text::Underlined;
-    if (json.contains("strike-through") && json["strike-through"].get<bool>()) textStyle |= sf::Text::StrikeThrough;
-    if (json.contains("text-alignment")) textAlignment =
-            json["text-alignment"] == "left" ? TextAlignment::Left :
-            json["text-alignment"] == "right" ? TextAlignment::Right :
-            json["text-alignment"] == "center" ? TextAlignment::Center :
-            throw std::runtime_error("unknown alignment value: " + json["text-alignment"].get<std::string>());
+    if (auto fontPath = config.optional<std::string>("font")) font = FontLibrary::Get(*fontPath);
+    if (config.valueOr<bool>("bold", false)) textStyle |= sf::Text::Bold;
+    if (config.valueOr<bool>("italic", false)) textStyle |= sf::Text::Italic;
+    if (config.valueOr<bool>("underlined", false)) textStyle |= sf::Text::Underlined;
+    if (config.valueOr<bool>("strike-through", false)) textStyle |= sf::Text::StrikeThrough;
+    if (auto alignment = config.optional<std::string>("text-alignment")) {
+        textAlignment =
+            *alignment == "left" ? TextAlignment::Left :
+            *alignment == "right" ? TextAlignment::Right :
+            *alignment == "center" ? TextAlignment::Center :
+            throw std::runtime_error("unknown alignment value: " + *alignment);
+    }
 }
 
 Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBase(parent, properties)

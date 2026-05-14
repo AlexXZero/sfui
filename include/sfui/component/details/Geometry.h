@@ -2,7 +2,7 @@
 #define SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 
 #include "Component.h"
-#include <nlohmann/json.hpp>
+#include "../../ConfigParser.h"
 #include <optional>
 #include <variant>
 
@@ -13,16 +13,28 @@ using OffsetPixels      = std::int16_t;
 using OffsetPercentage  = float;
 using SizePixels        = std::uint16_t;
 using SizePercentage    = float;
+using DimensionSize     = std::variant<SizePixels, SizePercentage>;
+using PositionOffset    = std::variant<OffsetPixels, OffsetPercentage>;
+
+template<> struct ConfigParser<Position> {
+    [[nodiscard]] static Position parse(ConfigView config);
+};
+template<> struct ConfigParser<DimensionSize> {
+    [[nodiscard]] static DimensionSize parse(ConfigView config);
+};
+template<> struct ConfigParser<PositionOffset> {
+    [[nodiscard]] static PositionOffset parse(ConfigView config);
+};
 
 class ComponentGeometry : public Component {
 public:
     struct Properties : public Component::Properties {
         std::optional<Position> position;
-        std::optional<std::variant<SizePixels, SizePercentage>> width, height;
-        std::optional<std::variant<OffsetPixels, OffsetPercentage>> left, right, top, bottom;
+        std::optional<DimensionSize> width, height;
+        std::optional<PositionOffset> left, right, top, bottom;
 
         Properties() = default;
-        Properties(const nlohmann::json& json);
+        Properties(ConfigView config);
     };
 
     ComponentGeometry(ComponentBase& parent, const Properties& properties);
@@ -54,12 +66,6 @@ public:
     void SetSize(SizePixels width, SizePixels height);
     void SetPosition(OffsetPixels left, OffsetPixels top, std::optional<OffsetPixels> right = std::nullopt, std::optional<OffsetPixels> bottom = std::nullopt);
 
-protected:
-    // Parsers
-    static Position ParsePosition(const nlohmann::json& json);
-    static std::variant<OffsetPixels, OffsetPercentage> ParseOffset(const nlohmann::json& json);
-    static std::variant<SizePixels, SizePercentage> ParseSize(const nlohmann::json& json);
-
 private:
     // Computers for computing cached values
     OffsetPixels ComputeLeft() const;
@@ -81,8 +87,8 @@ private:
 
 private:
     Position m_position = Position::Relative;
-    std::optional<std::variant<SizePixels, SizePercentage>> m_width, m_height;
-    std::optional<std::variant<OffsetPixels, OffsetPercentage>> m_left, m_right, m_top, m_bottom;
+    std::optional<DimensionSize> m_width, m_height;
+    std::optional<PositionOffset> m_left, m_right, m_top, m_bottom;
 
     // Cashed component position and dimensions
     SizePixels m_cachedWidth, m_cachedHeight;

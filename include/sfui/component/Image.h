@@ -8,18 +8,20 @@ namespace sfui {
 
 class Image: public ComponentBase {
 public:
+    static constexpr std::string_view ComponentTypeName = "image";
+public:
     struct Properties: public ComponentBase::Properties {
         std::optional<sf::Color> backgroundColor;
         std::optional<std::string> imagePath;
-        std::optional<std::variant<OffsetPixels, OffsetPercentage>> scrollSpeed;
+        std::optional<PositionOffset> scrollSpeed;
 
         Properties() = default;
-        Properties(const nlohmann::json& json);
+        Properties(ConfigView config);
     };
 
     Image(ComponentBase& parent, const Properties& properties);
-    Image(ComponentBase& parent, const nlohmann::json& json)
-        : Image(parent, Properties(json)) { ParseHandlers(json); }
+    Image(ComponentBase& parent, const ConfigView config)
+        : Image(parent, Properties(config)) { ParseHandlers(config); }
     ~Image() = default;
 
     void SetBackgroundColor(sf::Color color);
@@ -29,7 +31,7 @@ public:
 
     void SetImage(const std::string& image_path);
 
-    void SetScrollSpeed(std::variant<OffsetPixels, OffsetPercentage> speed);
+    void SetScrollSpeed(PositionOffset speed);
 
     std::pair<uint16_t, uint16_t> GetNativeSize() const;
 

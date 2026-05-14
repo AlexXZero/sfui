@@ -1,6 +1,7 @@
 #ifndef SFUI_USER_INTERFACE_H_INCLUDED
 #define SFUI_USER_INTERFACE_H_INCLUDED
 
+#include "ConfigParser.h"
 #include <memory>
 #include <string>
 
@@ -10,8 +11,9 @@ class Component;
 
 class UserInterface {
 public:
-    UserInterface(const std::string& configDir, const std::string& configFile); // configPath is a path to json file inside the configDir directory, e.g. "ui.json"
-    UserInterface(const std::string& configPath) : UserInterface(".", configPath) {}
+    explicit UserInterface(ConfigView config);
+    explicit UserInterface(const Config& config) : UserInterface(config.view()) {}
+    explicit UserInterface(const std::filesystem::path& path) : UserInterface(Config(path)) {}
     ~UserInterface();
 
     void Update();

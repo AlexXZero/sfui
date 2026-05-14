@@ -3,13 +3,12 @@
 
 using namespace sfui;
 
-Image::Properties::Properties(const nlohmann::json& json)
-    : ComponentBase::Properties(json)
-{
-    if (json.contains("image")) imagePath = json["image"].get<std::string>();
-    if (json.contains("background-color")) backgroundColor = ParseColor(json["background-color"]);
-    if (json.contains("scrollSpeed")) scrollSpeed = ParseOffset(json["scrollSpeed"]);
-}
+Image::Properties::Properties(ConfigView config)
+    : ComponentBase::Properties(config)
+    , backgroundColor {config.optional<sf::Color>("background-color")}
+    , imagePath {config.optional<std::string>("image")}
+    , scrollSpeed {config.optional<PositionOffset>("scrollSpeed")}
+{}
 
 Image::Image(ComponentBase& parent, const Properties& properties)
     : ComponentBase(parent, properties)
@@ -53,7 +52,7 @@ void Image::SetImage(const std::string& image_path)
     m_image.emplace(image_path);
 }
 
-void Image::SetScrollSpeed(std::variant<OffsetPixels, OffsetPercentage> speed)
+void Image::SetScrollSpeed(PositionOffset speed)
 {
     if (std::holds_alternative<OffsetPixels>(speed) && std::get<OffsetPixels>(speed) == 0) {
         m_scrollSpeed = std::nullopt;

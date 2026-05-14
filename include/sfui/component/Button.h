@@ -9,42 +9,45 @@ namespace sfui {
 
 class Button: public ComponentBase {
     enum State { Neutral, Active, Down, Count };
+public:
+    static constexpr std::string_view ComponentTypeName = "button";
 
 public:
-    Button(ComponentBase& parent, const nlohmann::json& json) :
-            ComponentBase(parent, json), m_images{
-                Image(*this, GetImageProperties(json, "neutral")),
-                Image(*this, GetImageProperties(json, "active")),
-                Image(*this, GetImageProperties(json, "down"))} {
+    Button(ComponentBase& parent, ConfigView config) :
+            ComponentBase(parent, config), m_images{
+                Image(*this, GetImageProperties(config, "neutral")),
+                Image(*this, GetImageProperties(config, "active")),
+                Image(*this, GetImageProperties(config, "down"))} {
         // parse optional properties
-        if (json.contains("image") && (!json.contains("width") || !json.contains("height"))) {
+        if (config.contains("image") && (!config.contains("width") || !config.contains("height"))) {
 #if 0
-            if (json["image"].is_string()) {
+            if (config["image"].is_string()) {
                 auto [width, height] = m_images[State::Neutral].GetNativeSize();
-                if (!json.contains("width")) SetWidth(width);
-                if (!json.contains("height")) SetHeight(height);
+                if (!config.contains("width")) SetWidth(width);
+                if (!config.contains("height")) SetHeight(height);
                 //OnResize([this](std::uint16_t width, std::uint16_t height){ m_image[State::Neutral].setSize(sf::Vector2f(width, height)); });
                 //OnMove([this](std::int16_t x, std::int16_t y){ m_image[State::Neutral].setPosition(x, y); });
             } else {
             }
 #endif
-            if (json["image"].contains("down")) {
+            auto imageConfig = config.required("image");
+            if (imageConfig.contains("down")) {
                 auto [width, height] = m_images[State::Down].GetNativeSize();
-                if (!json.contains("width")) SetWidth(width);
-                if (!json.contains("height")) SetHeight(height);
+                if (!config.contains("width")) SetWidth(width);
+                if (!config.contains("height")) SetHeight(height);
             }
-            if (json["image"].contains("active")) {
+            if (imageConfig.contains("active")) {
                 auto [width, height] = m_images[State::Active].GetNativeSize();
-                if (!json.contains("width")) SetWidth(width);
-                if (!json.contains("height")) SetHeight(height);
+                if (!config.contains("width")) SetWidth(width);
+                if (!config.contains("height")) SetHeight(height);
             }
-            if (json["image"].contains("neutral")) {
+            if (imageConfig.contains("neutral")) {
                 auto [width, height] = m_images[State::Neutral].GetNativeSize();
-                if (!json.contains("width")) SetWidth(width);
-                if (!json.contains("height")) SetHeight(height);
+                if (!config.contains("width")) SetWidth(width);
+                if (!config.contains("height")) SetHeight(height);
             }
         }
-        if (json.contains("label")) m_label.emplace(*this, GetLabelProperties(json));
+        if (config.contains("label")) m_label.emplace(*this, GetLabelProperties(config));
         LinkEvent(OnMouseEnter([this]{ m_state = Active; }));
         LinkEvent(OnMouseLeave([this]{ m_state = Neutral; }));
         LinkEvent(OnMouseButtonPress([this](){ m_state = Down; }));
@@ -66,18 +69,22 @@ public:
     }
 
 private:
-    static nlohmann::json GetImageProperties(nlohmann::json json, const std::string& state) {
-        nlohmann::json properties {{"name", std::string("_") + state}};
-        if (json.contains("image") && json["image"].contains(state)) properties += {"image", json["image"][state]};
-        return properties;
+    static Image::Properties GetImageProperties(ConfigView config, const std::string& state) {
+        nlohmann::json properties = {{"name", std::string("_") + state}};
+        if (auto imageConfig = config.optional("image")) {
+            if (auto imageState = imageConfig->optional(state)) {
+                properties += {"image", imageState->raw()};
+            }
+        }
+        return Image::Properties(ConfigView(properties));
     }
-    static nlohmann::json GetLabelProperties(nlohmann::json json) {
-        nlohmann::json properties {{"name", "_label"}, {"text-alignment", "center"}};
-        if (json.contains("label")) properties += {"text", json["label"]};
-        if (json.contains("font")) properties += {"font", json["font"]};
-        if (json.contains("font-size")) properties += {"height", json["font-size"]};
-        if (json.contains("text-color")) properties += {"text-color", json["text-color"]};
-        return properties;
+    static Label::Properties GetLabelProperties(ConfigView config) {
+        nlohmann::json properties = {{"name", "_label"}, {"text-alignment", "center"}};
+        if (auto label = config.optional("label")) properties += {"text", label->raw()};
+        if (auto font = config.optional("font")) properties += {"font", font->raw()};
+        if (auto fontSize = config.optional("font-size")) properties += {"height", fontSize->raw()};
+        if (auto textColor = config.optional("text-color")) properties += {"text-color", textColor->raw()};
+        return Label::Properties(ConfigView(properties));
     }
 
 private:

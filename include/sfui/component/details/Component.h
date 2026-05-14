@@ -1,11 +1,11 @@
 #ifndef SFUI_COMPONENT_H_INCLUDED
 #define SFUI_COMPONENT_H_INCLUDED
 
+#include "../../ConfigParser.h"
 #include <memory>
 #include <vector>
 #include <string>
 #include <string_view>
-#include <nlohmann/json.hpp>
 
 namespace sf {
     class RenderWindow;
@@ -25,7 +25,7 @@ public:
         bool isIgnorable = false;
 
         Properties() = default;
-        Properties(const nlohmann::json& json);
+        Properties(ConfigView config);
     };
 
     Component(ComponentBase& parent, const Properties& properties);

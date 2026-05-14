@@ -3,11 +3,9 @@
 
 using namespace sfui;
 
-//=== Colors parser ===//
-
-sf::Color sfui::ParseColor(const nlohmann::json& json)
+sf::Color sfui::ConfigParser<sf::Color>::parse(ConfigView config)
 {
-    const std::unordered_map<std::string_view, std::uint32_t> named_colors = {
+    static const std::unordered_map<std::string_view, std::uint32_t> named_colors = {
         {"red",     0xff0000ff},
         {"green",   0x00ff00ff},
         {"blue",    0x0000ffff},
@@ -16,10 +14,10 @@ sf::Color sfui::ParseColor(const nlohmann::json& json)
         {"gray",    0x808080ff}
     };
 
-    if (json.is_number()) {
-        return sf::Color(json.get<std::uint32_t>());
+    if (config.raw().is_number()) {
+        return sf::Color(config.as<std::uint32_t>());
     } else {
-        auto string = json.get<std::string>();
+        auto string = config.as<std::string>();
         std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 
         if (named_colors.count(string)) {
@@ -38,11 +36,9 @@ sf::Color sfui::ParseColor(const nlohmann::json& json)
     }
 }
 
-//=== Keys parser ===//
-
-sf::Keyboard::Key sfui::ParseKey(const nlohmann::json& json)
+sf::Keyboard::Key sfui::ConfigParser<sf::Keyboard::Key>::parse(ConfigView config)
 {
-    const std::map<std::string, sf::Keyboard::Key> key_map = {
+    static const std::map<std::string, sf::Keyboard::Key> key_map = {
         {"A",           sf::Keyboard::Key::A},
         {"B",           sf::Keyboard::Key::B},
         {"C",           sf::Keyboard::Key::C},
@@ -146,47 +142,7 @@ sf::Keyboard::Key sfui::ParseKey(const nlohmann::json& json)
         {"Pause",       sf::Keyboard::Key::Pause}
     };
 
-    return key_map.at(json.get<std::string>());
-}
-
-//=== Components parser ===//
-#include "component/Form.h"
-#include "component/Edit.h"
-#include "component/Panel.h"
-#include "component/Image.h"
-#include "component/Label.h"
-#include "component/Button.h"
-
-static std::unordered_map<std::string, ComponentParser> g_componentParsers = {
-    {"button",  MakeComponentParser<Button> },
-    {"image",   MakeComponentParser<Image>  },
-    {"label",   MakeComponentParser<Label>  },
-    {"panel",   MakeComponentParser<Panel>  },
-    {"edit",    MakeComponentParser<Edit>   },
-    {"form",    MakeComponentParser<Form>   },
-};
-
-void sfui::SetComponentParser(std::string key, ComponentParser parser)
-{
-    g_componentParsers.emplace(key, parser);
-}
-
-void sfui::ParseComponents(ComponentBase& parent, const nlohmann::json& json)
-{
-    if (json.contains("elements")) {
-        for (const auto& componentJson: json["elements"]) {
-            if (!componentJson.contains("type") || !componentJson["type"].is_string()) {
-                throw std::runtime_error("Invalid element type: \"" + componentJson.dump() + "\"");
-            }
-
-            if (g_componentParsers.count(componentJson["type"]) > 0) {
-                const auto& componentParser = g_componentParsers[componentJson["type"]];
-                componentParser(parent, componentJson);
-            } else {
-                //throw std::runtime_error("\"" + componentJson["type"].dump() + "\" type component not found");
-            }
-        }
-    }
+    return key_map.at(config.as<std::string>());
 }
 
 //=== Component handlers parser ===//
@@ -255,11 +211,11 @@ static std::map<std::string, ComponentHandlersParser> g_componentHandlerParsers 
     {"call", GetComponentCallHandler},
 };
 
-std::function<void()> sfui::ParseComponentHandler(ComponentHandlers& component, const nlohmann::json& json)
+std::function<void()> sfui::ParseComponentAction(ComponentHandlers& component, ConfigView actionConfig)
 {
     for (const auto& [key, parser]: g_componentHandlerParsers) {
-        if (json.contains(key)) {
-            return parser(component, json);
+        if (actionConfig.contains(key)) {
+            return parser(component, actionConfig.raw());
         }
     }
     throw std::runtime_error("Unknown handler type");

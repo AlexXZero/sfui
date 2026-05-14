@@ -8,103 +8,73 @@ ComponentHandlers::ComponentHandlers(ComponentBase& parent, const Properties& pr
 {
 }
 
-ComponentHandlers::ComponentHandlers(ComponentBase& parent, const nlohmann::json& json)
-    : ComponentGeometry(parent, Properties(json))
+ComponentHandlers::ComponentHandlers(ComponentBase& parent, ConfigView config)
+    : ComponentGeometry(parent, Properties(config))
 {
-    ParseHandlers(json);
+    ParseHandlers(config);
 }
 
-void ComponentHandlers::ParseHandlers(const nlohmann::json& json)
+void ComponentHandlers::ParseHandlers(ConfigView config)
 {
-    if (json.contains("onKeyPress")) {
-        for (const auto& handler_json: json["onKeyPress"]) {
-            if (handler_json.contains("key")) {
-                sf::Keyboard::Key key = ParseKey(handler_json["key"]);
-                auto handler = ParseComponentHandler(*this, handler_json);
-                LinkEvent(OnKeyPress(key, std::move(handler)));
-            }
-        }
+    for (const auto& actionConfig : config.array("onKeyPress")) {
+        auto key = actionConfig.required<sf::Keyboard::Key>("key");
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnKeyPress(key, std::move(action)));
     }
-    if (json.contains("onMouseEnter")) {
-        for (const auto& handler_json: json["onMouseEnter"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseEnter(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onMouseEnter")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseEnter(std::move(action)));
     }
-    if (json.contains("onMouseLeave")) {
-        for (const auto& handler_json: json["onMouseLeave"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseLeave(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onMouseLeave")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseLeave(std::move(action)));
     }
-    if (json.contains("onClick")) {
-        for (const auto& handler_json: json["onClick"]) {
-            // TODO: if (handler_json.contains("button"))
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseLeftClick(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onClick")) {
+        // TODO: auto button = config.required<sf::Mouse::Button>("button");
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseLeftClick(std::move(action)));
     }
-    if (json.contains("onButtonPress")) {
-        for (const auto& handler_json: json["onButtonPress"]) {
-            // TODO: if (handler_json.contains("button"))
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseButtonPress(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onButtonPress")) {
+        // TODO: auto button = config.required<sf::Mouse::Button>("button");
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseButtonPress(std::move(action)));
     }
-    if (json.contains("onButtonRelease")) {
-        for (const auto& handler_json: json["onButtonRelease"]) {
-            // TODO: if (handler_json.contains("button"))
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseButtonRelease(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onButtonRelease")) {
+        // TODO: auto button = config.required<sf::Mouse::Button>("button");
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseButtonRelease(std::move(action)));
     }
-    if (json.contains("onScrollUp")) {
-        for (const auto& handler_json: json["onScrollUp"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseScrollUp(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onScrollUp")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseScrollUp(std::move(action)));
     }
-    if (json.contains("onScrollDown")) {
-        for (const auto& handler_json: json["onScrollDown"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnMouseScrollDown(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onScrollDown")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnMouseScrollDown(std::move(action)));
     }
-    if (json.contains("onRender")) {
-        for (const auto& handler_json: json["onRender"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnRender(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onRender")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnRender(std::move(action)));
     }
-    if (json.contains("onUpdate")) {
-        for (const auto& handler_json: json["onUpdate"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnUpdate(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onUpdate")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnUpdate(std::move(action)));
     }
-    if (json.contains("onShow")) {
-        for (const auto& handler_json: json["onShow"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnShow(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onShow")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnShow(std::move(action)));
     }
-    if (json.contains("onHide")) {
-        for (const auto& handler_json: json["onHide"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnHide(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onHide")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnHide(std::move(action)));
     }
-    if (json.contains("onEnable")) {
-        for (const auto& handler_json: json["onEnable"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnEnable(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onEnable")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnEnable(std::move(action)));
     }
-    if (json.contains("onDisable")) {
-        for (const auto& handler_json: json["onDisable"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnDisable(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onDisable")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnDisable(std::move(action)));
     }
 }
 

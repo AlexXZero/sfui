@@ -7,7 +7,9 @@ namespace sfui {
 
 class Edit: public ComponentBase {
 public:
-    Edit(ComponentBase& parent, const nlohmann::json& json);
+    static constexpr std::string_view ComponentTypeName = "edit";
+public:
+    Edit(ComponentBase& parent, ConfigView config);
     ~Edit() = default;
 
     void SetBackgroundColor(sf::Color color);

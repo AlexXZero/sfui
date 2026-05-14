@@ -1,7 +1,6 @@
 #include "component/details/Component.h"
 #include "component/details/ComponentBase.h"
 #include "component/details/Handlers.h"
-#include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 #include <mutex>
 
@@ -23,13 +22,12 @@ private:
 
 using namespace sfui;
 
-Component::Properties::Properties(const nlohmann::json& json)
-    : name(json["name"]), isEnabled(true), isVisible(true), isIgnorable(false)
-{
-    if (json.contains("enabled")) isEnabled = json["enabled"].get<bool>();
-    if (json.contains("visible")) isVisible = json["visible"].get<bool>();
-    if (json.contains("ignorable")) isIgnorable = json["ignorable"].get<bool>();
-}
+Component::Properties::Properties(ConfigView config)
+    : name{config.required<std::string>("name")}
+    , isEnabled{config.valueOr<bool>("enabled", true)}
+    , isVisible{config.valueOr<bool>("visible", true)}
+    , isIgnorable{config.valueOr<bool>("ignorable", false)}
+{}
 
 Component::Component(ComponentBase& parent, const Component::Properties& properties)
     : std::enable_shared_from_this<Component>()

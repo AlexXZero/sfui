@@ -2,25 +2,25 @@
 #define SFUI_PARSERS_H_INCLUDED
 
 #include "ComponentBase.h"
+#include "../../ConfigParser.h"
 #include <CxxUtils/function_traits.h>
 #include <SFML/Graphics.hpp>
-#include <nlohmann/json.hpp>
 #include <functional>
 #include <cstdint>
 #include <string>
 
 namespace sfui {
 
-sf::Color ParseColor(const nlohmann::json& json);
-sf::Keyboard::Key ParseKey(const nlohmann::json& json);
-
-using ComponentParser = std::function<void(ComponentBase&, const nlohmann::json&)>;
-void SetComponentParser(std::string key, ComponentParser parser);
-void ParseComponents(ComponentBase& parent, const nlohmann::json& json);
-template <typename Component> constexpr auto MakeComponentParser = [](ComponentBase& parent, const nlohmann::json& json){ parent.Emplace<Component>(json); };
+// SFML types parsers
+template<> struct ConfigParser<sf::Color> {
+    [[nodiscard]] static sf::Color parse(ConfigView config);
+};
+template<> struct ConfigParser<sf::Keyboard::Key> {
+    [[nodiscard]] static sf::Keyboard::Key parse(ConfigView config);
+};
 
 using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, const nlohmann::json&)>;
-std::function<void()> ParseComponentHandler(ComponentHandlers& component, const nlohmann::json& json);
+std::function<void()> ParseComponentAction(ComponentHandlers& component, ConfigView actionConfig);
 
 using CallHandler = std::function<void(Component&)>;
 struct RegisterCallHandler_ {

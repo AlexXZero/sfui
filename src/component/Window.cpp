@@ -3,22 +3,21 @@
 
 using namespace sfui;
 
-Window::Window(const nlohmann::json& json)
-    : ComponentBase(*this, json), m_title(json["name"])
+Window::Window(ConfigView config)
+    : ComponentBase(*this, config)
+    , m_title{config.required<std::string>("name")}
 {
     // parse optional properties
-    if (json.contains("title")) SetTitle(json["title"].get<std::string>());
-    //if (!json.contains("width")) SetWidth(0u);
-    //if (!json.contains("height")) SetHeight(0u);
-    if (json.contains("background")) SetBackground(ParseColor(json["background"]));
+    if (auto title = config.optional<std::string>("title")) SetTitle(*title);
+    //if (!config.contains("width")) SetWidth(0u);
+    //if (!config.contains("height")) SetHeight(0u);
+    if (auto backgroundColor = config.optional<sf::Color>("background")) SetBackground(*backgroundColor);
     if (IsVisible()) m_window_up = std::make_unique<sf::RenderWindow>(sf::VideoMode(Width(), Height()), m_title); // TODO: should not be processed in constructor, but after UI has been built
     LinkEvent(OnShow([this]{ std::make_unique<sf::RenderWindow>(sf::VideoMode(Width(), Height()), m_title); }));
     LinkEvent(OnHide([this]{ m_window_up.reset(); }));
-    if (json.contains("onClose")) {
-        for (const auto& handler_json: json["onClose"]) {
-            auto handler = ParseComponentHandler(*this, handler_json);
-            LinkEvent(OnClose(std::move(handler)));
-        }
+    for (const auto& actionConfig : config.array("onClose")) {
+        auto action = ParseComponentAction(*this, actionConfig);
+        LinkEvent(OnClose(std::move(action)));
     }
 }
 

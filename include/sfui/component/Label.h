@@ -7,6 +7,8 @@ namespace sfui {
 
 class Label: public ComponentBase {
 public:
+    static constexpr std::string_view ComponentTypeName = "label";
+public:
     enum TextAlignment { Left, Right, Center };
 
     struct Properties: public ComponentBase::Properties {
@@ -18,12 +20,12 @@ public:
         TextAlignment textAlignment = TextAlignment::Left;
 
         Properties() = default;
-        Properties(const nlohmann::json& json);
+        Properties(ConfigView config);
     };
 
     Label(ComponentBase& parent, const Properties& properties);
-    Label(ComponentBase& parent, const nlohmann::json& json)
-        : Label(parent, Properties(json)) { ParseHandlers(json); }
+    Label(ComponentBase& parent, const ConfigView config)
+        : Label(parent, Properties(config)) { ParseHandlers(config); }
     ~Label() = default;
 
     void SetBackgroundColor(sf::Color color);

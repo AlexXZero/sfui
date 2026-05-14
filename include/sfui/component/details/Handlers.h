@@ -4,7 +4,6 @@
 #include "Geometry.h"
 #include <CxxUtils/observer.h>
 #include <CxxUtils/function_traits.h>
-#include <nlohmann/json.hpp>
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include <vector>
@@ -22,7 +21,7 @@ protected:
 public:
     using Properties = ComponentGeometry::Properties;
     ComponentHandlers(ComponentBase& parent, const Properties& properties);
-    ComponentHandlers(ComponentBase& parent, const nlohmann::json& json);
+    ComponentHandlers(ComponentBase& parent, ConfigView config);
     virtual ~ComponentHandlers() = default;
 
     // Handlers
@@ -50,7 +49,7 @@ public:
     template<typename Handler> CxxUtils::ObserverToken OnTextEntered(Handler&& handler) { return m_textEnterHandlers.set(std::move(CastToTextEnterHandler(std::forward<Handler>(handler)))); }
 
 protected:
-    void ParseHandlers(const nlohmann::json& json);
+    void ParseHandlers(ConfigView config);
     void LinkEvent(CxxUtils::ObserverToken observerToken) { m_observers.push_back(observerToken); }
 
 private:

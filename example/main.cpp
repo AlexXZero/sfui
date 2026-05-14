@@ -4,7 +4,7 @@
 
 int main()
 {
-    sfui::UserInterface ui("gui/", "gui.json");
+    sfui::UserInterface ui("gui/gui.json");
     //ui["OpenSR"].Show();
 
     bool run = true;

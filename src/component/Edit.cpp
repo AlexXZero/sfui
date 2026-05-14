@@ -6,28 +6,28 @@
 
 using namespace sfui;
 
-Edit::Edit(ComponentBase& parent, const nlohmann::json& json) : ComponentBase(parent, json)
+Edit::Edit(ComponentBase& parent, ConfigView config) : ComponentBase(parent, config)
 {
     // parse optional properties
-    if (json.contains("background-color")) {
-        SetBackgroundColor(ParseColor(json["background-color"]));
+    if (auto color = config.optional<sf::Color>("background-color")) {
+        SetBackgroundColor(*color);
     }
 
-    if (json.contains("font")) {
-        m_text.setFont(FontLibrary::Get(json["font"]));
+    if (auto font = config.optional<std::string>("font")) {
+        m_text.setFont(FontLibrary::Get(*font));
     } else {
         m_text.setFont(FontLibrary::GetDefaultFont());
     }
 
-    if (json.contains("text")) {
-        m_text.setString(CxxUtils::s2ws(json["text"]));
+    if (auto text = config.optional<std::string>("text")) {
+        m_text.setString(CxxUtils::s2ws(*text));
     }
 
-    if (json.contains("text-color")) {
-        m_text.setFillColor(ParseColor(json["text-color"]));
+    if (auto color = config.optional<sf::Color>("text-color")) {
+        m_text.setFillColor(*color);
     }
 
-    //m_text.setStyle(sf::Text::Bold | sf::Text::Underlined); TODO: json["text-style"] or json["bold"]
+    //m_text.setStyle(sf::Text::Bold | sf::Text::Underlined); TODO: config.parse("text-style") or config.parse("bold")
 
     m_text.setCharacterSize(Height() - 4); // in pixels
     m_text.setPosition(AbsoluteX(), AbsoluteY());
