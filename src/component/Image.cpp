@@ -3,11 +3,12 @@
 
 using namespace sfui;
 
-Image::Properties::Properties(ConfigView config)
-    : ComponentBase::Properties(config)
-    , backgroundColor {config.optional<sf::Color>("background-color")}
-    , imagePath {config.optional<std::string>("image")}
-    , scrollSpeed {config.optional<PositionOffset>("scrollSpeed")}
+using sfui::optional_fallback::operator||;
+Image::Properties::Properties(ConfigView config, const Properties& defaults)
+    : ComponentBase::Properties(config, defaults)
+    , backgroundColor {config.optional<sf::Color>("background-color") or defaults.backgroundColor}
+    , imagePath       {config.optional<std::string>("image")          or defaults.imagePath}
+    , scrollSpeed     {config.optional<PositionOffset>("scrollSpeed") or defaults.scrollSpeed}
 {}
 
 Image::Image(ComponentBase& parent, const Properties& properties)

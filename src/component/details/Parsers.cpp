@@ -145,6 +145,42 @@ sf::Keyboard::Key sfui::ConfigParser<sf::Keyboard::Key>::parse(ConfigView config
     return key_map.at(config.as<std::string>());
 }
 
+TextStyle sfui::ConfigParser<TextStyle>::parse(ConfigView config)
+{
+    static const std::unordered_map<std::string_view, std::uint32_t> styleMapping{
+        {"regular", sf::Text::Regular},
+        {"bold", sf::Text::Bold},
+        {"italic", sf::Text::Italic},
+        {"underlined", sf::Text::Underlined},
+        {"strike-through", sf::Text::StrikeThrough},
+    };
+
+    TextStyle resolvedStyle = sf::Text::Regular;
+    for (const auto& style : config.as<ConfigListView>()) {
+        const auto iterator = styleMapping.find(style.as<std::string>());
+        if (iterator == styleMapping.end()) {
+            throw std::runtime_error("Unknown text style value: " + style.as<std::string>());
+        }
+        resolvedStyle |= iterator->second;
+    }
+    return resolvedStyle;
+}
+
+TextAlignment sfui::ConfigParser<TextAlignment>::parse(ConfigView config)
+{
+    static const std::unordered_map<std::string_view, TextAlignment> alignMapping{
+        {"left", TextAlignment::Left},
+        {"right", TextAlignment::Right},
+        {"center", TextAlignment::Center},
+    };
+
+    const auto iterator = alignMapping.find(config.as<std::string>());
+    if (iterator == alignMapping.end()) {
+        throw std::runtime_error("Unknown text alignment value: " + config.as<std::string>());
+    }
+    return iterator->second;
+}
+
 //=== Component handlers parser ===//
 
 static std::function<void()> GetComponentShowHandler(ComponentHandlers& component, const nlohmann::json& json)

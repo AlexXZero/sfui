@@ -16,7 +16,7 @@ public:
         std::optional<PositionOffset> scrollSpeed;
 
         Properties() = default;
-        Properties(ConfigView config);
+        Properties(ConfigView config, const Properties& defaults = {});
     };
 
     Image(ComponentBase& parent, const Properties& properties);

@@ -22,11 +22,11 @@ private:
 
 using namespace sfui;
 
-Component::Properties::Properties(ConfigView config)
+Component::Properties::Properties(ConfigView config, const Properties& defaults)
     : name{config.required<std::string>("name")}
-    , isEnabled{config.valueOr<bool>("enabled", true)}
-    , isVisible{config.valueOr<bool>("visible", true)}
-    , isIgnorable{config.valueOr<bool>("ignorable", false)}
+    , isEnabled{config.valueOr<bool>("enabled", defaults.isEnabled)}
+    , isVisible{config.valueOr<bool>("visible", defaults.isVisible)}
+    , isIgnorable{config.valueOr<bool>("ignorable", defaults.isIgnorable)}
 {}
 
 Component::Component(ComponentBase& parent, const Component::Properties& properties)

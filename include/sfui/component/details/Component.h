@@ -25,7 +25,8 @@ public:
         bool isIgnorable = false;
 
         Properties() = default;
-        Properties(ConfigView config);
+        Properties(ConfigView config) : Properties(config, Properties{}) {}
+        Properties(ConfigView config, const Properties& defaults);
     };
 
     Component(ComponentBase& parent, const Properties& properties);

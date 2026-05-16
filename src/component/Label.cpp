@@ -6,28 +6,16 @@
 
 using namespace sfui;
 
-Label::Properties::Properties(ConfigView config)
-    : ComponentBase::Properties(config)
-    , backgroundColor{config.optional<sf::Color>("background-color")}
-    , font{std::nullopt}
-    , text{config.optional<std::string>("text")}
-    , textColor{config.optional<sf::Color>("text-color")}
-    , textStyle{sf::Text::Regular}
-    , textAlignment{TextAlignment::Left}
-{
-    if (auto fontPath = config.optional<std::string>("font")) font = FontLibrary::Get(*fontPath);
-    if (config.valueOr<bool>("bold", false)) textStyle |= sf::Text::Bold;
-    if (config.valueOr<bool>("italic", false)) textStyle |= sf::Text::Italic;
-    if (config.valueOr<bool>("underlined", false)) textStyle |= sf::Text::Underlined;
-    if (config.valueOr<bool>("strike-through", false)) textStyle |= sf::Text::StrikeThrough;
-    if (auto alignment = config.optional<std::string>("text-alignment")) {
-        textAlignment =
-            *alignment == "left" ? TextAlignment::Left :
-            *alignment == "right" ? TextAlignment::Right :
-            *alignment == "center" ? TextAlignment::Center :
-            throw std::runtime_error("unknown alignment value: " + *alignment);
-    }
-}
+using sfui::optional_fallback::operator||;
+Label::Properties::Properties(ConfigView config, const Properties& defaults)
+    : ComponentBase::Properties(config, defaults)
+    , backgroundColor   {config.optional<sf::Color>("background-color")   or defaults.backgroundColor}
+    , fontName          {config.optional<std::string>("font")             or defaults.fontName}
+    , text              {config.optional<std::string>("text")             or defaults.text}
+    , textColor         {config.optional<sf::Color>("text-color")         or defaults.textColor}
+    , textStyle         {config.optional<TextStyle>("text-style")         or defaults.textStyle}
+    , textAlignment     {config.optional<TextAlignment>("text-alignment") or defaults.textAlignment}
+{}
 
 Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBase(parent, properties)
 {
@@ -35,8 +23,8 @@ Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBas
         SetBackgroundColor(properties.backgroundColor.value());
     }
 
-    if (properties.font.has_value()) {
-        m_text.setFont(properties.font.value());
+    if (properties.fontName.has_value()) {
+        m_text.setFont(FontLibrary::Get(properties.fontName.value()));
     } else {
         m_text.setFont(FontLibrary::GetDefaultFont());
     }
@@ -49,8 +37,8 @@ Label::Label(ComponentBase& parent, const Properties& properties) : ComponentBas
         m_text.setFillColor(properties.textColor.value());
     }
 
-    m_text.setStyle(properties.textStyle);
-    m_textAlignment = properties.textAlignment;
+    m_text.setStyle(properties.textStyle.value_or(sf::Text::Regular));
+    m_textAlignment = properties.textAlignment.value_or(TextAlignment::Left);
 
     m_text.setCharacterSize(Height() - 4); // in pixels
     m_text.setPosition(GetTextRenderPosition(m_text, m_textAlignment));

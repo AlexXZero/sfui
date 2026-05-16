@@ -11,12 +11,29 @@
 
 namespace sfui {
 
+// Enables `a || b` as a fallback operator for std::optional values.
+// Usage: `using sfui::optional_fallback::operator||;`, then just `a || b` bellow
+namespace optional_fallback {
+template<typename T>
+std::optional<T> operator||(const std::optional<T>& lhs, const std::optional<T>& rhs) {
+    return lhs ? lhs : rhs;
+}
+} // namespace optional_fallback
+
 // SFML types parsers
 template<> struct ConfigParser<sf::Color> {
     [[nodiscard]] static sf::Color parse(ConfigView config);
 };
 template<> struct ConfigParser<sf::Keyboard::Key> {
     [[nodiscard]] static sf::Keyboard::Key parse(ConfigView config);
+};
+using TextStyle = std::uint32_t; // combination of sf::Text::Style flags
+template<> struct ConfigParser<TextStyle> {
+    [[nodiscard]] static TextStyle parse(ConfigView config);
+};
+enum TextAlignment { Left, Right, Center };
+template<> struct ConfigParser<TextAlignment> {
+    [[nodiscard]] static TextAlignment parse(ConfigView config);
 };
 
 using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, const nlohmann::json&)>;

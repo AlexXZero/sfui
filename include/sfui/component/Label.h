@@ -2,6 +2,7 @@
 #define SFUI_LABEL_H_INCLUDED
 
 #include "details/ComponentBase.h"
+#include "details/Parsers.h"
 
 namespace sfui {
 
@@ -9,18 +10,16 @@ class Label: public ComponentBase {
 public:
     static constexpr std::string_view ComponentTypeName = "label";
 public:
-    enum TextAlignment { Left, Right, Center };
-
     struct Properties: public ComponentBase::Properties {
         std::optional<sf::Color> backgroundColor;
-        std::optional<sf::Font> font;
+        std::optional<std::string> fontName;
         std::optional<std::string> text;
         std::optional<sf::Color> textColor;
-        std::uint32_t textStyle = sf::Text::Regular;
-        TextAlignment textAlignment = TextAlignment::Left;
+        std::optional<TextStyle> textStyle;
+        std::optional<TextAlignment> textAlignment;
 
         Properties() = default;
-        Properties(ConfigView config);
+        Properties(ConfigView config, const Properties& defaults = {});
     };
 
     Label(ComponentBase& parent, const Properties& properties);

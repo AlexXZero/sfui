@@ -34,7 +34,7 @@ public:
         std::optional<PositionOffset> left, right, top, bottom;
 
         Properties() = default;
-        Properties(ConfigView config);
+        Properties(ConfigView config, const Properties& defaults = {});
     };
 
     ComponentGeometry(ComponentBase& parent, const Properties& properties);

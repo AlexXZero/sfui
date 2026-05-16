@@ -1,5 +1,6 @@
 #include "component/details/Geometry.h"
 #include "component/details/ComponentBase.h"
+#include "component/details/Parsers.h"
 #include <cassert>
 
 using namespace sfui;
@@ -40,15 +41,16 @@ PositionOffset sfui::ConfigParser<PositionOffset>::parse(ConfigView config)
     }
 }
 
-ComponentGeometry::Properties::Properties(ConfigView config)
-    : Component::Properties(config)
-    , position  {config.optional<Position>("position")}
-    , width     {config.optional<DimensionSize>("width")}
-    , height    {config.optional<DimensionSize>("height")}
-    , left      {config.optional<PositionOffset>("left")}
-    , right     {config.optional<PositionOffset>("right")}
-    , top       {config.optional<PositionOffset>("top")}
-    , bottom    {config.optional<PositionOffset>("bottom")}
+using sfui::optional_fallback::operator||;
+ComponentGeometry::Properties::Properties(ConfigView config, const Properties& defaults)
+    : Component::Properties(config, defaults)
+    , position  {config.optional<Position>("position")     or defaults.position}
+    , width     {config.optional<DimensionSize>("width")   or defaults.width}
+    , height    {config.optional<DimensionSize>("height")  or defaults.height}
+    , left      {config.optional<PositionOffset>("left")   or defaults.left}
+    , right     {config.optional<PositionOffset>("right")  or defaults.right}
+    , top       {config.optional<PositionOffset>("top")    or defaults.top}
+    , bottom    {config.optional<PositionOffset>("bottom") or defaults.bottom}
 {}
 
 ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& properties)
