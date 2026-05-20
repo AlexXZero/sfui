@@ -46,7 +46,7 @@ void UserInterface::Render()
     }
 }
 
-Component& UserInterface::operator[](const std::string& name)
+ComponentBase& UserInterface::operator[](const std::string& name)
 {
     auto nameEnd = name.find(".");
     if (nameEnd == std::string::npos) {

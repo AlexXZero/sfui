@@ -21,10 +21,10 @@ Window::Window(ConfigView config)
     }
 }
 
-void Window::Render(sf::RenderWindow& window)
+void Window::Render(sf::RenderTarget& surface)
 {
     if (m_background.has_value()) {
-        window.clear(m_background.value());
+        surface.clear(m_background.value());
     }
 }
 
@@ -56,17 +56,17 @@ void Window::Update()
                 // todo/ignore
                 break;
             default: // TextEntered, KeyPressed/KeyReleased, Mouse, Joystick, etc.
-                HandleEvent_(event);
+                DispatchToSubtree(event);
                 break;
             }
         }
     }
 
-    Update_();
+    UpdateSubtree();
 }
 
 void Window::Render()
 {
-    Render_(*m_window_up);
+    RenderSubtree(*m_window_up);
     m_window_up->display();
 }

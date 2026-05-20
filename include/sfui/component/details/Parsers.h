@@ -39,19 +39,19 @@ template<> struct ConfigParser<TextAlignment> {
 using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, const nlohmann::json&)>;
 std::function<void()> ParseComponentAction(ComponentHandlers& component, ConfigView actionConfig);
 
-using CallHandler = std::function<void(Component&)>;
+using CallHandler = std::function<void(ComponentHandlers&)>;
 struct RegisterCallHandler_ {
     template<typename F> RegisterCallHandler_(F&& handler, const std::string& handler_name) {
         if constexpr (CxxUtils::arguments_count<F> == 0) {
-            Impl([handler = std::forward<F>(handler)](Component&){ handler(); }, handler_name);
+            Impl([handler = std::forward<F>(handler)](ComponentHandlers&){ handler(); }, handler_name);
         } else {
             using T = std::remove_reference_t<CxxUtils::first_argument_t<F>>;
-            static_assert(std::is_base_of_v<Component, T>, "CallHandler must accept a Component or derived type argument!");
+            static_assert(std::is_base_of_v<ComponentHandlers, T>, "CallHandler must accept a Component or derived type argument!");
 
-            if constexpr (std::is_same_v<T, Component>) {
+            if constexpr (std::is_same_v<T, ComponentHandlers>) {
                 Impl(std::forward<F>(handler), handler_name);
             } else {
-                Impl([handler = std::forward<F>(handler)](Component& component){ handler(dynamic_cast<T&>(component)); }, handler_name);
+                Impl([handler = std::forward<F>(handler)](ComponentHandlers& component){ handler(dynamic_cast<T&>(component)); }, handler_name);
             }
         }
     }

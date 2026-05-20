@@ -1,7 +1,7 @@
 #ifndef SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 #define SFUI_COMPONENT_GEOMETRY_H_INCLUDED
 
-#include "Component.h"
+#include "ComponentCore.h"
 #include "../../ConfigParser.h"
 #include <optional>
 #include <variant>
@@ -26,9 +26,9 @@ template<> struct ConfigParser<PositionOffset> {
     [[nodiscard]] static PositionOffset parse(ConfigView config);
 };
 
-class ComponentGeometry : public Component {
+class ComponentGeometry : public ComponentCore {
 public:
-    struct Properties : public Component::Properties {
+    struct Properties : public ComponentCore::Properties {
         std::optional<Position> position;
         std::optional<DimensionSize> width, height;
         std::optional<PositionOffset> left, right, top, bottom;

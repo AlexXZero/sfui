@@ -27,7 +27,7 @@ add_library(sfui SHARED
     src/component/Image.cpp
     src/component/Window.cpp
     src/component/details/ComponentBase.cpp
-    src/component/details/Component.cpp
+    src/component/details/ComponentCore.cpp
     src/component/details/Geometry.cpp
     src/component/details/Handlers.cpp
     src/component/details/Parsers.cpp

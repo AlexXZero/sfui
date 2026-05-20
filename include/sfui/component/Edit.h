@@ -17,11 +17,11 @@ public:
         SetBackgroundColor(sf::Color(color));
     }
 
-    void Render(sf::RenderWindow& window) override;
+    void Render(sf::RenderTarget& surface) override;
 
 private:
-    void Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle);
-    void Render_(sf::RenderWindow& window, sf::Text& text);
+    void Render_(sf::RenderTarget& surface, sf::RectangleShape& rectangle);
+    void Render_(sf::RenderTarget& surface, sf::Text& text);
     void TextEnteredHandler(uint32_t unicode);
 
 private:

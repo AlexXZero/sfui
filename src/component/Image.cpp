@@ -71,10 +71,10 @@ std::pair<uint16_t, uint16_t> Image::GetNativeSize() const
     return {width, height};
 }
 
-void Image::Render(sf::RenderWindow& window)
+void Image::Render(sf::RenderTarget& surface)
 {
     if (m_background.has_value()) {
-        window.draw(m_background.value());
+        surface.draw(m_background.value());
     }
     if (m_image.has_value()) {
         if (m_scrollSpeed.has_value()) {
@@ -88,14 +88,14 @@ void Image::Render(sf::RenderWindow& window)
             auto position = m_image.value().GetPosition();
             position.x = offset;
             m_image.value().SetPosition(position);
-            window.draw(m_image.value());
+            surface.draw(m_image.value());
 
             // Second draw
             position.x += Width();
             m_image.value().SetPosition(position);
-            window.draw(m_image.value());
+            surface.draw(m_image.value());
         } else {
-            window.draw(m_image.value());
+            surface.draw(m_image.value());
         }
     }
 }

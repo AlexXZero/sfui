@@ -139,11 +139,11 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
         // Check mouse left and enter events, then remember mouse position for next check
         if (!Contains(m_mouseOldPosition) && Contains(event.mouseMove.x, event.mouseMove.y)) {
             m_mouseEnterHandlers.notify(event.mouseMove.x, event.mouseMove.y);
-            //HandleEvent_({sf::Event::MouseEntered});
+            //DispatchToSubtree({sf::Event::MouseEntered});
         }
         else if (Contains(m_mouseOldPosition) && !Contains(event.mouseMove.x, event.mouseMove.y)) {
             m_mouseLeaveHandlers.notify(event.mouseMove.x, event.mouseMove.y);
-            //HandleEvent_({sf::Event::MouseLeft});
+            //DispatchToSubtree({sf::Event::MouseLeft});
         }
         m_mouseOldPosition.first = event.mouseMove.x;
         m_mouseOldPosition.second = event.mouseMove.y;
@@ -161,9 +161,9 @@ bool ComponentHandlers::HandleEvent(const sf::Event& event)
     return false;
 }
 
-void ComponentHandlers::OnRender(sf::RenderWindow& window)
+void ComponentHandlers::OnRender(sf::RenderTarget& surface)
 {
-    m_renderHandlers.notify(std::ref(window));
+    m_renderHandlers.notify(std::ref(surface));
 }
 
 void ComponentHandlers::OnUpdate()

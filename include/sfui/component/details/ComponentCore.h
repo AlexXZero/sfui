@@ -1,5 +1,5 @@
-#ifndef SFUI_COMPONENT_H_INCLUDED
-#define SFUI_COMPONENT_H_INCLUDED
+#ifndef SFUI_COMPONENT_CORE_H_INCLUDED
+#define SFUI_COMPONENT_CORE_H_INCLUDED
 
 #include "../../ConfigParser.h"
 #include <memory>
@@ -8,7 +8,7 @@
 #include <string_view>
 
 namespace sf {
-    class RenderWindow;
+    class RenderTarget;
     class Event;
 }
 
@@ -16,7 +16,7 @@ namespace sfui {
 
 class ComponentBase;
 
-class Component: public std::enable_shared_from_this<Component> {
+class ComponentCore: public std::enable_shared_from_this<ComponentCore> {
 public:
     struct Properties {
         std::string name;
@@ -29,8 +29,8 @@ public:
         Properties(ConfigView config, const Properties& defaults);
     };
 
-    Component(ComponentBase& parent, const Properties& properties);
-    virtual ~Component() = default;
+    ComponentCore(ComponentBase& parent, const Properties& properties);
+    virtual ~ComponentCore() = default;
 
     //=== Nodes control ===//
     template<typename Component, typename... Args>
@@ -38,7 +38,7 @@ public:
         return std::static_pointer_cast<Component>(m_components.emplace_back(std::make_shared<Component>(dynamic_cast<ComponentBase&>(*this), std::forward<Args>(args)...)));
     }
 
-    void Remove(const std::shared_ptr<Component> component);
+    void Remove(const std::shared_ptr<ComponentCore> component);
     const std::string& Name() const;
     ComponentBase& Parent() const;
     ComponentBase& Root() const;
@@ -72,24 +72,24 @@ public:
     void BringToBack();
 
     //=== Other ===//
-    virtual void Render(sf::RenderWindow& window) = 0;
+    virtual void Render(sf::RenderTarget& surface) = 0;
     virtual bool HandleEvent(const sf::Event& event) = 0;
 
     ComponentBase& operator[](std::string_view name);
 
 protected:
-    void Render_(sf::RenderWindow& window);
-    bool HandleEvent_(const sf::Event& event);
-    void Update_();
+    void RenderSubtree(sf::RenderTarget& surface);
+    bool DispatchToSubtree(const sf::Event& event);
+    void UpdateSubtree();
     void UpdateGeometry_();
 
 private:
-    Component(const Component&) = delete;
-    Component& operator=(const Component&) = delete;
-    Component(Component&&) = delete;
-    Component& operator=(Component&&) = delete;
+    ComponentCore(const ComponentCore&) = delete;
+    ComponentCore& operator=(const ComponentCore&) = delete;
+    ComponentCore(ComponentCore&&) = delete;
+    ComponentCore& operator=(ComponentCore&&) = delete;
 
-    virtual void OnRender(sf::RenderWindow& window) = 0;
+    virtual void OnRender(sf::RenderTarget& surface) = 0;
     virtual void OnUpdate() = 0;
     virtual void OnShow() = 0;
     virtual void OnHide() = 0;
@@ -110,4 +110,4 @@ private:
 
 }
 
-#endif // SFUI_COMPONENT_H_INCLUDED
+#endif // SFUI_COMPONENT_CORE_H_INCLUDED

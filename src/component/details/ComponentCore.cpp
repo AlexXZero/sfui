@@ -1,4 +1,4 @@
-#include "component/details/Component.h"
+#include "component/details/ComponentCore.h"
 #include "component/details/ComponentBase.h"
 #include "component/details/Handlers.h"
 #include <SFML/Graphics.hpp>
@@ -22,15 +22,15 @@ private:
 
 using namespace sfui;
 
-Component::Properties::Properties(ConfigView config, const Properties& defaults)
+ComponentCore::Properties::Properties(ConfigView config, const Properties& defaults)
     : name{config.required<std::string>("name")}
     , isEnabled{config.valueOr<bool>("enabled", defaults.isEnabled)}
     , isVisible{config.valueOr<bool>("visible", defaults.isVisible)}
     , isIgnorable{config.valueOr<bool>("ignorable", defaults.isIgnorable)}
 {}
 
-Component::Component(ComponentBase& parent, const Component::Properties& properties)
-    : std::enable_shared_from_this<Component>()
+ComponentCore::ComponentCore(ComponentBase& parent, const ComponentCore::Properties& properties)
+    : std::enable_shared_from_this<ComponentCore>()
     , m_parent(parent)
     , m_name(properties.name)
     , m_enabled(properties.isEnabled)
@@ -39,97 +39,97 @@ Component::Component(ComponentBase& parent, const Component::Properties& propert
 {
 }
 
-void Component::Remove(const std::shared_ptr<Component> component)
+void ComponentCore::Remove(const std::shared_ptr<ComponentCore> component)
 {
     auto it = std::find(m_components.begin(), m_components.end(), component);
     assert(it != m_components.end());
     m_components.erase(it);
 }
 
-const std::string& Component::Name() const
+const std::string& ComponentCore::Name() const
 {
     return m_name;
 }
 
-ComponentBase& Component::Parent() const
+ComponentBase& ComponentCore::Parent() const
 {
     return m_parent;
 }
 
-ComponentBase& Component::Root() const
+ComponentBase& ComponentCore::Root() const
 {
     return IsRoot() ? m_parent : m_parent.Root();
 }
 
-bool Component::IsRoot() const
+bool ComponentCore::IsRoot() const
 {
     return this == &m_parent;
 }
 
-bool Component::IsEnabled() const
+bool ComponentCore::IsEnabled() const
 {
     return m_enabled;
 }
 
-void Component::Enable()
+void ComponentCore::Enable()
 {
     m_enabled = true;
     OnEnable();
 }
 
-void Component::Disable()
+void ComponentCore::Disable()
 {
     m_enabled = false;
     OnDisable();
 }
 
-bool Component::IsVisible() const
+bool ComponentCore::IsVisible() const
 {
     return m_visible;
 }
 
-void Component::Show()
+void ComponentCore::Show()
 {
     m_visible = true;
     OnShow();
 }
 
-void Component::Hide()
+void ComponentCore::Hide()
 {
     m_visible = false;
     OnHide();
 }
 
-bool Component::IsIgnorable() const
+bool ComponentCore::IsIgnorable() const
 {
     return m_ignorable;
 }
 
-void Component::Ignore()
+void ComponentCore::Ignore()
 {
     m_ignorable = true;
 }
 
-void Component::Intercept()
+void ComponentCore::Intercept()
 {
     m_ignorable = false;
 }
 
-static std::weak_ptr<Component> g_focusedComponent;
+static std::weak_ptr<ComponentCore> g_focusedComponent;
 static std::mutex g_focusControlMutex;
 
-std::shared_ptr<ComponentBase> Component::FocusedComponent()
+std::shared_ptr<ComponentBase> ComponentCore::FocusedComponent()
 {
     return std::dynamic_pointer_cast<ComponentBase>(g_focusedComponent.lock());
 }
 
-bool Component::IsFocused() const
+bool ComponentCore::IsFocused() const
 {
     auto focusedComponent_sp = FocusedComponent();
     return focusedComponent_sp != nullptr && focusedComponent_sp.get() == this;
 }
 
-void Component::GainFocus()
+void ComponentCore::GainFocus()
 {
     std::lock_guard guard(g_focusControlMutex);
     if (IsFocused()) return;
@@ -143,7 +143,7 @@ void Component::GainFocus()
     OnGainFocus();
 }
 
-void Component::LoseFocus()
+void ComponentCore::LoseFocus()
 {
     std::lock_guard guard(g_focusControlMutex);
     if (IsFocused()) {
@@ -152,42 +152,42 @@ void Component::LoseFocus()
     }
 }
 
-void Component::RotateFocus()
+void ComponentCore::RotateFocus()
 {
     std::lock_guard guard(g_focusControlMutex);
     auto focusedComponent_sp = FocusedComponent();
     if (focusedComponent_sp != nullptr) {
-        auto& component_list = static_cast<Component&>(focusedComponent_sp->Parent()).m_components;
+        auto& component_list = static_cast<ComponentCore&>(focusedComponent_sp->Parent()).m_components;
         auto it = std::find(component_list.begin(), component_list.end(), focusedComponent_sp);
         assert(it != component_list.end());
         auto it_next = (std::next(it) != component_list.end() ? std::next(it) : component_list.begin());
 
-        std::static_pointer_cast<Component>(focusedComponent_sp)->OnLoseFocus();
+        std::static_pointer_cast<ComponentCore>(focusedComponent_sp)->OnLoseFocus();
         g_focusedComponent = *it_next;
-        std::static_pointer_cast<Component>(*it_next)->OnGainFocus();
+        std::static_pointer_cast<ComponentCore>(*it_next)->OnGainFocus();
     }
 }
 
-void Component::BringToFront()
+void ComponentCore::BringToFront()
 {
     if (IsRoot()) return; // The root element is always at the front and back, so no need to bring it forward.
-    auto& component_list = static_cast<Component&>(Parent()).m_components;
+    auto& component_list = static_cast<ComponentCore&>(Parent()).m_components;
     auto it = std::find(component_list.rbegin(), component_list.rend(), shared_from_this());
     assert(it != component_list.rend());
     std::rotate(component_list.rbegin(), it, std::next(it));
     Parent().BringToFront();
 }
 
-void Component::BringToBack()
+void ComponentCore::BringToBack()
 {
     if (IsRoot()) return; // The root element is always at the front and back, so no need to send it backward.
-    auto& component_list = static_cast<Component&>(Parent()).m_components;
+    auto& component_list = static_cast<ComponentCore&>(Parent()).m_components;
     auto it = std::find(component_list.begin(), component_list.end(), shared_from_this());
     assert(it != component_list.end());
     std::rotate(component_list.begin(), it, std::next(it));
 }
 
-ComponentBase& Component::operator[](std::string_view name)
+ComponentBase& ComponentCore::operator[](std::string_view name)
 {
     auto name_end = name.find(".");
     if (name_end == std::string::npos) {
@@ -204,12 +204,12 @@ ComponentBase& Component::operator[](std::string_view name)
     return operator[](name.substr(0u, name_end)).operator[](name.substr(name_end + 1));
 }
 
-void Component::Render_(sf::RenderWindow& window)
+void ComponentCore::RenderSubtree(sf::RenderTarget& surface)
 {
-    Render(window);
-    OnRender(window);
+    Render(surface);
+    OnRender(surface);
 
-    sf::View oldView = window.getView();
+    sf::View oldView = surface.getView();
     for (auto& component_sp: m_components) {
         if (component_sp->IsVisible()) {
             sf::View view(sf::FloatRect(
@@ -222,19 +222,19 @@ void Component::Render_(sf::RenderWindow& window)
                     float(component_sp->AbsoluteY()) / Root().Height(),
                     float(component_sp->Width()) / Root().Width(),
                     float(component_sp->Height()) / Root().Height()));
-            window.setView(view); // Clip drawing to component boundaries
-            component_sp->Render_(window);
+            surface.setView(view); // Clip drawing to component boundaries
+            component_sp->RenderSubtree(surface);
         }
     }
-    window.setView(oldView);
+    surface.setView(oldView);
 }
 
-bool Component::HandleEvent_(const sf::Event& event)
+bool ComponentCore::DispatchToSubtree(const sf::Event& event)
 {
     if (m_ignorable) return false;
 
     for (auto& component_sp: std::ranges::reverse_view(m_components)) {
-        if (component_sp->IsVisible() && component_sp->HandleEvent_(event)) {
+        if (component_sp->IsVisible() && component_sp->DispatchToSubtree(event)) {
             return true;
         }
     }
@@ -242,18 +242,18 @@ bool Component::HandleEvent_(const sf::Event& event)
     return HandleEvent(event);
 }
 
-void Component::Update_()
+void ComponentCore::UpdateSubtree()
 {
     OnUpdate();
 
     for (auto& component_sp: m_components) {
         if (component_sp->IsVisible()) {
-            component_sp->Update_();
+            component_sp->UpdateSubtree();
         }
     }
 }
 
-void Component::UpdateGeometry_()
+void ComponentCore::UpdateGeometry_()
 {
     OnUpdateGeometry();
 

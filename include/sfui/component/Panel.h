@@ -35,8 +35,8 @@ public:
         SetBackgroundColor(sf::Color(color));
     }
 
-    void Render(sf::RenderWindow& window) override {
-        m_background.Render(window);
+    void Render(sf::RenderTarget& surface) override {
+        m_background.Render(surface);
     }
 
 private:

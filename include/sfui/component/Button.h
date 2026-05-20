@@ -63,9 +63,9 @@ public:
     }
     ~Button() = default;
 
-    void Render(sf::RenderWindow& window) override {
-        m_images[m_state].Render(window);
-        if (m_label.has_value()) m_label.value().Render(window);
+    void Render(sf::RenderTarget& surface) override {
+        m_images[m_state].Render(surface);
+        if (m_label.has_value()) m_label.value().Render(surface);
     }
 
 private:

@@ -32,7 +32,7 @@ public:
         SetBackgroundColor(sf::Color(color));
     }
 
-    void Render(sf::RenderWindow& window) override;
+    void Render(sf::RenderTarget& surface) override;
 
 private:
     sf::Vector2f GetTextRenderPosition(sf::Text& text, TextAlignment alignment);

@@ -43,7 +43,7 @@ PositionOffset sfui::ConfigParser<PositionOffset>::parse(ConfigView config)
 
 using sfui::optional_fallback::operator||;
 ComponentGeometry::Properties::Properties(ConfigView config, const Properties& defaults)
-    : Component::Properties(config, defaults)
+    : ComponentCore::Properties(config, defaults)
     , position  {config.optional<Position>("position")     or defaults.position}
     , width     {config.optional<DimensionSize>("width")   or defaults.width}
     , height    {config.optional<DimensionSize>("height")  or defaults.height}
@@ -54,7 +54,7 @@ ComponentGeometry::Properties::Properties(ConfigView config, const Properties& d
 {}
 
 ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& properties)
-    : Component(parent, properties)
+    : ComponentCore(parent, properties)
 {
     if (IsRoot())                        m_position = Position::Absolute;
     if (properties.position.has_value()) m_position = properties.position.value();

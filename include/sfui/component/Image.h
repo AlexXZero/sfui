@@ -35,7 +35,7 @@ public:
 
     std::pair<uint16_t, uint16_t> GetNativeSize() const;
 
-    void Render(sf::RenderWindow& window) override;
+    void Render(sf::RenderTarget& surface) override;
 
 private:
     std::optional<RepeatingAnimation> m_image;

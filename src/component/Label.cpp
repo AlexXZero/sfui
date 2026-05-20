@@ -62,13 +62,13 @@ void Label::SetBackgroundColor(sf::Color color)
     m_background->setPosition(AbsoluteX(), AbsoluteY());
 }
 
-void Label::Render(sf::RenderWindow& window)
+void Label::Render(sf::RenderTarget& surface)
 {
     if (m_background.has_value()) {
-        window.draw(m_background.value());
+        surface.draw(m_background.value());
     }
 
-    window.draw(m_text);
+    surface.draw(m_text);
 }
 
 sf::Vector2f Label::GetTextRenderPosition(sf::Text& text, TextAlignment alignment)

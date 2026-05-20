@@ -7,7 +7,7 @@
 
 namespace sfui {
 
-class Component;
+class ComponentBase;
 
 class UserInterface {
 public:
@@ -18,7 +18,7 @@ public:
 
     void Update();
     void Render();
-    Component& operator[](const std::string& name);
+    ComponentBase& operator[](const std::string& name);
 
 private:
     struct Impl;

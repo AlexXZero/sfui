@@ -18,7 +18,7 @@ public:
     // Handlers
     template<typename Handler> CxxUtils::ObserverToken OnClose(Handler&& handler) { return m_closeHandlers.set(std::move(CastToDefaultHandler(std::forward<Handler>(handler)))); }
 
-    void Render(sf::RenderWindow& window) override;
+    void Render(sf::RenderTarget& surface) override;
 
 private:
     friend class UserInterface;

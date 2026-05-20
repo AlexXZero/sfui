@@ -13,7 +13,7 @@ namespace sfui {
 class ComponentHandlers : public ComponentGeometry {
 protected:
     template<typename F> std::function<void()> CastToDefaultHandler(F&& handler);
-    template<typename F> std::function<void(sf::RenderWindow& /*window*/)> CastToRenderHandler(F&& handler);
+    template<typename F> std::function<void(sf::RenderTarget& /*surface*/)> CastToRenderHandler(F&& handler);
     template<typename F> std::function<void(std::uint32_t /*unicode*/)> CastToTextEnterHandler(F&& handler);
     template<typename F> std::function<void(std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseMoveHandler(F&& handler);
     template<typename F> std::function<void(sf::Mouse::Button /*button*/, std::int16_t /*x*/, std::int16_t /*y*/)> CastToMouseClickHandler(F&& handler);
@@ -54,7 +54,7 @@ protected:
 
 private:
     virtual bool HandleEvent(const sf::Event& event) final;
-    virtual void OnRender(sf::RenderWindow& window) final;
+    virtual void OnRender(sf::RenderTarget& surface) final;
     virtual void OnUpdate() final;
     virtual void OnShow() final;
     virtual void OnHide() final;
@@ -74,7 +74,7 @@ private:
     CxxUtils::ObserverList<std::function<void()>> m_enableHandlers;
     CxxUtils::ObserverList<std::function<void()>> m_disableHandlers;
     CxxUtils::ObserverList<std::function<void()>> m_updateHandlers;
-    CxxUtils::ObserverList<std::function<void(sf::RenderWindow&)>> m_renderHandlers;
+    CxxUtils::ObserverList<std::function<void(sf::RenderTarget&)>> m_renderHandlers;
     CxxUtils::ObserverList<std::function<void(std::int16_t, std::int16_t)>> m_mouseMoveHandlers;
     CxxUtils::ObserverList<std::function<void(std::int16_t, std::int16_t)>> m_mouseEnterHandlers;
     CxxUtils::ObserverList<std::function<void(std::int16_t, std::int16_t)>> m_mouseLeaveHandlers;
@@ -101,23 +101,23 @@ template<typename F> std::function<void()> ComponentHandlers::CastToDefaultHandl
     }
 }
 
-template<typename F> std::function<void(sf::RenderWindow& /*window*/)> ComponentHandlers::CastToRenderHandler(F&& handler) {
+template<typename F> std::function<void(sf::RenderTarget& /*surface*/)> ComponentHandlers::CastToRenderHandler(F&& handler) {
     if constexpr (CxxUtils::function_traits<F>::arity == 0) {
-        return [handler = std::forward<F>(handler)](sf::RenderWindow&){ handler(); };
+        return [handler = std::forward<F>(handler)](sf::RenderTarget&){ handler(); };
     } else if constexpr (/*CxxUtils::arguments_count<F> >= 1 &&*/ std::is_base_of_v<std::remove_reference_t<CxxUtils::function_argument_t<F, 0>>, ComponentHandlers>) {
         using Component = std::remove_reference_t<CxxUtils::function_argument_t<F, 0>>;
         if constexpr (CxxUtils::arguments_count<F> == 1) {
-            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](sf::RenderWindow& window){ handler(component); };
-        } else if constexpr (CxxUtils::arguments_count<F> == 2 && std::is_same_v<CxxUtils::function_argument_t<F, 1>, sf::RenderWindow&>) {
-            return [handler = std::forward<F>(handler), this](sf::RenderWindow& window){ handler(dynamic_cast<Component&>(*this), window); };
+            return [handler = std::forward<F>(handler), &component = dynamic_cast<Component&>(*this)](sf::RenderTarget& surface){ handler(component); };
+        } else if constexpr (CxxUtils::arguments_count<F> == 2 && std::is_same_v<CxxUtils::function_argument_t<F, 1>, sf::RenderTarget&>) {
+            return [handler = std::forward<F>(handler), this](sf::RenderTarget& surface){ handler(dynamic_cast<Component&>(*this), surface); };
         } else {
             static_assert(CxxUtils::always_false_v<F>, "Unsupported handler type conversion");
         }
     } else {
-        if constexpr (CxxUtils::arguments_count<F> == 1 && std::is_same_v<F, std::function<void(sf::RenderWindow& window)>>) {
+        if constexpr (CxxUtils::arguments_count<F> == 1 && std::is_same_v<F, std::function<void(sf::RenderTarget& surface)>>) {
             return handler;
-        } else if constexpr (CxxUtils::arguments_count<F> == 1 && std::is_same_v<CxxUtils::function_argument_t<F, 0>, sf::RenderWindow&>) {
-            return [handler = std::forward<F>(handler)](sf::RenderWindow& window){ handler(window); };
+        } else if constexpr (CxxUtils::arguments_count<F> == 1 && std::is_same_v<CxxUtils::function_argument_t<F, 0>, sf::RenderTarget&>) {
+            return [handler = std::forward<F>(handler)](sf::RenderTarget& surface){ handler(surface); };
         } else {
             static_assert(CxxUtils::always_false_v<F>, "Unsupported handler type conversion");
         }

@@ -45,13 +45,13 @@ void Edit::SetBackgroundColor(sf::Color color)
     m_background->setPosition(AbsoluteX(), AbsoluteY());
 }
 
-void Edit::Render(sf::RenderWindow& window)
+void Edit::Render(sf::RenderTarget& surface)
 {
     if (m_background.has_value()) {
-        Render_(window, m_background.value());
+        Render_(surface, m_background.value());
     }
 
-    Render_(window, m_text);
+    Render_(surface, m_text);
 
     if (m_focused) { // Render cursor
         if (m_cursorBlinkTimer.getElapsedTime().asMilliseconds () > 500) {
@@ -64,12 +64,12 @@ void Edit::Render(sf::RenderWindow& window)
                 sf::Vertex(cursorPosition, sf::Color::Black),
                 sf::Vertex(sf::Vector2f(cursorPosition.x, cursorPosition.y + m_text.getCharacterSize()), sf::Color::Black)
             };
-            window.draw(line, 2, sf::Lines);
+            surface.draw(line, 2, sf::Lines);
         }
     }
 }
 
-void Edit::Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle)
+void Edit::Render_(sf::RenderTarget& surface, sf::RectangleShape& rectangle)
 {
     const sf::Vector2f old_position = rectangle.getPosition();
     const sf::Vector2f new_position(AbsoluteX(), AbsoluteY());
@@ -91,10 +91,10 @@ void Edit::Render_(sf::RenderWindow& window, sf::RectangleShape& rectangle)
     }
 #endif
 
-    window.draw(rectangle);
+    surface.draw(rectangle);
 }
 
-void Edit::Render_(sf::RenderWindow& window, sf::Text& text)
+void Edit::Render_(sf::RenderTarget& surface, sf::Text& text)
 {
     const sf::Vector2f old_position = text.getPosition();
     const sf::Vector2f new_position(AbsoluteX(), AbsoluteY());
@@ -108,7 +108,7 @@ void Edit::Render_(sf::RenderWindow& window, sf::Text& text)
         text.setCharacterSize(new_size);
     }
 
-    window.draw(text);
+    surface.draw(text);
 }
 
 void Edit::TextEnteredHandler(uint32_t unicode)
