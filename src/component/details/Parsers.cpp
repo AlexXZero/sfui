@@ -1,4 +1,6 @@
 #include "component/details/Parsers.h"
+#include "UserInterface.h"
+#include <sol/sol.hpp>
 #include <map>
 
 using namespace sfui;
@@ -183,9 +185,9 @@ TextAlignment sfui::ConfigParser<TextAlignment>::parse(ConfigView config)
 
 //=== Component handlers parser ===//
 
-static std::function<void()> GetComponentShowHandler(ComponentHandlers& component, const nlohmann::json& json)
+static std::function<void()> GetComponentShowHandler(ComponentHandlers& component, ConfigView action)
 {
-    std::string component_name = json["show"];
+    auto component_name = action.required<std::string>("show");
     if (component_name == "this") {
         return [&component] { component.Show(); };
     } else if (auto& root = component.Root(); component_name.find(root.Name()) == 0) {
@@ -195,9 +197,9 @@ static std::function<void()> GetComponentShowHandler(ComponentHandlers& componen
     }
 }
 
-static std::function<void()> GetComponentHideHandler(ComponentHandlers& component, const nlohmann::json& json)
+static std::function<void()> GetComponentHideHandler(ComponentHandlers& component, ConfigView action)
 {
-    std::string component_name = json["hide"];
+    auto component_name = action.required<std::string>("hide");
     if (component_name == "this") {
         return [&component] { component.Hide(); };
     } else if (auto& root = component.Root(); component_name.find(root.Name()) == 0) {
@@ -226,12 +228,12 @@ static const CallHandler* FindHandler(const std::string& handlerName)
     return it != g_callHandlers->end() ? &it->second : nullptr;
 }
 
-static std::function<void()> GetComponentCallHandler(ComponentHandlers& component, const nlohmann::json& json)
+static std::function<void()> GetComponentCallHandler(ComponentHandlers& component, ConfigView action)
 {
-    if (const auto* handler = FindHandler(json["call"])) { // fast option, handler should be setup at program startup
+    if (const auto* handler = FindHandler(action.required<std::string>("call"))) { // fast option, handler should be setup at program startup
         return [&component, handler] { (*handler)(component); };
     } else {
-        return [&component, handlerName = json["call"]] { // slow option, handler is searching in runtime
+        return [&component, handlerName = action.required<std::string>("call")] { // slow option, handler is searching in runtime
             if (const auto* handler = FindHandler(handlerName)) {
                 (*handler)(component);
             } else {
@@ -241,17 +243,40 @@ static std::function<void()> GetComponentCallHandler(ComponentHandlers& componen
     }
 }
 
-static std::map<std::string, ComponentHandlersParser> g_componentHandlerParsers = {
+static std::function<void()> GetComponentLuaHandler(ComponentHandlers& component, ConfigView action)
+{
+    auto& luaState = component.ui().script();
+    const auto& lua = action.required<std::string>("lua");
+    sol::load_result loaded = luaState.load(lua);
+    if (!loaded.valid()) {
+        sol::error err = loaded;
+        throw std::runtime_error("ERROR: Failed to load Lua code: " + std::string(err.what()));
+    }
+
+    // Convert load_result to a protected_function that can be called later
+    sol::protected_function chunk = loaded;
+
+    return [chunk]() {
+        sol::protected_function_result result = chunk();
+        if (!result.valid()) {
+            sol::error err = result;
+            throw std::runtime_error("ERROR: Failed to execute Lua code: " + std::string(err.what()));
+        }
+    };
+}
+
+static const std::map<std::string_view, ComponentHandlersParser> g_componentHandlerParsers = {
     {"show", GetComponentShowHandler},
     {"hide", GetComponentHideHandler},
     {"call", GetComponentCallHandler},
+    {"lua",  GetComponentLuaHandler},
 };
 
 std::function<void()> sfui::ParseComponentAction(ComponentHandlers& component, ConfigView actionConfig)
 {
     for (const auto& [key, parser]: g_componentHandlerParsers) {
         if (actionConfig.contains(key)) {
-            return parser(component, actionConfig.raw());
+            return parser(component, actionConfig);
         }
     }
     throw std::runtime_error("Unknown handler type");

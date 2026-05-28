@@ -58,24 +58,19 @@
                 "active": "data/main/DATA/FormMain/2BUT0A.png",
                 "neutral": "data/main/DATA/FormMain/2BUT0N.png"
             },
-            "onClick": [
-                {
-                    "hide": "OpenSR.MainMenu"
-                },
-                {
-                    "show": "OpenSR.NewGame"
-                }
-            ],
-            "onKeyPress": [
-                {
-                    "key": "N",
-                    "hide": "OpenSR.MainMenu"
-                },
-                {
-                    "key": "N",
-                    "show": "OpenSR.NewGame"
-                }
-            ]
+            onClick: [{
+                lua: """
+                    ui["OpenSR.MainMenu"]:hide()
+                    ui["OpenSR.NewGame"]:show()
+                """
+            }],
+            onKeyPress: [{
+                key: N,
+                lua: """
+                    ui["OpenSR.MainMenu"]:hide()
+                    ui["OpenSR.NewGame"]:show()
+                """
+            }]
         },
         {
             "name": "Scores",

@@ -1,5 +1,6 @@
 #include "FontLibrary.h"
 #include <optional>
+#include <stdexcept>
 #include <unordered_map>
 #include <SFML/Graphics/Font.hpp>
 

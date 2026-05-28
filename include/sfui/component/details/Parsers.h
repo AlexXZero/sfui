@@ -36,7 +36,7 @@ template<> struct ConfigParser<TextAlignment> {
     [[nodiscard]] static TextAlignment parse(ConfigView config);
 };
 
-using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, const nlohmann::json&)>;
+using ComponentHandlersParser = std::function<std::function<void()>(ComponentHandlers&, ConfigView)>;
 std::function<void()> ParseComponentAction(ComponentHandlers& component, ConfigView actionConfig);
 
 using CallHandler = std::function<void(ComponentHandlers&)>;

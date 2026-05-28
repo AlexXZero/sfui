@@ -3,8 +3,8 @@
 
 using namespace sfui;
 
-Window::Window(ConfigView config)
-    : ComponentBase(*this, config)
+Window::Window(UserInterface& uiContext, ConfigView config)
+    : ComponentBase(uiContext, config)
     , m_title{config.required<std::string>("name")}
 {
     // parse optional properties

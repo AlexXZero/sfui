@@ -56,7 +56,7 @@ ComponentGeometry::Properties::Properties(ConfigView config, const Properties& d
 ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& properties)
     : ComponentCore(parent, properties)
 {
-    if (IsRoot())                        m_position = Position::Absolute;
+    assert(!IsRoot());
     if (properties.position.has_value()) m_position = properties.position.value();
     if (properties.left.has_value())     m_left     = properties.left.value();
     if (properties.right.has_value())    m_right    = properties.right.value();
@@ -65,7 +65,35 @@ ComponentGeometry::ComponentGeometry(ComponentBase& parent, const Properties& pr
     if (properties.width.has_value())    m_width    = properties.width.value();
     if (properties.height.has_value())   m_height   = properties.height.value();
 
-    assert(!IsRoot() || (m_position == Position::Absolute && m_width.has_value() && m_height.has_value()));
+#if 0 // Can not be called from the constructor since it calls virtual methods
+    OnUpdateGeometry();
+#else
+    m_cachedLeft = ComputeLeft();
+    m_cachedRight = ComputeRight();
+    m_cachedTop = ComputeTop();
+    m_cachedBottom = ComputeBottom();
+    m_cachedWidth = ComputeWidth();
+    m_cachedHeight = ComputeHeight();
+    m_cachedAbsoluteX = ComputeAbsoluteX();
+    m_cachedAbsoluteY = ComputeAbsoluteY();
+#endif
+}
+
+ComponentGeometry::ComponentGeometry(UserInterface& uiContext, const Properties& properties)
+    : ComponentCore(uiContext, properties)
+{
+    assert(IsRoot());
+    assert(!properties.position.has_value());
+    assert(!properties.left.has_value());
+    assert(!properties.right.has_value());
+    assert(!properties.top.has_value());
+    assert(!properties.bottom.has_value());
+    assert(properties.width.has_value());
+    assert(properties.height.has_value());
+
+    m_position = Position::Absolute;
+    m_width    = properties.width.value();
+    m_height   = properties.height.value();
 
 #if 0 // Can not be called from the constructor since it calls virtual methods
     OnUpdateGeometry();

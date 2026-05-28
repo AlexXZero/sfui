@@ -20,6 +20,7 @@ public:
     using Properties = ComponentHandlers::Properties;
     ComponentBase(ComponentBase& parent, const Properties& properties);
     ComponentBase(ComponentBase& parent, ConfigView config);
+    ComponentBase(UserInterface& uiContext, ConfigView config);
     virtual ~ComponentBase() = default;
 };
 

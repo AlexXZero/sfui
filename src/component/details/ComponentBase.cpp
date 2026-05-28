@@ -15,3 +15,11 @@ ComponentBase::ComponentBase(ComponentBase& parent, ConfigView config)
         ComponentFactory::create(componentConfig, *this);
     }
 }
+
+ComponentBase::ComponentBase(UserInterface& uiContext, ConfigView config)
+    : ComponentHandlers(uiContext, config)
+{
+    for (const auto& componentConfig : config.array("elements")) {
+        ComponentFactory::create(componentConfig, *this);
+    }
+}

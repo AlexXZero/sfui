@@ -5,6 +5,11 @@
 #include <memory>
 #include <string>
 
+// forward sol2 LUA context state declaration
+namespace sol {
+class state;
+}
+
 namespace sfui {
 
 class ComponentBase;
@@ -19,6 +24,8 @@ public:
     void Update();
     void Render();
     ComponentBase& operator[](const std::string& name);
+
+    sol::state& script();
 
 private:
     struct Impl;

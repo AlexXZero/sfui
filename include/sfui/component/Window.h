@@ -7,7 +7,7 @@ namespace sfui {
 
 class Window: public ComponentBase {
 public:
-    Window(ConfigView config);
+    Window(UserInterface& uiContext, ConfigView config);
     ~Window() = default;
 
     std::string_view Title() const { return m_title; }

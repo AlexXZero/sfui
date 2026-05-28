@@ -14,6 +14,7 @@ namespace sf {
 
 namespace sfui {
 
+class UserInterface;
 class ComponentBase;
 
 class ComponentCore: public std::enable_shared_from_this<ComponentCore> {
@@ -30,6 +31,7 @@ public:
     };
 
     ComponentCore(ComponentBase& parent, const Properties& properties);
+    ComponentCore(UserInterface& uiContext, const Properties& properties);
     virtual ~ComponentCore() = default;
 
     //=== Nodes control ===//
@@ -76,6 +78,7 @@ public:
     virtual bool HandleEvent(const sf::Event& event) = 0;
 
     ComponentBase& operator[](std::string_view name);
+    UserInterface& ui() { return m_ui; }
 
 protected:
     void RenderSubtree(sf::RenderTarget& surface);
@@ -101,6 +104,7 @@ private:
 
 private:
     ComponentBase& m_parent;
+    UserInterface& m_ui;
     std::string m_name;
     bool m_enabled;
     bool m_visible;

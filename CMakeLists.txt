@@ -14,6 +14,7 @@ add_compile_options(-O2 -Wall -Wextra -Wno-unused-parameter)
 # Find required external libraries
 find_package(SFML COMPONENTS graphics REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(Lua REQUIRED)
 
 # Specify the source files
 add_library(sfui SHARED
@@ -37,11 +38,14 @@ add_library(sfui SHARED
 target_include_directories(sfui
     PUBLIC ${PROJECT_SOURCE_DIR}/include
     PRIVATE ${PROJECT_SOURCE_DIR}/include/sfui
+    PRIVATE ${LUA_INCLUDE_DIR} # Lua headers often in versioned subdirs (e.g., /usr/include/lua5.1) not searched by default
 )
 
 # Link dependent libraries
 target_link_libraries(sfui PUBLIC
     sfml-graphics
     nlohmann_json::nlohmann_json
+    ${LUA_LIBRARIES}
     CxxUtils
+    sol2
 )

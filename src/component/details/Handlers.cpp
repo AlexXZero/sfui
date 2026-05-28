@@ -9,7 +9,13 @@ ComponentHandlers::ComponentHandlers(ComponentBase& parent, const Properties& pr
 }
 
 ComponentHandlers::ComponentHandlers(ComponentBase& parent, ConfigView config)
-    : ComponentGeometry(parent, Properties(config))
+    : ComponentHandlers(parent, Properties(config))
+{
+    ParseHandlers(config);
+}
+
+ComponentHandlers::ComponentHandlers(UserInterface& uiContext, ConfigView config)
+    : ComponentGeometry(uiContext, Properties(config))
 {
     ParseHandlers(config);
 }

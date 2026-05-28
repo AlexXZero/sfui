@@ -32,6 +32,18 @@ ComponentCore::Properties::Properties(ConfigView config, const Properties& defau
 ComponentCore::ComponentCore(ComponentBase& parent, const ComponentCore::Properties& properties)
     : std::enable_shared_from_this<ComponentCore>()
     , m_parent(parent)
+    , m_ui(parent.m_ui)
+    , m_name(properties.name)
+    , m_enabled(properties.isEnabled)
+    , m_visible(properties.isVisible)
+    , m_ignorable(properties.isIgnorable)
+{
+}
+
+ComponentCore::ComponentCore(UserInterface& uiContext, const Properties& properties)
+    : std::enable_shared_from_this<ComponentCore>()
+    , m_parent(static_cast<ComponentBase&>(*this))
+    , m_ui(uiContext)
     , m_name(properties.name)
     , m_enabled(properties.isEnabled)
     , m_visible(properties.isVisible)

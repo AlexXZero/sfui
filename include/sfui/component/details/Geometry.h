@@ -38,6 +38,7 @@ public:
     };
 
     ComponentGeometry(ComponentBase& parent, const Properties& properties);
+    ComponentGeometry(UserInterface& uiContext, const Properties& properties);
     virtual ~ComponentGeometry() = default;
 
     // Getters

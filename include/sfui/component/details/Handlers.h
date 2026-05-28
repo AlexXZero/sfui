@@ -22,6 +22,7 @@ public:
     using Properties = ComponentGeometry::Properties;
     ComponentHandlers(ComponentBase& parent, const Properties& properties);
     ComponentHandlers(ComponentBase& parent, ConfigView config);
+    ComponentHandlers(UserInterface& uiContext, ConfigView config);
     virtual ~ComponentHandlers() = default;
 
     // Handlers
